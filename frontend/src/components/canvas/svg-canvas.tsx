@@ -107,6 +107,9 @@ export function SvgCanvas() {
    * existing element, draw a new one, move, or resize. The decision is deferred until either the
    * long-press threshold elapses (commit to draw), motion is detected (move or resize), or the
    * button is released (click). Resize is detected immediately if the cursor is on a handle.
+   *
+   * Alt/Option+Click: bypasses the pending arbitration entirely. If the click lands on an element,
+   * it is immediately selected and a move gesture begins. No drawing, no resizing.
    */
   const handleMouseDown = useCallback(
     (event: React.MouseEvent<SVGSVGElement>) => {
@@ -118,6 +121,24 @@ export function SvgCanvas() {
 
       if (event.button !== MOUSE_BUTTON.left) return;
       const { x, y } = toCanvasPoint(event.clientX, event.clientY);
+
+      // Alt/Option + left click: directly move element under cursor, skip draw/resize arbitration.
+      if (event.altKey) {
+        const hitId = hitTest(elements, x, y);
+        if (hitId !== null) {
+          select(hitId);
+          setGesture({
+            kind: "moving",
+            id: hitId,
+            startX: x,
+            startY: y,
+            offset: { dx: 0, dy: 0 },
+          });
+          return;
+        }
+        // Alt+click on empty space: do nothing (no drawing).
+        return;
+      }
 
       // Check if the press is on a resize handle of the selected element. If so, start resizing
       // immediately without going through the pending state. This is the one gesture that does
@@ -141,7 +162,7 @@ export function SvgCanvas() {
 
       setGesture({ kind: "pending", originX: x, originY: y, startedAt: Date.now() });
     },
-    [toCanvasPoint, setGesture, selectedId, elements, zoom, contextMenu, inspect],
+    [toCanvasPoint, setGesture, selectedId, elements, zoom, contextMenu, inspect, select],
   );
 
   /**

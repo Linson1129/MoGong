@@ -16,6 +16,7 @@ import { useEffect } from "react";
 
 import { EditorShell } from "@/components/layout/editor-shell";
 import { useArrowKeyPanning } from "@/hooks/use-arrow-key-panning";
+import { useClipboard } from "@/hooks/use-clipboard";
 import { useDeleteKey } from "@/hooks/use-delete-key";
 import { useHistory } from "@/hooks/use-history";
 import { hydrateFromStorage } from "@/stores/use-document-store";
@@ -27,6 +28,7 @@ export default function EditorPage() {
   }, []);
 
   useHistory();
+  useClipboard();
   useArrowKeyPanning();
   useDeleteKey();
   return <EditorShell />;
