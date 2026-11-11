@@ -13,7 +13,9 @@
 "use client";
 
 import { EditorShell } from "@/components/layout/editor-shell";
+import { useHistory } from "@/hooks/use-history";
 
 export default function EditorPage() {
+  useHistory();
   return <EditorShell />;
 }
