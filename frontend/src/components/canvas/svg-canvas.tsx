@@ -18,7 +18,7 @@ import { Rectangle } from "./rectangle";
 import { screenToCanvas } from "@/lib/canvas-coords";
 import { MOUSE_BUTTON, STAMP_THRESHOLD } from "@/lib/constants";
 import { classifyPendingGesture, drawPreview } from "@/lib/gestures";
-import { applyResize, findHandleAt } from "@/lib/handles";
+import { applyResize, applyResizeCenter, findHandleAt } from "@/lib/handles";
 import { hitTest } from "@/lib/hit-test";
 import { useDocumentStore } from "@/stores/use-document-store";
 import { useInteractionStore } from "@/stores/use-interaction-store";
@@ -201,7 +201,10 @@ export function SvgCanvas() {
       } else if (gesture.kind === "resizing") {
         // Update the resize preview. The actual dimensions are computed from the original rect
         // plus the pointer position, and committed on mouse up.
-        const current = applyResize(gesture.original, gesture.handle, x, y);
+        // When Alt is held, resize symmetrically from the center anchor.
+        const current = event.altKey
+          ? applyResizeCenter(gesture.original, gesture.handle, x, y)
+          : applyResize(gesture.original, gesture.handle, x, y);
         setGesture({ ...gesture, current });
       }
     },

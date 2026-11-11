@@ -117,6 +117,53 @@ export function applyResize(
 }
 
 /**
+ * Resize symmetrically from the center anchor.
+ *
+ * When the Option/Alt key is held, dragging a handle moves both edges equally, keeping the center
+ * of the rectangle fixed. This is useful for creating symmetric shapes or resizing from the middle.
+ */
+export function applyResizeCenter(
+  original: Rect,
+  handle: ResizeHandle,
+  pointerX: number,
+  pointerY: number,
+): Rect {
+  const centerX = original.x + original.width / 2;
+  const centerY = original.y + original.height / 2;
+  const axes = handleAxes(handle);
+
+  let halfWidth = original.width / 2;
+  let halfHeight = original.height / 2;
+
+  if (axes.x) {
+    if (handle.includes("w")) {
+      // Dragging west: new left edge determines half-width.
+      halfWidth = Math.max(centerX - pointerX, MIN_SIZE / 2);
+    } else if (handle.includes("e") || handle === "e") {
+      // Dragging east: new right edge determines half-width.
+      halfWidth = Math.max(pointerX - centerX, MIN_SIZE / 2);
+    }
+  }
+
+  if (axes.y) {
+    if (handle.includes("n")) {
+      // Dragging north: new top edge determines half-height.
+      halfHeight = Math.max(centerY - pointerY, MIN_SIZE / 2);
+    } else if (handle.includes("s") || handle === "s") {
+      // Dragging south: new bottom edge determines half-height.
+      halfHeight = Math.max(pointerY - centerY, MIN_SIZE / 2);
+    }
+  }
+
+  return {
+    x: centerX - halfWidth,
+    y: centerY - halfHeight,
+    width: halfWidth * 2,
+    height: halfHeight * 2,
+  };
+}
+
+/**
  * Hit test a resize handle.
  *
  * Handles are rendered as squares of `GESTURE.handleSizePx` screen pixels, so the hit region

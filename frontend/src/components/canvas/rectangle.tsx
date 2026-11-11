@@ -181,6 +181,19 @@ export const Rectangle = memo(function Rectangle({
         </text>
       )}
 
+      {/* Hover dimensions: show width×height when hovering (but not selected). */}
+      {hovered && !selected && !element.note && (
+        <text
+          x={element.x + 6 / zoom}
+          y={element.y + 14 / zoom}
+          fill="#64748B"
+          fontSize={10 / zoom}
+          pointerEvents="none"
+        >
+          {Math.round(element.width)}×{Math.round(element.height)}
+        </text>
+      )}
+
       {hovered && !selected && (
         <rect
           x={element.x}
