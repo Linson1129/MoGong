@@ -19,7 +19,7 @@ export function AppearancePanel() {
   if (!selectedId || !element) {
     return (
       <div className="px-4 pb-4">
-        <p className="text-xs text-slate-400">选中一个区域以编辑其外观。</p>
+        <p className="text-xs text-slate-400 dark:text-slate-500">选中一个区域以编辑其外观。</p>
       </div>
     );
   }
@@ -28,7 +28,7 @@ export function AppearancePanel() {
     <div className="space-y-4 px-4 pb-4">
       {/* 名称 */}
       <div>
-        <label className="mb-1.5 block text-[11px] font-medium uppercase tracking-wider text-slate-500">
+        <label className="mb-1.5 block text-[11px] font-medium uppercase tracking-wider text-slate-500 dark:text-slate-400">
           名称
         </label>
         <input
@@ -36,13 +36,13 @@ export function AppearancePanel() {
           value={element.name}
           onChange={(e) => updateElement(selectedId, { name: e.target.value })}
           placeholder="区域名称..."
-          className="w-full rounded border border-slate-300 bg-white px-2 py-1 text-xs text-slate-800 outline-none focus:border-blue-500"
+          className="w-full rounded border border-slate-300 bg-white px-2 py-1 text-xs text-slate-800 outline-none focus:border-blue-500 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200 dark:focus:border-blue-400"
         />
       </div>
 
       {/* 填充 */}
       <div>
-        <label className="mb-1.5 block text-[11px] font-medium uppercase tracking-wider text-slate-500">
+        <label className="mb-1.5 block text-[11px] font-medium uppercase tracking-wider text-slate-500 dark:text-slate-400">
           填充
         </label>
         <ColorPicker
@@ -54,13 +54,13 @@ export function AppearancePanel() {
 
       {/* 边框：仅实线和虚线两种 */}
       <div>
-        <label className="mb-1.5 block text-[11px] font-medium uppercase tracking-wider text-slate-500">
+        <label className="mb-1.5 block text-[11px] font-medium uppercase tracking-wider text-slate-500 dark:text-slate-400">
           边框
         </label>
         <select
           value={element.border.style === "dashed" ? "dashed" : "solid"}
           onChange={(e) => updateBorder(selectedId, { style: e.target.value as "solid" | "dashed" })}
-          className="w-full rounded border border-slate-300 bg-white px-2 py-1 text-xs text-slate-800"
+          className="w-full rounded border border-slate-300 bg-white px-2 py-1 text-xs text-slate-800 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200"
         >
           <option value="solid">实线（固定）</option>
           <option value="dashed">虚线（可折叠）</option>
@@ -74,8 +74,8 @@ export function AppearancePanel() {
           onClick={() => updateElement(selectedId, { locked: !element.locked })}
           className={`flex-1 rounded border px-2 py-1.5 text-[11px] transition-colors ${
             element.locked
-              ? "border-red-300 bg-red-50 text-red-600 hover:bg-red-100"
-              : "border-slate-300 bg-white text-slate-600 hover:bg-slate-100"
+              ? "border-red-300 bg-red-50 text-red-600 hover:bg-red-100 dark:border-red-700 dark:bg-red-900/30 dark:text-red-400 dark:hover:bg-red-900/50"
+              : "border-slate-300 bg-white text-slate-600 hover:bg-slate-100 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
           }`}
         >
           {element.locked ? "已锁定" : "锁定"}
@@ -85,8 +85,8 @@ export function AppearancePanel() {
           onClick={() => updateElement(selectedId, { visible: !element.visible })}
           className={`flex-1 rounded border px-2 py-1.5 text-[11px] transition-colors ${
             !element.visible
-              ? "border-slate-300 bg-slate-100 text-slate-400 hover:bg-slate-200"
-              : "border-slate-300 bg-white text-slate-600 hover:bg-slate-100"
+              ? "border-slate-300 bg-slate-100 text-slate-400 hover:bg-slate-200 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-500 dark:hover:bg-slate-700"
+              : "border-slate-300 bg-white text-slate-600 hover:bg-slate-100 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
           }`}
         >
           {element.visible ? "可见" : "隐藏"}

@@ -15,6 +15,7 @@ import { useCallback, useRef, useState } from "react";
 import { exportLayout, copyLayoutToClipboard, clearAll, importFromJson, type ExportResult } from "@/lib/export";
 import { ZOOM } from "@/lib/constants";
 import { useDocumentStore } from "@/stores/use-document-store";
+import { useThemeStore } from "@/stores/use-theme-store";
 import { useViewStore } from "@/stores/use-view-store";
 
 function clamp(zoom: number): number {
@@ -24,6 +25,8 @@ function clamp(zoom: number): number {
 export function Toolbar() {
   const canvas = useDocumentStore((state) => state.canvas);
   const elementCount = useDocumentStore((state) => state.elements.length);
+  const theme = useThemeStore((state) => state.theme);
+  const toggleTheme = useThemeStore((state) => state.toggleTheme);
 
   const zoom = useViewStore((state) => state.zoom);
   const setZoom = useViewStore((state) => state.setZoom);
@@ -140,13 +143,13 @@ export function Toolbar() {
   }, []);
 
   return (
-    <header className="flex h-12 shrink-0 items-center gap-4 border-b border-slate-200 bg-white px-4">
+    <header className="flex h-12 shrink-0 items-center gap-4 border-b border-slate-200 bg-white px-4 dark:border-slate-700 dark:bg-slate-900">
       <div className="flex items-baseline gap-2">
         <span className="text-sm font-semibold tracking-tight">墨工</span>
         {/* 教程占位符：未来将打开帮助面板 */}
         <button
           type="button"
-          className="flex h-5 w-5 items-center justify-center rounded-full border border-slate-300 text-[10px] text-slate-500 hover:border-slate-400 hover:text-slate-700"
+          className="flex h-5 w-5 items-center justify-center rounded-full border border-slate-300 text-[10px] text-slate-500 hover:border-slate-400 hover:text-slate-700 dark:border-slate-600 dark:text-slate-400 dark:hover:border-slate-500 dark:hover:text-slate-200"
           title="墨工使用教程（即将推出）"
           aria-label="帮助"
         >
@@ -154,9 +157,9 @@ export function Toolbar() {
         </button>
       </div>
 
-      <div className="h-5 w-px bg-slate-200" />
+      <div className="h-5 w-px bg-slate-200 dark:bg-slate-700" />
 
-      <span className="font-mono text-xs text-slate-600">
+      <span className="font-mono text-xs text-slate-600 dark:text-slate-400">
         {Math.round(canvas.width)} × {Math.round(canvas.height)}
       </span>
       <span className="text-xs text-slate-500">
@@ -181,7 +184,7 @@ export function Toolbar() {
               if (e.key === "Escape") handleZoomCancel();
             }}
             onBlur={handleZoomSubmit}
-            className="w-14 rounded border border-blue-400 bg-white px-1 py-0.5 text-center font-mono text-xs text-slate-800 outline-none"
+            className="w-14 rounded border border-blue-400 bg-white px-1 py-0.5 text-center font-mono text-xs text-slate-800 outline-none dark:bg-slate-800 dark:text-slate-200"
             autoFocus
           />
         ) : (
@@ -189,7 +192,7 @@ export function Toolbar() {
             type="button"
             onClick={handleZoomClick}
             onDoubleClick={handleZoomDoubleClick}
-            className="min-w-14 rounded px-2 py-1 font-mono text-xs text-slate-600 hover:bg-slate-100"
+            className="min-w-14 rounded px-2 py-1 font-mono text-xs text-slate-600 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800"
             title="单击重置为 100%，双击输入自定义缩放"
           >
             {Math.round(zoom * 100)}%
@@ -201,7 +204,7 @@ export function Toolbar() {
         </ToolbarButton>
 
         {/* 导出按钮 */}
-        <div className="mx-2 h-5 w-px bg-slate-200" />
+        <div className="mx-2 h-5 w-px bg-slate-200 dark:bg-slate-700" />
 
         <button
           type="button"
@@ -209,8 +212,8 @@ export function Toolbar() {
           disabled={exporting || elementCount === 0}
           className={`rounded px-3 py-1 text-xs transition-colors ${
             exporting || elementCount === 0
-              ? "cursor-not-allowed text-slate-400"
-              : "text-emerald-600 hover:bg-emerald-50"
+              ? "cursor-not-allowed text-slate-400 dark:text-slate-600"
+              : "text-emerald-600 hover:bg-emerald-50 dark:text-emerald-400 dark:hover:bg-emerald-900/30"
           }`}
           title={elementCount === 0 ? "请先绘制区域" : "编译并导出 layout.json"}
         >
@@ -221,7 +224,7 @@ export function Toolbar() {
         <button
           type="button"
           onClick={handleImport}
-          className="rounded px-2 py-1 text-xs text-blue-600 hover:bg-blue-50"
+          className="rounded px-2 py-1 text-xs text-blue-600 hover:bg-blue-50 dark:text-blue-400 dark:hover:bg-blue-900/30"
           title="从 JSON 文件加载布局"
         >
           导入
@@ -233,8 +236,8 @@ export function Toolbar() {
           onClick={handleClear}
           className={`rounded px-2 py-1 text-xs transition-colors ${
             confirmClear
-              ? "bg-red-50 text-red-600 font-medium"
-              : "text-slate-500 hover:bg-red-50 hover:text-red-500"
+              ? "bg-red-50 text-red-600 font-medium dark:bg-red-900/30 dark:text-red-400"
+              : "text-slate-500 hover:bg-red-50 hover:text-red-500 dark:text-slate-400 dark:hover:bg-red-900/20 dark:hover:text-red-400"
           }`}
           title={confirmClear ? "再次点击确认清除" : "清除所有内容"}
         >
@@ -246,7 +249,7 @@ export function Toolbar() {
           <button
             type="button"
             onClick={handleCopy}
-            className="rounded px-2 py-1 text-xs text-slate-500 hover:bg-slate-100"
+            className="rounded px-2 py-1 text-xs text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800"
             title="复制 JSON 到剪贴板"
           >
             复制
@@ -258,7 +261,7 @@ export function Toolbar() {
       {exportResult && (
         <span
           className={`text-xs ${
-            exportResult.success ? "text-emerald-600" : "text-red-500"
+            exportResult.success ? "text-emerald-600 dark:text-emerald-400" : "text-red-500 dark:text-red-400"
           }`}
         >
           {exportResult.success
@@ -266,6 +269,17 @@ export function Toolbar() {
             : exportResult.error}
         </span>
       )}
+      {/* 主题切换按钮 */}
+      <button
+        type="button"
+        onClick={toggleTheme}
+        className="ml-1 flex h-7 w-7 items-center justify-center rounded text-sm hover:bg-slate-100 dark:hover:bg-slate-800"
+        title={theme === "dark" ? "切换为浅色模式" : "切换为深色模式"}
+        aria-label="切换主题"
+      >
+        {theme === "dark" ? "☀" : "🌙"}
+      </button>
+
       {/* 隐藏的 file input，供导入使用 */}
       <input
         ref={fileInputRef}
@@ -294,7 +308,7 @@ function ToolbarButton({
       aria-label={label}
       title={label}
       onClick={onClick}
-      className="h-7 w-7 rounded text-sm text-slate-600 hover:bg-slate-100"
+      className="h-7 w-7 rounded text-sm text-slate-600 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800"
     >
       {children}
     </button>

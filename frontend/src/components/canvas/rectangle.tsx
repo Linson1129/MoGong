@@ -96,7 +96,7 @@ export const Rectangle = memo(function Rectangle({
               style={{
                 fontSize: `${11 / zoom}px`,
                 lineHeight: 1.35,
-                color: "#334155",
+                color: "var(--note-color)",
                 textAlign: "center",
                 wordBreak: "break-word",
                 overflowWrap: "anywhere",
@@ -190,7 +190,7 @@ export const Rectangle = memo(function Rectangle({
             style={{
               fontSize: `${11 / zoom}px`,
               lineHeight: 1.35,
-              color: "#475569",
+              color: "var(--note-color)",
               wordBreak: "break-word",
               overflowWrap: "anywhere",
               whiteSpace: "pre-wrap",
@@ -206,7 +206,7 @@ export const Rectangle = memo(function Rectangle({
         <text
           x={element.x + 6 / zoom}
           y={element.y + 14 / zoom}
-          fill="#64748B"
+          fill="var(--hover-dim-color)"
           fontSize={10 / zoom}
           pointerEvents="none"
         >

@@ -86,7 +86,7 @@ export function ColorPicker({
             type="button"
             onClick={() => handleSwatchClick(color)}
             className={`h-5 w-5 rounded-sm border transition-transform hover:scale-110 ${
-              value === color ? "border-blue-400 ring-1 ring-blue-400" : "border-slate-300"
+              value === color ? "border-blue-400 ring-1 ring-blue-400" : "border-slate-300 dark:border-slate-600"
             }`}
             style={{ background: color }}
             aria-label={`选择颜色 ${color}`}
@@ -99,7 +99,7 @@ export function ColorPicker({
       <button
         type="button"
         onClick={() => setExpanded(!expanded)}
-        className="text-[10px] text-slate-500 hover:text-slate-700"
+        className="text-[10px] text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200"
       >
         {expanded ? "收起" : "更多颜色..."}
       </button>
@@ -107,7 +107,7 @@ export function ColorPicker({
       {/* 最近使用的颜色 */}
       {recentColors.length > 0 && (
         <div>
-          <label className="mb-1 block text-[10px] text-slate-500">最近使用</label>
+          <label className="mb-1 block text-[10px] text-slate-500 dark:text-slate-400">最近使用</label>
           <div className="grid grid-cols-8 gap-1">
             {recentColors.map((color) => (
               <button
@@ -115,7 +115,7 @@ export function ColorPicker({
                 type="button"
                 onClick={() => handleSwatchClick(color)}
                 className={`h-5 w-5 rounded-sm border transition-transform hover:scale-110 ${
-                  value === color ? "border-blue-400 ring-1 ring-blue-400" : "border-slate-300"
+                  value === color ? "border-blue-400 ring-1 ring-blue-400" : "border-slate-300 dark:border-slate-600"
                 }`}
                 style={{ background: color }}
                 aria-label={`选择最近使用颜色 ${color}`}
@@ -134,13 +134,13 @@ export function ColorPicker({
           onChange={(e) => setCustomColor(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && handleCustomSubmit()}
           placeholder="#RRGGBB"
-          className="flex-1 rounded border border-slate-300 bg-white px-2 py-1 font-mono text-[10px] text-slate-700 outline-none focus:border-blue-400"
+          className="flex-1 rounded border border-slate-300 bg-white px-2 py-1 font-mono text-[10px] text-slate-700 outline-none focus:border-blue-400 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200"
           maxLength={7}
         />
         <button
           type="button"
           onClick={handleCustomSubmit}
-          className="rounded bg-slate-100 px-2 py-1 text-[10px] text-slate-700 hover:bg-slate-200"
+          className="rounded bg-slate-100 px-2 py-1 text-[10px] text-slate-700 hover:bg-slate-200 dark:bg-slate-700 dark:text-slate-200 dark:hover:bg-slate-600"
         >
           添加
         </button>

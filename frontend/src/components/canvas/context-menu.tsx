@@ -67,27 +67,27 @@ export function ContextMenu({ x, y, elementId, onClose }: ContextMenuProps) {
     <div
       ref={menuRef}
       data-testid="context-menu"
-      className="absolute z-50 min-w-[140px] rounded-md border border-slate-200 bg-white py-1 shadow-lg"
+      className="absolute z-50 min-w-[140px] rounded-md border border-slate-200 bg-white py-1 shadow-lg dark:border-slate-700 dark:bg-slate-800"
       style={{ left: x, top: y }}
     >
       <button
         data-testid="context-menu-bring-to-front"
-        className="flex w-full items-center px-3 py-1.5 text-left text-sm text-slate-700 hover:bg-slate-100"
+        className="flex w-full items-center px-3 py-1.5 text-left text-sm text-slate-700 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-700"
         onClick={handleBringToFront}
       >
         Bring to Front
       </button>
       <button
         data-testid="context-menu-send-to-back"
-        className="flex w-full items-center px-3 py-1.5 text-left text-sm text-slate-700 hover:bg-slate-100"
+        className="flex w-full items-center px-3 py-1.5 text-left text-sm text-slate-700 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-700"
         onClick={handleSendToBack}
       >
         Send to Back
       </button>
-      <div className="my-1 border-t border-slate-200" />
+      <div className="my-1 border-t border-slate-200 dark:border-slate-700" />
       <button
         data-testid="context-menu-delete"
-        className="flex w-full items-center px-3 py-1.5 text-left text-sm text-red-600 hover:bg-slate-100"
+        className="flex w-full items-center px-3 py-1.5 text-left text-sm text-red-600 hover:bg-slate-100 dark:text-red-400 dark:hover:bg-slate-700"
         onClick={handleDelete}
       >
         Delete

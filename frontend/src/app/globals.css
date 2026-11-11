@@ -1,8 +1,28 @@
 @import "tailwindcss";
 
+/* Tailwind v4: class-based dark mode (toggled via .dark on <html>) */
+@custom-variant dark (&:is(.dark *));
+
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  --canvas-bg: #E8EDF4;
+  --canvas-frame: #94A3B8;
+  --canvas-tick: #94A3B8;
+  --canvas-label: #64748B;
+  --note-color: #334155;
+  --hover-dim-color: #64748B;
+}
+
+.dark {
+  --background: #0f172a;
+  --foreground: #e2e8f0;
+  --canvas-bg: #1E293B;
+  --canvas-frame: #475569;
+  --canvas-tick: #64748B;
+  --canvas-label: #94A3B8;
+  --note-color: #CBD5E1;
+  --hover-dim-color: #94A3B8;
 }
 
 @theme inline {
@@ -10,13 +30,6 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
 }
 
 body {
