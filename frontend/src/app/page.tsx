@@ -14,10 +14,12 @@
 
 import { EditorShell } from "@/components/layout/editor-shell";
 import { useArrowKeyPanning } from "@/hooks/use-arrow-key-panning";
+import { useDeleteKey } from "@/hooks/use-delete-key";
 import { useHistory } from "@/hooks/use-history";
 
 export default function EditorPage() {
   useHistory();
   useArrowKeyPanning();
+  useDeleteKey();
   return <EditorShell />;
 }

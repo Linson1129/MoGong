@@ -16,7 +16,6 @@ function clamp(zoom: number): number {
 
 export function Toolbar() {
   const canvas = useDocumentStore((state) => state.canvas);
-  const meta = useDocumentStore((state) => state.meta);
   const elementCount = useDocumentStore((state) => state.elements.length);
 
   const zoom = useViewStore((state) => state.zoom);
@@ -30,7 +29,6 @@ export function Toolbar() {
     <header className="flex h-12 shrink-0 items-center gap-4 border-b border-slate-800 bg-slate-900 px-4">
       <div className="flex items-baseline gap-2">
         <span className="text-sm font-semibold tracking-tight">MoGong</span>
-        <span className="text-xs text-slate-500">{meta.name}</span>
       </div>
 
       <div className="h-5 w-px bg-slate-800" />
