@@ -47,6 +47,9 @@ export function SvgCanvas() {
   const panX = useViewStore((state) => state.panX);
   const panY = useViewStore((state) => state.panY);
   const isPanning = useViewStore((state) => state.isPanning);
+  const zoomAt = useViewStore((state) => state.zoomAt);
+  const panBy = useViewStore((state) => state.panBy);
+  const setPanning = useViewStore((state) => state.setPanning);
 
   /**
    * Screen coordinates to canvas coordinates, through the one shared implementation.
@@ -271,6 +274,77 @@ export function SvgCanvas() {
     [toCanvasPoint, elements, inspect],
   );
 
+  /**
+   * Wheel: zoom about the cursor position.
+   *
+   * The zoom is anchored at the cursor so the content under the pointer stays fixed. This is the
+   * expected behaviour in drawing tools: the user is looking at a specific area and wants it to
+   * grow, not drift off-screen.
+   */
+  const handleWheel = useCallback(
+    (event: React.WheelEvent<SVGSVGElement>) => {
+      event.preventDefault();
+      const rect = svgRef.current?.getBoundingClientRect();
+      if (!rect) return;
+      // Convert client coordinates to element-local screen coordinates for zoomAt.
+      const localX = event.clientX - rect.left;
+      const localY = event.clientY - rect.top;
+      zoomAt(localX, localY, event.deltaY);
+    },
+    [zoomAt],
+  );
+
+  /**
+   * Middle-button down: start panning.
+   *
+   * Panning is a separate gesture from drawing/moving/resizing. It does not go through the pending
+   * arbitration because the middle button has no other purpose on the canvas.
+   */
+  const handleMiddleMouseDown = useCallback(
+    (event: React.MouseEvent<SVGSVGElement>) => {
+      if (event.button !== MOUSE_BUTTON.middle) return;
+      event.preventDefault();
+      setPanning(true);
+      // Store the starting position for pan delta calculation. We use a data attribute on the SVG
+      // to avoid adding more state to the interaction store for a transient gesture.
+      svgRef.current?.setAttribute("data-pan-start-x", String(event.clientX));
+      svgRef.current?.setAttribute("data-pan-start-y", String(event.clientY));
+    },
+    [setPanning],
+  );
+
+  /**
+   * Middle-button move: update pan position.
+   *
+   * The pan delta is computed from the cursor movement since the last frame. This is a screen-space
+   * translation, so it does not depend on zoom.
+   */
+  const handleMiddleMouseMove = useCallback(
+    (event: React.MouseEvent<SVGSVGElement>) => {
+      if (!isPanning) return;
+      const startX = Number(svgRef.current?.getAttribute("data-pan-start-x") ?? 0);
+      const startY = Number(svgRef.current?.getAttribute("data-pan-start-y") ?? 0);
+      const dx = event.clientX - startX;
+      const dy = event.clientY - startY;
+      panBy(dx, dy);
+      // Update the start position for the next frame.
+      svgRef.current?.setAttribute("data-pan-start-x", String(event.clientX));
+      svgRef.current?.setAttribute("data-pan-start-y", String(event.clientY));
+    },
+    [isPanning, panBy],
+  );
+
+  /**
+   * Middle-button up: stop panning.
+   */
+  const handleMiddleMouseUp = useCallback(
+    (event: React.MouseEvent<SVGSVGElement>) => {
+      if (event.button !== MOUSE_BUTTON.middle) return;
+      setPanning(false);
+    },
+    [setPanning],
+  );
+
   return (
     <>
     <svg
@@ -279,18 +353,28 @@ export function SvgCanvas() {
       className="h-full w-full touch-none select-none"
       style={{
         background: "#0B1220",
-        cursor: isPanning ? "grabbing" : "default",
+        cursor: isPanning ? "grabbing" : "grab",
       }}
       // Blocking the browser default stops Ctrl-wheel page zoom, which would otherwise fire during
       // a zoom gesture and take the user's place in the tab.
-      onWheel={(event) => event.preventDefault()}
+      onWheel={handleWheel}
       onContextMenu={handleContextMenu}
-      onMouseDown={handleMouseDown}
-      onMouseMove={handleMouseMove}
-      onMouseUp={handleMouseUp}
+      onMouseDown={(event) => {
+        handleMouseDown(event);
+        handleMiddleMouseDown(event);
+      }}
+      onMouseMove={(event) => {
+        handleMouseMove(event);
+        handleMiddleMouseMove(event);
+      }}
+      onMouseUp={(event) => {
+        handleMouseUp(event);
+        handleMiddleMouseUp(event);
+      }}
       onMouseLeave={() => {
         setCursor(null);
         if (gesture.kind !== "idle") setGesture({ kind: "idle" });
+        if (isPanning) setPanning(false);
       }}
     >
       <defs>
