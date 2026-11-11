@@ -13,9 +13,11 @@
 "use client";
 
 import { EditorShell } from "@/components/layout/editor-shell";
+import { useArrowKeyPanning } from "@/hooks/use-arrow-key-panning";
 import { useHistory } from "@/hooks/use-history";
 
 export default function EditorPage() {
   useHistory();
+  useArrowKeyPanning();
   return <EditorShell />;
 }
