@@ -57,21 +57,32 @@ export function SvgCanvas() {
   const setPanning = useViewStore((state) => state.setPanning);
   const fitToView = useViewStore((state) => state.fitToView);
 
-  // Canvas bounding rect for positioning the note editor. Updated on mount and resize.
-  // Also calls fitToView on mount so the canvas is centered and scaled to fit the container.
+  // 画布边界矩形，用于定位备注编辑器。挂载时更新，窗口大小变化时重新计算。
+  // 同时调用 fitToView 使画布居中并缩放以适配容器。
   const [canvasRect, setCanvasRect] = useState<DOMRect | null>(null);
   useEffect(() => {
+    const svgElement = svgRef.current;
+    if (!svgElement) return;
+
     const updateRect = () => {
-      if (svgRef.current) {
-        const rect = svgRef.current.getBoundingClientRect();
-        setCanvasRect(rect);
-        // Fit to view on mount: center the canvas and choose a zoom that shows the whole thing.
-        fitToView(rect.width, rect.height, canvas.width, canvas.height);
-      }
+      const rect = svgElement.getBoundingClientRect();
+      setCanvasRect(rect);
+      // 首次挂载时适配视图：居中画布并选择能显示完整画布的缩放级别
+      fitToView(rect.width, rect.height, canvas.width, canvas.height);
     };
+
+    // 使用 ResizeObserver 监听容器大小变化，比 window resize 更精确
+    const resizeObserver = new ResizeObserver(() => {
+      updateRect();
+    });
+    resizeObserver.observe(svgElement);
+
+    // 初始调用
     updateRect();
-    window.addEventListener("resize", updateRect);
-    return () => window.removeEventListener("resize", updateRect);
+
+    return () => {
+      resizeObserver.disconnect();
+    };
   }, [canvas.width, canvas.height, fitToView]);
 
   /**
