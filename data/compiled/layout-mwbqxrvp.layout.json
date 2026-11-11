@@ -1,0 +1,310 @@
+{
+  "format": "mogong.layout",
+  "version": "1.0",
+  "meta": {
+    "name": "untitled",
+    "source": "MoGong",
+    "generatedAt": "2026-11-11T10:42:35.044419+00:00"
+  },
+  "canvas": {
+    "width": 1440.0,
+    "height": 900.0,
+    "background": "#FFFFFF",
+    "platform": "web-desktop"
+  },
+  "root": {
+    "id": "root",
+    "name": "Page",
+    "role": "region",
+    "box": {
+      "x": 0.0,
+      "y": 0.0,
+      "width": 100.0,
+      "height": 100.0,
+      "unit": "%"
+    },
+    "layout": "free",
+    "style": {
+      "fill": "#FFFFFF",
+      "fillOpacity": 1.0,
+      "border": null
+    },
+    "note": null,
+    "spacing": null,
+    "align": null,
+    "children": [
+      {
+        "id": "el-mwbr04bh",
+        "name": "商品品类 （侧栏）",
+        "role": "block",
+        "box": {
+          "x": 72.57,
+          "y": 2.24,
+          "width": 25.0,
+          "height": 94.78,
+          "unit": "%"
+        },
+        "layout": "none",
+        "style": {
+          "fill": "#86EFAC",
+          "fillOpacity": 1.0,
+          "border": {
+            "width": 1.0,
+            "style": "dashed",
+            "color": "#64748B",
+            "radius": 0.0
+          }
+        },
+        "note": "折叠方向：从左向右\n该栏负责写商品的品类信息\n折叠后左侧空间自动填充",
+        "spacing": null,
+        "align": null,
+        "children": []
+      },
+      {
+        "id": "el-mwbqxzyr",
+        "name": "信息栏",
+        "role": "container",
+        "box": {
+          "x": 7.84,
+          "y": 3.14,
+          "width": 59.89,
+          "height": 13.13,
+          "unit": "%"
+        },
+        "layout": "row",
+        "style": {
+          "fill": "#93C5FD",
+          "fillOpacity": 1.0,
+          "border": {
+            "width": 1.0,
+            "style": "solid",
+            "color": "#64748B",
+            "radius": 0.0
+          }
+        },
+        "note": "信息栏， 上面可以跳转、3C数码、服装、食品三大类",
+        "spacing": {
+          "axis": "row",
+          "gap": 23.0,
+          "unit": "%",
+          "consistent": false
+        },
+        "align": null,
+        "children": [
+          {
+            "id": "el-mwbqz1c7",
+            "name": "公司logo",
+            "role": "button",
+            "box": {
+              "x": 5.76,
+              "y": 40.91,
+              "width": 2.18,
+              "height": 20.45,
+              "unit": "%"
+            },
+            "layout": "none",
+            "style": {
+              "fill": "#E2E8F0",
+              "fillOpacity": 1.0,
+              "border": {
+                "width": 1.0,
+                "style": "solid",
+                "color": "#64748B",
+                "radius": 0.0
+              }
+            },
+            "note": "Logo",
+            "spacing": null,
+            "align": null,
+            "children": []
+          },
+          {
+            "id": "el-mwbr4okp",
+            "name": "跳转3",
+            "role": "button",
+            "box": {
+              "x": 69.16,
+              "y": 40.91,
+              "width": 16.36,
+              "height": 27.27,
+              "unit": "%"
+            },
+            "layout": "none",
+            "style": {
+              "fill": "#E2E8F0",
+              "fillOpacity": 1.0,
+              "border": {
+                "width": 1.0,
+                "style": "solid",
+                "color": "#64748B",
+                "radius": 0.0
+              }
+            },
+            "note": null,
+            "spacing": null,
+            "align": null,
+            "children": []
+          },
+          {
+            "id": "el-mwbr4lmn",
+            "name": "跳转1",
+            "role": "button",
+            "box": {
+              "x": 24.77,
+              "y": 42.05,
+              "width": 11.06,
+              "height": 29.55,
+              "unit": "%"
+            },
+            "layout": "none",
+            "style": {
+              "fill": "#E2E8F0",
+              "fillOpacity": 1.0,
+              "border": {
+                "width": 1.0,
+                "style": "solid",
+                "color": "#64748B",
+                "radius": 0.0
+              }
+            },
+            "note": null,
+            "spacing": null,
+            "align": null,
+            "children": []
+          },
+          {
+            "id": "el-mwbr4mxw",
+            "name": "跳转2",
+            "role": "button",
+            "box": {
+              "x": 43.61,
+              "y": 43.18,
+              "width": 14.8,
+              "height": 26.14,
+              "unit": "%"
+            },
+            "layout": "none",
+            "style": {
+              "fill": "#E2E8F0",
+              "fillOpacity": 1.0,
+              "border": {
+                "width": 1.0,
+                "style": "solid",
+                "color": "#64748B",
+                "radius": 0.0
+              }
+            },
+            "note": null,
+            "spacing": null,
+            "align": null,
+            "children": []
+          }
+        ]
+      },
+      {
+        "id": "el-mwbqysp5",
+        "name": "广告栏",
+        "role": "container",
+        "box": {
+          "x": 8.02,
+          "y": 20.6,
+          "width": 59.79,
+          "height": 34.48,
+          "unit": "%"
+        },
+        "layout": "column",
+        "style": {
+          "fill": "#FCD34D",
+          "fillOpacity": 1.0,
+          "border": {
+            "width": 1.0,
+            "style": "solid",
+            "color": "#64748B",
+            "radius": 0.0
+          }
+        },
+        "note": "滑动广告栏，自动广告，2s一张，循环切换",
+        "spacing": null,
+        "align": null,
+        "children": [
+          {
+            "id": "el-mwbr5f7z",
+            "name": "",
+            "role": "block",
+            "box": {
+              "x": 29.64,
+              "y": 88.74,
+              "width": 40.25,
+              "height": 7.36,
+              "unit": "%"
+            },
+            "layout": "none",
+            "style": {
+              "fill": "#E2E8F0",
+              "fillOpacity": 1.0,
+              "border": {
+                "width": 1.0,
+                "style": "solid",
+                "color": "#64748B",
+                "radius": 0.0
+              }
+            },
+            "note": "切换广告栏",
+            "spacing": null,
+            "align": null,
+            "children": []
+          }
+        ]
+      },
+      {
+        "id": "el-mwbr6e9k",
+        "name": "",
+        "role": "block",
+        "box": {
+          "x": 9.14,
+          "y": 61.05,
+          "width": 59.61,
+          "height": 35.67,
+          "unit": "%"
+        },
+        "layout": "none",
+        "style": {
+          "fill": "#FCA5A5",
+          "fillOpacity": 1.0,
+          "border": {
+            "width": 1.0,
+            "style": "solid",
+            "color": "#64748B",
+            "radius": 0.0
+          }
+        },
+        "note": "法律相关、法条、网络许可、审批内容",
+        "spacing": null,
+        "align": null,
+        "children": []
+      }
+    ]
+  },
+  "warnings": [
+    {
+      "code": "AMBIGUOUS_LAYOUT",
+      "elements": [
+        "el-mwbr04bh",
+        "el-mwbqxzyr",
+        "el-mwbqysp5",
+        "el-mwbr6e9k"
+      ],
+      "message": "Children el-mwbr04bh, el-mwbqxzyr, el-mwbqysp5, el-mwbr6e9k have an ambiguous arrangement. Compiled as free-positioned; consider adjusting the drawing."
+    },
+    {
+      "code": "INCONSISTENT_GAP",
+      "elements": [
+        "el-mwbqz1c7",
+        "el-mwbr4okp",
+        "el-mwbr4lmn",
+        "el-mwbr4mxw"
+      ],
+      "message": "Gaps between siblings el-mwbqz1c7, el-mwbr4okp, el-mwbr4lmn, el-mwbr4mxw are inconsistent. Average 23.0% reported; consider adjusting the drawing."
+    }
+  ]
+}

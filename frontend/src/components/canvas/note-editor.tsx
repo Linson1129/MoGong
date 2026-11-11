@@ -78,7 +78,7 @@ export function NoteEditor({ element, zoom, panX, panY, canvasRect, onSave, onCa
   return (
     <div
       ref={panelRef}
-      className="absolute z-50 w-64 rounded-lg border border-blue-400 bg-slate-800 p-3 shadow-lg"
+      className="absolute z-50 w-64 rounded-lg border border-blue-300 bg-white p-3 shadow-lg"
       style={{ left: screenX, top: screenY }}
       onKeyDown={handleKeyDown}
     >
@@ -86,7 +86,7 @@ export function NoteEditor({ element, zoom, panX, panY, canvasRect, onSave, onCa
         ref={textareaRef}
         value={value}
         onChange={(e) => setValue(e.target.value)}
-        className="w-full resize-none rounded border border-slate-600 bg-slate-700 px-2 py-1 text-sm text-slate-100 outline-none focus:border-blue-400"
+        className="w-full resize-none rounded border border-slate-300 bg-slate-50 px-2 py-1 text-sm text-slate-800 outline-none focus:border-blue-400"
         rows={3}
         placeholder="添加备注..."
       />
@@ -101,12 +101,12 @@ export function NoteEditor({ element, zoom, panX, panY, canvasRect, onSave, onCa
         <button
           type="button"
           onClick={onCancel}
-          className="flex-1 rounded bg-slate-600 px-2 py-1 text-xs font-medium text-slate-200 hover:bg-slate-500"
+          className="flex-1 rounded bg-slate-200 px-2 py-1 text-xs font-medium text-slate-700 hover:bg-slate-300"
         >
           取消
         </button>
       </div>
-      <p className="mt-1 text-[10px] text-slate-500">Ctrl+Enter 保存，Esc 取消</p>
+      <p className="mt-1 text-[10px] text-slate-400">Ctrl+Enter 保存，Esc 取消</p>
     </div>
   );
 }

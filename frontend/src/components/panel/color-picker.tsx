@@ -86,7 +86,7 @@ export function ColorPicker({
             type="button"
             onClick={() => handleSwatchClick(color)}
             className={`h-5 w-5 rounded-sm border transition-transform hover:scale-110 ${
-              value === color ? "border-blue-400 ring-1 ring-blue-400" : "border-slate-600"
+              value === color ? "border-blue-400 ring-1 ring-blue-400" : "border-slate-300"
             }`}
             style={{ background: color }}
             aria-label={`选择颜色 ${color}`}
@@ -99,7 +99,7 @@ export function ColorPicker({
       <button
         type="button"
         onClick={() => setExpanded(!expanded)}
-        className="text-[10px] text-slate-400 hover:text-slate-200"
+        className="text-[10px] text-slate-500 hover:text-slate-700"
       >
         {expanded ? "收起" : "更多颜色..."}
       </button>
@@ -115,7 +115,7 @@ export function ColorPicker({
                 type="button"
                 onClick={() => handleSwatchClick(color)}
                 className={`h-5 w-5 rounded-sm border transition-transform hover:scale-110 ${
-                  value === color ? "border-blue-400 ring-1 ring-blue-400" : "border-slate-600"
+                  value === color ? "border-blue-400 ring-1 ring-blue-400" : "border-slate-300"
                 }`}
                 style={{ background: color }}
                 aria-label={`选择最近使用颜色 ${color}`}
@@ -134,13 +134,13 @@ export function ColorPicker({
           onChange={(e) => setCustomColor(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && handleCustomSubmit()}
           placeholder="#RRGGBB"
-          className="flex-1 rounded border border-slate-700 bg-slate-800 px-2 py-1 font-mono text-[10px] text-slate-200 outline-none focus:border-blue-500"
+          className="flex-1 rounded border border-slate-300 bg-white px-2 py-1 font-mono text-[10px] text-slate-700 outline-none focus:border-blue-400"
           maxLength={7}
         />
         <button
           type="button"
           onClick={handleCustomSubmit}
-          className="rounded bg-slate-700 px-2 py-1 text-[10px] text-slate-200 hover:bg-slate-600"
+          className="rounded bg-slate-100 px-2 py-1 text-[10px] text-slate-700 hover:bg-slate-200"
         >
           添加
         </button>

@@ -85,16 +85,27 @@ export const Rectangle = memo(function Rectangle({
 
         {/* Note label: rendered below the circle if present. */}
         {element.note && (
-          <text
-            x={cx}
-            y={cy + r + 14 / zoom}
-            textAnchor="middle"
-            fill="#1E293B"
-            fontSize={12 / zoom}
-            pointerEvents="none"
+          <foreignObject
+            x={cx - 60 / zoom}
+            y={cy + r + 4 / zoom}
+            width={120 / zoom}
+            height={60 / zoom}
+            style={{ pointerEvents: "none", overflow: "visible" }}
           >
-            {element.note}
-          </text>
+            <div
+              style={{
+                fontSize: `${11 / zoom}px`,
+                lineHeight: 1.35,
+                color: "#334155",
+                textAlign: "center",
+                wordBreak: "break-word",
+                overflowWrap: "anywhere",
+                whiteSpace: "normal",
+              }}
+            >
+              {element.note}
+            </div>
+          </foreignObject>
         )}
 
         {hovered && !selected && (
@@ -166,17 +177,28 @@ export const Rectangle = memo(function Rectangle({
         ry={border.radius > 0 ? border.radius : undefined}
       />
 
-      {/* Note label for rectangles: rendered inside the top-left if present. */}
+      {/* Note label for rectangles: wrapped HTML inside the box via foreignObject. */}
       {element.note && (
-        <text
-          x={element.x + 6 / zoom}
-          y={element.y + 14 / zoom}
-          fill="#475569"
-          fontSize={11 / zoom}
-          pointerEvents="none"
+        <foreignObject
+          x={element.x + 4 / zoom}
+          y={element.y + 4 / zoom}
+          width={Math.max(element.width - 8 / zoom, 20 / zoom)}
+          height={Math.max(element.height - 8 / zoom, 16 / zoom)}
+          style={{ pointerEvents: "none", overflow: "hidden" }}
         >
-          {element.note}
-        </text>
+          <div
+            style={{
+              fontSize: `${11 / zoom}px`,
+              lineHeight: 1.35,
+              color: "#475569",
+              wordBreak: "break-word",
+              overflowWrap: "anywhere",
+              whiteSpace: "pre-wrap",
+            }}
+          >
+            {element.note}
+          </div>
+        </foreignObject>
       )}
 
       {/* Hover dimensions: show width×height when hovering (but not selected). */}

@@ -8,9 +8,11 @@
  */
 
 import { api, ApiError } from "@/lib/api";
+import { DEFAULT_CANVAS } from "@/lib/constants";
 import { useDocumentStore } from "@/stores/use-document-store";
 import { useViewStore } from "@/stores/use-view-store";
-import type { LayoutDocument } from "@/types/layout";
+import type { LayoutDocument, LayoutNode } from "@/types/layout";
+import type { LayoutElement, MoGongDocument } from "@/types/document";
 
 export interface ExportResult {
   success: boolean;
@@ -96,4 +98,135 @@ export async function exportLayout(): Promise<ExportResult> {
   }
 
   return result;
+}
+
+// ---------------------------------------------------------------------------
+// 导入 & 清除
+// ---------------------------------------------------------------------------
+
+export interface ImportResult {
+  success: boolean;
+  elementCount?: number;
+  error?: string;
+}
+
+/**
+ * 一键清除：重置画布 + 清空 localStorage。
+ */
+export function clearAll(): ImportResult {
+  const docStore = useDocumentStore.getState();
+  docStore.resetDocument();
+  return { success: true, elementCount: 0 };
+}
+
+/**
+ * 从 JSON 文本导入文档。
+ * 支持两种格式：
+ * - mogong.document（编辑器导出的完整文档）
+ * - mogong.layout（编译产物，会自动展开为绝对像素坐标）
+ */
+export function importFromJson(jsonStr: string): ImportResult {
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(jsonStr);
+  } catch {
+    return { success: false, error: "JSON 格式无效" };
+  }
+
+  if (!parsed || typeof parsed !== "object") {
+    return { success: false, error: "JSON 必须是对象" };
+  }
+
+  const obj = parsed as Record<string, unknown>;
+  const format = obj.format as string | undefined;
+
+  if (format === "mogong.document") {
+    return loadDocumentFormat(obj as unknown as MoGongDocument);
+  }
+
+  if (format === "mogong.layout") {
+    const document = layoutToDocument(obj as unknown as LayoutDocument);
+    return loadDocumentFormat(document);
+  }
+
+  return { success: false, error: "未知格式，需要 mogong.document 或 mogong.layout" };
+}
+
+function loadDocumentFormat(document: MoGongDocument): ImportResult {
+  const docStore = useDocumentStore.getState();
+  docStore.loadDocument(document);
+  return { success: true, elementCount: document.elements.length };
+}
+
+/**
+ * 将编译产物 (LayoutDocument) 转换回可编辑的 MoGongDocument。
+ * 通过递归展开百分比坐标为绝对像素值来还原扁平元素列表。
+ */
+function layoutToDocument(layout: LayoutDocument): MoGongDocument {
+  const { width: cw, height: ch } = layout.canvas;
+  const elements: LayoutElement[] = [];
+
+  function walk(node: LayoutNode, parentX: number, parentY: number, parentW: number, parentH: number) {
+    // Skip the synthetic root (id="root")
+    if (node.id !== "root") {
+      const absX = parentX + (node.box.x / 100) * parentW;
+      const absY = parentY + (node.box.y / 100) * parentH;
+      const absW = (node.box.width / 100) * parentW;
+      const absH = (node.box.height / 100) * parentH;
+
+      const element: LayoutElement = {
+        id: node.id,
+        name: node.name || "",
+        x: Math.round(absX * 100) / 100,
+        y: Math.round(absY * 100) / 100,
+        width: Math.max(Math.round(absW * 100) / 100, 1),
+        height: Math.max(Math.round(absH * 100) / 100, 1),
+        fill: {
+          color: node.style.fill || "#E2E8F0",
+          opacity: node.style.fillOpacity ?? 1,
+        },
+        border: node.style.border
+          ? { ...node.style.border }
+          : { width: 0, style: "solid", color: "#64748B", radius: 0 },
+        note: node.note,
+        locked: false,
+        visible: true,
+        stamp: false,
+      };
+      elements.push(element);
+    }
+
+    // Children's parent rect is this node's absolute rect
+    const childParentX = node.id === "root" ? 0 : parentX + (node.box.x / 100) * parentW;
+    const childParentY = node.id === "root" ? 0 : parentY + (node.box.y / 100) * parentH;
+    const childParentW = node.id === "root" ? cw : (node.box.width / 100) * parentW;
+    const childParentH = node.id === "root" ? ch : (node.box.height / 100) * parentH;
+
+    for (const child of node.children) {
+      walk(child, childParentX, childParentY, childParentW, childParentH);
+    }
+  }
+
+  walk(layout.root, 0, 0, cw, ch);
+
+  const now = new Date().toISOString();
+  return {
+    format: "mogong.document",
+    version: "1.0",
+    meta: {
+      id: layout.meta.name || `imported-${Date.now().toString(36)}`,
+      name: layout.meta.name || "imported",
+      createdAt: now,
+      updatedAt: now,
+    },
+    canvas: {
+      width: cw,
+      height: ch,
+      background: layout.canvas.background || DEFAULT_CANVAS.background,
+      gridSize: DEFAULT_CANVAS.gridSize,
+      snapToGrid: DEFAULT_CANVAS.snapToGrid,
+    },
+    elements,
+    viewport: { zoom: 1, panX: 0, panY: 0 },
+  };
 }

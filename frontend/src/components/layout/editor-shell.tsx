@@ -12,7 +12,7 @@ import { Toolbar } from "@/components/layout/toolbar";
 
 export function EditorShell() {
   return (
-    <div className="flex h-dvh flex-col bg-slate-950 text-slate-100">
+    <div className="flex h-dvh flex-col bg-slate-100 text-slate-900">
       <Toolbar />
       <div className="flex min-h-0 flex-1">
         <main className="relative min-w-0 flex-1">

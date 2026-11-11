@@ -10,9 +10,9 @@
  * 导出按钮：编译当前画布为 layout JSON 并下载。
  */
 
-import { useCallback, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 
-import { exportLayout, copyLayoutToClipboard, type ExportResult } from "@/lib/export";
+import { exportLayout, copyLayoutToClipboard, clearAll, importFromJson, type ExportResult } from "@/lib/export";
 import { ZOOM } from "@/lib/constants";
 import { useDocumentStore } from "@/stores/use-document-store";
 import { useViewStore } from "@/stores/use-view-store";
@@ -32,6 +32,10 @@ export function Toolbar() {
   // 自定义缩放输入框状态
   const [showZoomInput, setShowZoomInput] = useState(false);
   const [zoomInputValue, setZoomInputValue] = useState("");
+
+  // 导入/清除状态
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [confirmClear, setConfirmClear] = useState(false);
 
   // 导出状态
   const [exporting, setExporting] = useState(false);
@@ -98,14 +102,51 @@ export function Toolbar() {
     }
   }, [exportResult]);
 
+  // 清除全部
+  const handleClear = useCallback(() => {
+    if (!confirmClear) {
+      setConfirmClear(true);
+      setTimeout(() => setConfirmClear(false), 3000);
+      return;
+    }
+    clearAll();
+    setConfirmClear(false);
+    setExportResult(null);
+    setShowCopyButton(false);
+  }, [confirmClear]);
+
+  // 导入 JSON
+  const handleImport = useCallback(() => {
+    fileInputRef.current?.click();
+  }, []);
+
+  const handleFileChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      const text = reader.result as string;
+      const result = importFromJson(text);
+      if (result.success) {
+        setExportResult({ success: true, writtenTo: `已导入 ${result.elementCount} 个区域` });
+        setTimeout(() => setExportResult(null), 4000);
+      } else {
+        setExportResult({ success: false, error: result.error });
+        setTimeout(() => setExportResult(null), 4000);
+      }
+    };
+    reader.readAsText(file);
+    e.target.value = "";
+  }, []);
+
   return (
-    <header className="flex h-12 shrink-0 items-center gap-4 border-b border-slate-800 bg-slate-900 px-4">
+    <header className="flex h-12 shrink-0 items-center gap-4 border-b border-slate-200 bg-white px-4">
       <div className="flex items-baseline gap-2">
         <span className="text-sm font-semibold tracking-tight">墨工</span>
         {/* 教程占位符：未来将打开帮助面板 */}
         <button
           type="button"
-          className="flex h-5 w-5 items-center justify-center rounded-full border border-slate-600 text-[10px] text-slate-400 hover:border-slate-400 hover:text-slate-200"
+          className="flex h-5 w-5 items-center justify-center rounded-full border border-slate-300 text-[10px] text-slate-500 hover:border-slate-400 hover:text-slate-700"
           title="墨工使用教程（即将推出）"
           aria-label="帮助"
         >
@@ -113,9 +154,9 @@ export function Toolbar() {
         </button>
       </div>
 
-      <div className="h-5 w-px bg-slate-800" />
+      <div className="h-5 w-px bg-slate-200" />
 
-      <span className="font-mono text-xs text-slate-400">
+      <span className="font-mono text-xs text-slate-600">
         {Math.round(canvas.width)} × {Math.round(canvas.height)}
       </span>
       <span className="text-xs text-slate-500">
@@ -140,7 +181,7 @@ export function Toolbar() {
               if (e.key === "Escape") handleZoomCancel();
             }}
             onBlur={handleZoomSubmit}
-            className="w-14 rounded border border-blue-500 bg-slate-800 px-1 py-0.5 text-center font-mono text-xs text-slate-200 outline-none"
+            className="w-14 rounded border border-blue-400 bg-white px-1 py-0.5 text-center font-mono text-xs text-slate-800 outline-none"
             autoFocus
           />
         ) : (
@@ -148,7 +189,7 @@ export function Toolbar() {
             type="button"
             onClick={handleZoomClick}
             onDoubleClick={handleZoomDoubleClick}
-            className="min-w-14 rounded px-2 py-1 font-mono text-xs text-slate-300 hover:bg-slate-800"
+            className="min-w-14 rounded px-2 py-1 font-mono text-xs text-slate-600 hover:bg-slate-100"
             title="单击重置为 100%，双击输入自定义缩放"
           >
             {Math.round(zoom * 100)}%
@@ -160,7 +201,7 @@ export function Toolbar() {
         </ToolbarButton>
 
         {/* 导出按钮 */}
-        <div className="mx-2 h-5 w-px bg-slate-800" />
+        <div className="mx-2 h-5 w-px bg-slate-200" />
 
         <button
           type="button"
@@ -168,12 +209,36 @@ export function Toolbar() {
           disabled={exporting || elementCount === 0}
           className={`rounded px-3 py-1 text-xs transition-colors ${
             exporting || elementCount === 0
-              ? "cursor-not-allowed text-slate-500"
-              : "text-emerald-400 hover:bg-emerald-900/30"
+              ? "cursor-not-allowed text-slate-400"
+              : "text-emerald-600 hover:bg-emerald-50"
           }`}
           title={elementCount === 0 ? "请先绘制区域" : "编译并导出 layout.json"}
         >
           {exporting ? "编译中..." : "导出"}
+        </button>
+
+        {/* 导入按钮 */}
+        <button
+          type="button"
+          onClick={handleImport}
+          className="rounded px-2 py-1 text-xs text-blue-600 hover:bg-blue-50"
+          title="从 JSON 文件加载布局"
+        >
+          导入
+        </button>
+
+        {/* 清除按钮 */}
+        <button
+          type="button"
+          onClick={handleClear}
+          className={`rounded px-2 py-1 text-xs transition-colors ${
+            confirmClear
+              ? "bg-red-50 text-red-600 font-medium"
+              : "text-slate-500 hover:bg-red-50 hover:text-red-500"
+          }`}
+          title={confirmClear ? "再次点击确认清除" : "清除所有内容"}
+        >
+          {confirmClear ? "确认清除?" : "清除"}
         </button>
 
         {/* 导出成功后显示复制按钮 */}
@@ -181,7 +246,7 @@ export function Toolbar() {
           <button
             type="button"
             onClick={handleCopy}
-            className="rounded px-2 py-1 text-xs text-slate-400 hover:bg-slate-800"
+            className="rounded px-2 py-1 text-xs text-slate-500 hover:bg-slate-100"
             title="复制 JSON 到剪贴板"
           >
             复制
@@ -193,7 +258,7 @@ export function Toolbar() {
       {exportResult && (
         <span
           className={`text-xs ${
-            exportResult.success ? "text-emerald-400" : "text-red-400"
+            exportResult.success ? "text-emerald-600" : "text-red-500"
           }`}
         >
           {exportResult.success
@@ -201,6 +266,15 @@ export function Toolbar() {
             : exportResult.error}
         </span>
       )}
+      {/* 隐藏的 file input，供导入使用 */}
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept=".json"
+        onChange={handleFileChange}
+        className="hidden"
+        aria-hidden
+      />
     </header>
   );
 }
@@ -220,7 +294,7 @@ function ToolbarButton({
       aria-label={label}
       title={label}
       onClick={onClick}
-      className="h-7 w-7 rounded text-sm text-slate-300 hover:bg-slate-800"
+      className="h-7 w-7 rounded text-sm text-slate-600 hover:bg-slate-100"
     >
       {children}
     </button>

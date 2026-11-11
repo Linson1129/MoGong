@@ -22,7 +22,7 @@ export function PanelPlaceholder({
           <li key={item} className="flex items-center gap-2 text-xs text-slate-600">
             {/* aria-hidden: the label is decorative status information, and the sentence above
                 already says what this list means to anyone using a screen reader. */}
-            <span className="h-px w-3 shrink-0 bg-slate-700" aria-hidden />
+            <span className="h-px w-3 shrink-0 bg-slate-300" aria-hidden />
             {item}
           </li>
         ))}

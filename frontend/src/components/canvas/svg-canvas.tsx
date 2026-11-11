@@ -396,7 +396,7 @@ export function SvgCanvas() {
       data-testid="mogong-canvas"
       className="h-full w-full touch-none select-none"
       style={{
-        background: "#0B1220",
+        background: "#E8EDF4",
         cursor: isPanning ? "grabbing" : "grab",
       }}
       // Blocking the browser default stops Ctrl-wheel page zoom, which would otherwise fire during
@@ -428,7 +428,7 @@ export function SvgCanvas() {
       {/* Untransformed so it always fills the viewport. Putting the backdrop inside the pan group
           would leave a dark gap at the edges once zoomed out, because its extent is written in
           canvas units while the visible area is not. */}
-      <rect x={0} y={0} width="100%" height="100%" fill="##0F172A" />
+      <rect x={0} y={0} width="100%" height="100%" fill="#E8EDF4" />
 
       {/* X/Y axis markers at 100px intervals, rendered outside the transform group so they stay
           fixed relative to the canvas edges. */}
@@ -436,7 +436,7 @@ export function SvgCanvas() {
         {/* X axis ticks along the top edge */}
         {Array.from({ length: Math.floor(canvas.width / 100) + 1 }, (_, i) => i * 100).map((x) => (
           <g key={`x-${x}`}>
-            <line x1={x} y1={0} x2={x} y2={-8 / zoom} stroke="#475569" strokeWidth={1 / zoom} />
+            <line x1={x} y1={0} x2={x} y2={-8 / zoom} stroke="#94A3B8" strokeWidth={1 / zoom} />
             <text x={x} y={-12 / zoom} textAnchor="middle" fill="#64748B" fontSize={10 / zoom}>
               {x}
             </text>
@@ -445,7 +445,7 @@ export function SvgCanvas() {
         {/* Y axis ticks along the left edge */}
         {Array.from({ length: Math.floor(canvas.height / 100) + 1 }, (_, i) => i * 100).map((y) => (
           <g key={`y-${y}`}>
-            <line x1={0} y1={y} x2={-8 / zoom} y2={y} stroke="#475569" strokeWidth={1 / zoom} />
+            <line x1={0} y1={y} x2={-8 / zoom} y2={y} stroke="#94A3B8" strokeWidth={1 / zoom} />
             <text x={-12 / zoom} y={y} textAnchor="end" dominantBaseline="middle" fill="#64748B" fontSize={10 / zoom}>
               {y}
             </text>
@@ -469,7 +469,7 @@ export function SvgCanvas() {
           width={canvas.width}
           height={canvas.height}
           fill="none"
-          stroke="#334155"
+          stroke="#94A3B8"
           strokeWidth={1 / zoom}
           pointerEvents="none"
         />
