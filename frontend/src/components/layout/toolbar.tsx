@@ -4,7 +4,13 @@
  * Zoom controls are buttons here rather than only the wheel gesture, so the viewport can be driven
  * without a mouse and so view state is exercisable from M1 onward. The wheel handler arrives with
  * the gesture layer in M2.
+ *
+ * The zoom percentage button supports:
+ * - Single click: reset to 100% zoom
+ * - Double click: open input for custom zoom (50-150%)
  */
+
+import { useCallback, useState } from "react";
 
 import { ZOOM } from "@/lib/constants";
 import { useDocumentStore } from "@/stores/use-document-store";
@@ -22,8 +28,38 @@ export function Toolbar() {
   const setZoom = useViewStore((state) => state.setZoom);
   const resetView = useViewStore((state) => state.resetView);
 
+  // Custom zoom input state.
+  const [showZoomInput, setShowZoomInput] = useState(false);
+  const [zoomInputValue, setZoomInputValue] = useState("");
+
   const step = (direction: 1 | -1) =>
     setZoom(clamp(direction > 0 ? zoom * ZOOM.stepFactor : zoom / ZOOM.stepFactor));
+
+  // Single click resets to 100%.
+  const handleZoomClick = useCallback(() => {
+    resetView();
+  }, [resetView]);
+
+  // Double click opens custom zoom input.
+  const handleZoomDoubleClick = useCallback((event: React.MouseEvent) => {
+    event.preventDefault();
+    setShowZoomInput(true);
+    setZoomInputValue(Math.round(zoom * 100).toString());
+  }, [zoom]);
+
+  // Submit custom zoom value.
+  const handleZoomSubmit = useCallback(() => {
+    const value = parseInt(zoomInputValue, 10);
+    if (!isNaN(value) && value >= 50 && value <= 150) {
+      setZoom(clamp(value / 100));
+    }
+    setShowZoomInput(false);
+  }, [zoomInputValue, setZoom]);
+
+  // Cancel custom zoom input.
+  const handleZoomCancel = useCallback(() => {
+    setShowZoomInput(false);
+  }, []);
 
   return (
     <header className="flex h-12 shrink-0 items-center gap-4 border-b border-slate-800 bg-slate-900 px-4">
@@ -53,16 +89,35 @@ export function Toolbar() {
         <ToolbarButton label="Zoom out" onClick={() => step(-1)}>
           -
         </ToolbarButton>
-        {/* Clicking the percentage is the fastest way back to 1:1, and it is where the number
-            already is, so it earns the affordance. */}
-        <button
-          type="button"
-          onClick={resetView}
-          className="min-w-14 rounded px-2 py-1 font-mono text-xs text-slate-300 hover:bg-slate-800"
-          title="Reset zoom and pan"
-        >
-          {Math.round(zoom * 100)}%
-        </button>
+
+        {/* Zoom percentage: single click resets, double click opens custom input. */}
+        {showZoomInput ? (
+          <input
+            type="number"
+            min={50}
+            max={150}
+            value={zoomInputValue}
+            onChange={(e) => setZoomInputValue(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") handleZoomSubmit();
+              if (e.key === "Escape") handleZoomCancel();
+            }}
+            onBlur={handleZoomSubmit}
+            className="w-14 rounded border border-blue-500 bg-slate-800 px-1 py-0.5 text-center font-mono text-xs text-slate-200 outline-none"
+            autoFocus
+          />
+        ) : (
+          <button
+            type="button"
+            onClick={handleZoomClick}
+            onDoubleClick={handleZoomDoubleClick}
+            className="min-w-14 rounded px-2 py-1 font-mono text-xs text-slate-300 hover:bg-slate-800"
+            title="Click to reset 100%, double-click for custom zoom"
+          >
+            {Math.round(zoom * 100)}%
+          </button>
+        )}
+
         <ToolbarButton label="Zoom in" onClick={() => step(1)}>
           +
         </ToolbarButton>

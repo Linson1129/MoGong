@@ -47,8 +47,8 @@ export const GESTURE = {
 export const ZOOM = {
   min: 0.1,
   max: 8,
-  /** Multiplier applied per wheel notch, so zooming feels even in both directions. */
-  stepFactor: 1.1,
+  /** Multiplier applied per wheel notch. Reduced from 1.1 to 1.05 for finer control. */
+  stepFactor: 1.05,
 } as const;
 
 /** Middle-button pan steps, per docs/spec.md section 4. */
