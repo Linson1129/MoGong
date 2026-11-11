@@ -52,53 +52,22 @@ export function AppearancePanel() {
         </div>
       </div>
 
-      {/* Border section */}
+      {/* Border section: style only. Color, width, and radius are removed per Captain's feedback.
+          Style conveys semantic meaning: dashed = collapsible, solid = permanent. */}
       <div>
         <label className="mb-1.5 block text-[11px] font-medium uppercase tracking-wider text-slate-400">
           Border
         </label>
-        <ColorPicker
-          value={element.border.color}
-          onSelect={(color) => updateBorder(selectedId, { color })}
-          swatches={PALETTE.borders}
-        />
-        <div className="mt-2 grid grid-cols-2 gap-2">
-          <div>
-            <label className="mb-1 block text-[10px] text-slate-500">Width</label>
-            <input
-              type="number"
-              min={0}
-              max={20}
-              value={element.border.width}
-              onChange={(e) => updateBorder(selectedId, { width: parseInt(e.target.value, 10) || 0 })}
-              className="w-full rounded border border-slate-700 bg-slate-800 px-2 py-1 text-xs text-slate-200"
-            />
-          </div>
-          <div>
-            <label className="mb-1 block text-[10px] text-slate-500">Radius</label>
-            <input
-              type="number"
-              min={0}
-              max={100}
-              value={element.border.radius}
-              onChange={(e) => updateBorder(selectedId, { radius: parseInt(e.target.value, 10) || 0 })}
-              className="w-full rounded border border-slate-700 bg-slate-800 px-2 py-1 text-xs text-slate-200"
-            />
-          </div>
-        </div>
-        <div className="mt-2">
-          <label className="mb-1 block text-[10px] text-slate-500">Style</label>
-          <select
-            value={element.border.style}
-            onChange={(e) => updateBorder(selectedId, { style: e.target.value as "solid" | "dashed" | "dotted" | "none" })}
-            className="w-full rounded border border-slate-700 bg-slate-800 px-2 py-1 text-xs text-slate-200"
-          >
-            <option value="solid">Solid</option>
-            <option value="dashed">Dashed</option>
-            <option value="dotted">Dotted</option>
-            <option value="none">None</option>
-          </select>
-        </div>
+        <select
+          value={element.border.style}
+          onChange={(e) => updateBorder(selectedId, { style: e.target.value as "solid" | "dashed" | "dotted" | "none" })}
+          className="w-full rounded border border-slate-700 bg-slate-800 px-2 py-1 text-xs text-slate-200"
+        >
+          <option value="solid">Solid (permanent)</option>
+          <option value="dashed">Dashed (collapsible)</option>
+          <option value="dotted">Dotted</option>
+          <option value="none">None</option>
+        </select>
       </div>
 
       {/* Layer section */}
