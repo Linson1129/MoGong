@@ -167,7 +167,7 @@ export function Toolbar() {
       <span className="font-mono text-xs text-slate-600 dark:text-slate-400">
         {Math.round(canvas.width)} × {Math.round(canvas.height)}
       </span>
-      <span className="text-xs text-slate-500">
+      <span className="text-xs text-slate-500 dark:text-slate-400">
         {elementCount} 个区域
       </span>
 
