@@ -1,0 +1,2958 @@
+{
+  "_generated_by": "scripts/generate_geometry_fixture.py",
+  "_warning": "Committed golden file. Both the Python and the TypeScript geometry modules are checked against it. Regenerate deliberately, never to make a test pass.",
+  "_note": "Values are rounded to six decimals. Both test sides compare with a tolerance instead of exact equality, because Python rounds halves to even and JavaScript rounds halves away from zero, which would make the file's own last digit a false divergence.",
+  "caseCount": 118,
+  "cases": [
+    {
+      "a": {
+        "x": 0.0,
+        "y": 0.0,
+        "width": 1.0,
+        "height": 1.0
+      },
+      "b": {
+        "x": -151.0,
+        "y": -151.0,
+        "width": 1.0,
+        "height": 1.0
+      },
+      "containsAB": false,
+      "containsBA": false,
+      "overlaps": false,
+      "partiallyOverlaps": false,
+      "overlapArea": 0.0,
+      "relativeBInA": {
+        "x": -15100.0,
+        "y": -15100.0,
+        "width": 100.0,
+        "height": 100.0
+      }
+    },
+    {
+      "a": {
+        "x": 0.0,
+        "y": 0.0,
+        "width": 1.0,
+        "height": 1.0
+      },
+      "b": {
+        "x": -151.0,
+        "y": -151.0,
+        "width": 50.0,
+        "height": 50.0
+      },
+      "containsAB": false,
+      "containsBA": false,
+      "overlaps": false,
+      "partiallyOverlaps": false,
+      "overlapArea": 0.0,
+      "relativeBInA": {
+        "x": -15100.0,
+        "y": -15100.0,
+        "width": 5000.0,
+        "height": 5000.0
+      }
+    },
+    {
+      "a": {
+        "x": 0.0,
+        "y": 0.0,
+        "width": 1.0,
+        "height": 1.0
+      },
+      "b": {
+        "x": -151.0,
+        "y": -151.0,
+        "width": 100.0,
+        "height": 50.0
+      },
+      "containsAB": false,
+      "containsBA": false,
+      "overlaps": false,
+      "partiallyOverlaps": false,
+      "overlapArea": 0.0,
+      "relativeBInA": {
+        "x": -15100.0,
+        "y": -15100.0,
+        "width": 10000.0,
+        "height": 5000.0
+      }
+    },
+    {
+      "a": {
+        "x": 0.0,
+        "y": 0.0,
+        "width": 1.0,
+        "height": 1.0
+      },
+      "b": {
+        "x": -151.0,
+        "y": -151.0,
+        "width": 50.0,
+        "height": 100.0
+      },
+      "containsAB": false,
+      "containsBA": false,
+      "overlaps": false,
+      "partiallyOverlaps": false,
+      "overlapArea": 0.0,
+      "relativeBInA": {
+        "x": -15100.0,
+        "y": -15100.0,
+        "width": 5000.0,
+        "height": 10000.0
+      }
+    },
+    {
+      "a": {
+        "x": 0.0,
+        "y": 0.0,
+        "width": 1.0,
+        "height": 1.0
+      },
+      "b": {
+        "x": -151.0,
+        "y": -151.0,
+        "width": 100.0,
+        "height": 100.0
+      },
+      "containsAB": false,
+      "containsBA": false,
+      "overlaps": false,
+      "partiallyOverlaps": false,
+      "overlapArea": 0.0,
+      "relativeBInA": {
+        "x": -15100.0,
+        "y": -15100.0,
+        "width": 10000.0,
+        "height": 10000.0
+      }
+    },
+    {
+      "a": {
+        "x": 0.0,
+        "y": 0.0,
+        "width": 1.0,
+        "height": 1.0
+      },
+      "b": {
+        "x": -151.0,
+        "y": -150.0,
+        "width": 1.0,
+        "height": 1.0
+      },
+      "containsAB": false,
+      "containsBA": false,
+      "overlaps": false,
+      "partiallyOverlaps": false,
+      "overlapArea": 0.0,
+      "relativeBInA": {
+        "x": -15100.0,
+        "y": -15000.0,
+        "width": 100.0,
+        "height": 100.0
+      }
+    },
+    {
+      "a": {
+        "x": 0.0,
+        "y": 0.0,
+        "width": 1.0,
+        "height": 1.0
+      },
+      "b": {
+        "x": -151.0,
+        "y": -150.0,
+        "width": 50.0,
+        "height": 50.0
+      },
+      "containsAB": false,
+      "containsBA": false,
+      "overlaps": false,
+      "partiallyOverlaps": false,
+      "overlapArea": 0.0,
+      "relativeBInA": {
+        "x": -15100.0,
+        "y": -15000.0,
+        "width": 5000.0,
+        "height": 5000.0
+      }
+    },
+    {
+      "a": {
+        "x": 0.0,
+        "y": 0.0,
+        "width": 1.0,
+        "height": 1.0
+      },
+      "b": {
+        "x": -151.0,
+        "y": -150.0,
+        "width": 100.0,
+        "height": 50.0
+      },
+      "containsAB": false,
+      "containsBA": false,
+      "overlaps": false,
+      "partiallyOverlaps": false,
+      "overlapArea": 0.0,
+      "relativeBInA": {
+        "x": -15100.0,
+        "y": -15000.0,
+        "width": 10000.0,
+        "height": 5000.0
+      }
+    },
+    {
+      "a": {
+        "x": 0.0,
+        "y": 0.0,
+        "width": 1.0,
+        "height": 1.0
+      },
+      "b": {
+        "x": -151.0,
+        "y": -150.0,
+        "width": 50.0,
+        "height": 100.0
+      },
+      "containsAB": false,
+      "containsBA": false,
+      "overlaps": false,
+      "partiallyOverlaps": false,
+      "overlapArea": 0.0,
+      "relativeBInA": {
+        "x": -15100.0,
+        "y": -15000.0,
+        "width": 5000.0,
+        "height": 10000.0
+      }
+    },
+    {
+      "a": {
+        "x": 0.0,
+        "y": 0.0,
+        "width": 1.0,
+        "height": 1.0
+      },
+      "b": {
+        "x": -151.0,
+        "y": -150.0,
+        "width": 100.0,
+        "height": 100.0
+      },
+      "containsAB": false,
+      "containsBA": false,
+      "overlaps": false,
+      "partiallyOverlaps": false,
+      "overlapArea": 0.0,
+      "relativeBInA": {
+        "x": -15100.0,
+        "y": -15000.0,
+        "width": 10000.0,
+        "height": 10000.0
+      }
+    },
+    {
+      "a": {
+        "x": 0.0,
+        "y": 0.0,
+        "width": 1.0,
+        "height": 1.0
+      },
+      "b": {
+        "x": -51.0,
+        "y": -51.0,
+        "width": 100.0,
+        "height": 100.0
+      },
+      "containsAB": false,
+      "containsBA": true,
+      "overlaps": true,
+      "partiallyOverlaps": false,
+      "overlapArea": 1.0,
+      "relativeBInA": {
+        "x": -5100.0,
+        "y": -5100.0,
+        "width": 10000.0,
+        "height": 10000.0
+      }
+    },
+    {
+      "a": {
+        "x": 0.0,
+        "y": 0.0,
+        "width": 1.0,
+        "height": 1.0
+      },
+      "b": {
+        "x": -51.0,
+        "y": -50.0,
+        "width": 100.0,
+        "height": 100.0
+      },
+      "containsAB": false,
+      "containsBA": true,
+      "overlaps": true,
+      "partiallyOverlaps": false,
+      "overlapArea": 1.0,
+      "relativeBInA": {
+        "x": -5100.0,
+        "y": -5000.0,
+        "width": 10000.0,
+        "height": 10000.0
+      }
+    },
+    {
+      "a": {
+        "x": 0.0,
+        "y": 0.0,
+        "width": 1.0,
+        "height": 1.0
+      },
+      "b": {
+        "x": -51.0,
+        "y": -1.0,
+        "width": 100.0,
+        "height": 50.0
+      },
+      "containsAB": false,
+      "containsBA": true,
+      "overlaps": true,
+      "partiallyOverlaps": false,
+      "overlapArea": 1.0,
+      "relativeBInA": {
+        "x": -5100.0,
+        "y": -100.0,
+        "width": 10000.0,
+        "height": 5000.0
+      }
+    },
+    {
+      "a": {
+        "x": 0.0,
+        "y": 0.0,
+        "width": 1.0,
+        "height": 1.0
+      },
+      "b": {
+        "x": -51.0,
+        "y": 0.0,
+        "width": 100.0,
+        "height": 50.0
+      },
+      "containsAB": false,
+      "containsBA": true,
+      "overlaps": true,
+      "partiallyOverlaps": false,
+      "overlapArea": 1.0,
+      "relativeBInA": {
+        "x": -5100.0,
+        "y": 0.0,
+        "width": 10000.0,
+        "height": 5000.0
+      }
+    },
+    {
+      "a": {
+        "x": 0.0,
+        "y": 0.0,
+        "width": 1.0,
+        "height": 1.0
+      },
+      "b": {
+        "x": -1.0,
+        "y": -51.0,
+        "width": 50.0,
+        "height": 100.0
+      },
+      "containsAB": false,
+      "containsBA": true,
+      "overlaps": true,
+      "partiallyOverlaps": false,
+      "overlapArea": 1.0,
+      "relativeBInA": {
+        "x": -100.0,
+        "y": -5100.0,
+        "width": 5000.0,
+        "height": 10000.0
+      }
+    },
+    {
+      "a": {
+        "x": 0.0,
+        "y": 0.0,
+        "width": 1.0,
+        "height": 1.0
+      },
+      "b": {
+        "x": -1.0,
+        "y": -50.0,
+        "width": 50.0,
+        "height": 100.0
+      },
+      "containsAB": false,
+      "containsBA": true,
+      "overlaps": true,
+      "partiallyOverlaps": false,
+      "overlapArea": 1.0,
+      "relativeBInA": {
+        "x": -100.0,
+        "y": -5000.0,
+        "width": 5000.0,
+        "height": 10000.0
+      }
+    },
+    {
+      "a": {
+        "x": 0.0,
+        "y": 0.0,
+        "width": 1.0,
+        "height": 1.0
+      },
+      "b": {
+        "x": -1.0,
+        "y": -1.0,
+        "width": 50.0,
+        "height": 50.0
+      },
+      "containsAB": false,
+      "containsBA": true,
+      "overlaps": true,
+      "partiallyOverlaps": false,
+      "overlapArea": 1.0,
+      "relativeBInA": {
+        "x": -100.0,
+        "y": -100.0,
+        "width": 5000.0,
+        "height": 5000.0
+      }
+    },
+    {
+      "a": {
+        "x": 0.0,
+        "y": 0.0,
+        "width": 1.0,
+        "height": 1.0
+      },
+      "b": {
+        "x": -1.0,
+        "y": 0.0,
+        "width": 50.0,
+        "height": 50.0
+      },
+      "containsAB": false,
+      "containsBA": true,
+      "overlaps": true,
+      "partiallyOverlaps": false,
+      "overlapArea": 1.0,
+      "relativeBInA": {
+        "x": -100.0,
+        "y": 0.0,
+        "width": 5000.0,
+        "height": 5000.0
+      }
+    },
+    {
+      "a": {
+        "x": 0.0,
+        "y": 0.0,
+        "width": 50.0,
+        "height": 50.0
+      },
+      "b": {
+        "x": -151.0,
+        "y": -151.0,
+        "width": 1.0,
+        "height": 1.0
+      },
+      "containsAB": false,
+      "containsBA": false,
+      "overlaps": false,
+      "partiallyOverlaps": false,
+      "overlapArea": 0.0,
+      "relativeBInA": {
+        "x": -302.0,
+        "y": -302.0,
+        "width": 2.0,
+        "height": 2.0
+      }
+    },
+    {
+      "a": {
+        "x": 0.0,
+        "y": 0.0,
+        "width": 50.0,
+        "height": 50.0
+      },
+      "b": {
+        "x": -151.0,
+        "y": -151.0,
+        "width": 50.0,
+        "height": 50.0
+      },
+      "containsAB": false,
+      "containsBA": false,
+      "overlaps": false,
+      "partiallyOverlaps": false,
+      "overlapArea": 0.0,
+      "relativeBInA": {
+        "x": -302.0,
+        "y": -302.0,
+        "width": 100.0,
+        "height": 100.0
+      }
+    },
+    {
+      "a": {
+        "x": 0.0,
+        "y": 0.0,
+        "width": 50.0,
+        "height": 50.0
+      },
+      "b": {
+        "x": -151.0,
+        "y": -151.0,
+        "width": 100.0,
+        "height": 50.0
+      },
+      "containsAB": false,
+      "containsBA": false,
+      "overlaps": false,
+      "partiallyOverlaps": false,
+      "overlapArea": 0.0,
+      "relativeBInA": {
+        "x": -302.0,
+        "y": -302.0,
+        "width": 200.0,
+        "height": 100.0
+      }
+    },
+    {
+      "a": {
+        "x": 0.0,
+        "y": 0.0,
+        "width": 50.0,
+        "height": 50.0
+      },
+      "b": {
+        "x": -151.0,
+        "y": -151.0,
+        "width": 50.0,
+        "height": 100.0
+      },
+      "containsAB": false,
+      "containsBA": false,
+      "overlaps": false,
+      "partiallyOverlaps": false,
+      "overlapArea": 0.0,
+      "relativeBInA": {
+        "x": -302.0,
+        "y": -302.0,
+        "width": 100.0,
+        "height": 200.0
+      }
+    },
+    {
+      "a": {
+        "x": 0.0,
+        "y": 0.0,
+        "width": 50.0,
+        "height": 50.0
+      },
+      "b": {
+        "x": -151.0,
+        "y": -151.0,
+        "width": 100.0,
+        "height": 100.0
+      },
+      "containsAB": false,
+      "containsBA": false,
+      "overlaps": false,
+      "partiallyOverlaps": false,
+      "overlapArea": 0.0,
+      "relativeBInA": {
+        "x": -302.0,
+        "y": -302.0,
+        "width": 200.0,
+        "height": 200.0
+      }
+    },
+    {
+      "a": {
+        "x": 0.0,
+        "y": 0.0,
+        "width": 50.0,
+        "height": 50.0
+      },
+      "b": {
+        "x": -151.0,
+        "y": -150.0,
+        "width": 1.0,
+        "height": 1.0
+      },
+      "containsAB": false,
+      "containsBA": false,
+      "overlaps": false,
+      "partiallyOverlaps": false,
+      "overlapArea": 0.0,
+      "relativeBInA": {
+        "x": -302.0,
+        "y": -300.0,
+        "width": 2.0,
+        "height": 2.0
+      }
+    },
+    {
+      "a": {
+        "x": 0.0,
+        "y": 0.0,
+        "width": 50.0,
+        "height": 50.0
+      },
+      "b": {
+        "x": -151.0,
+        "y": -150.0,
+        "width": 50.0,
+        "height": 50.0
+      },
+      "containsAB": false,
+      "containsBA": false,
+      "overlaps": false,
+      "partiallyOverlaps": false,
+      "overlapArea": 0.0,
+      "relativeBInA": {
+        "x": -302.0,
+        "y": -300.0,
+        "width": 100.0,
+        "height": 100.0
+      }
+    },
+    {
+      "a": {
+        "x": 0.0,
+        "y": 0.0,
+        "width": 50.0,
+        "height": 50.0
+      },
+      "b": {
+        "x": -151.0,
+        "y": -150.0,
+        "width": 100.0,
+        "height": 50.0
+      },
+      "containsAB": false,
+      "containsBA": false,
+      "overlaps": false,
+      "partiallyOverlaps": false,
+      "overlapArea": 0.0,
+      "relativeBInA": {
+        "x": -302.0,
+        "y": -300.0,
+        "width": 200.0,
+        "height": 100.0
+      }
+    },
+    {
+      "a": {
+        "x": 0.0,
+        "y": 0.0,
+        "width": 50.0,
+        "height": 50.0
+      },
+      "b": {
+        "x": -151.0,
+        "y": -150.0,
+        "width": 50.0,
+        "height": 100.0
+      },
+      "containsAB": false,
+      "containsBA": false,
+      "overlaps": false,
+      "partiallyOverlaps": false,
+      "overlapArea": 0.0,
+      "relativeBInA": {
+        "x": -302.0,
+        "y": -300.0,
+        "width": 100.0,
+        "height": 200.0
+      }
+    },
+    {
+      "a": {
+        "x": 0.0,
+        "y": 0.0,
+        "width": 50.0,
+        "height": 50.0
+      },
+      "b": {
+        "x": -151.0,
+        "y": -150.0,
+        "width": 100.0,
+        "height": 100.0
+      },
+      "containsAB": false,
+      "containsBA": false,
+      "overlaps": false,
+      "partiallyOverlaps": false,
+      "overlapArea": 0.0,
+      "relativeBInA": {
+        "x": -302.0,
+        "y": -300.0,
+        "width": 200.0,
+        "height": 200.0
+      }
+    },
+    {
+      "a": {
+        "x": 0.0,
+        "y": 0.0,
+        "width": 50.0,
+        "height": 50.0
+      },
+      "b": {
+        "x": -51.0,
+        "y": -51.0,
+        "width": 100.0,
+        "height": 100.0
+      },
+      "containsAB": false,
+      "containsBA": false,
+      "overlaps": true,
+      "partiallyOverlaps": true,
+      "overlapArea": 2401.0,
+      "relativeBInA": {
+        "x": -102.0,
+        "y": -102.0,
+        "width": 200.0,
+        "height": 200.0
+      }
+    },
+    {
+      "a": {
+        "x": 0.0,
+        "y": 0.0,
+        "width": 50.0,
+        "height": 50.0
+      },
+      "b": {
+        "x": -51.0,
+        "y": -50.0,
+        "width": 100.0,
+        "height": 100.0
+      },
+      "containsAB": false,
+      "containsBA": false,
+      "overlaps": true,
+      "partiallyOverlaps": true,
+      "overlapArea": 2450.0,
+      "relativeBInA": {
+        "x": -102.0,
+        "y": -100.0,
+        "width": 200.0,
+        "height": 200.0
+      }
+    },
+    {
+      "a": {
+        "x": 0.0,
+        "y": 0.0,
+        "width": 50.0,
+        "height": 50.0
+      },
+      "b": {
+        "x": -51.0,
+        "y": -1.0,
+        "width": 100.0,
+        "height": 50.0
+      },
+      "containsAB": false,
+      "containsBA": false,
+      "overlaps": true,
+      "partiallyOverlaps": true,
+      "overlapArea": 2401.0,
+      "relativeBInA": {
+        "x": -102.0,
+        "y": -2.0,
+        "width": 200.0,
+        "height": 100.0
+      }
+    },
+    {
+      "a": {
+        "x": 0.0,
+        "y": 0.0,
+        "width": 50.0,
+        "height": 50.0
+      },
+      "b": {
+        "x": -51.0,
+        "y": 0.0,
+        "width": 100.0,
+        "height": 50.0
+      },
+      "containsAB": false,
+      "containsBA": false,
+      "overlaps": true,
+      "partiallyOverlaps": true,
+      "overlapArea": 2450.0,
+      "relativeBInA": {
+        "x": -102.0,
+        "y": 0.0,
+        "width": 200.0,
+        "height": 100.0
+      }
+    },
+    {
+      "a": {
+        "x": 0.0,
+        "y": 0.0,
+        "width": 50.0,
+        "height": 50.0
+      },
+      "b": {
+        "x": -50.0,
+        "y": -50.0,
+        "width": 100.0,
+        "height": 100.0
+      },
+      "containsAB": false,
+      "containsBA": true,
+      "overlaps": true,
+      "partiallyOverlaps": false,
+      "overlapArea": 2500.0,
+      "relativeBInA": {
+        "x": -100.0,
+        "y": -100.0,
+        "width": 200.0,
+        "height": 200.0
+      }
+    },
+    {
+      "a": {
+        "x": 0.0,
+        "y": 0.0,
+        "width": 50.0,
+        "height": 50.0
+      },
+      "b": {
+        "x": -50.0,
+        "y": -1.0,
+        "width": 100.0,
+        "height": 100.0
+      },
+      "containsAB": false,
+      "containsBA": true,
+      "overlaps": true,
+      "partiallyOverlaps": false,
+      "overlapArea": 2500.0,
+      "relativeBInA": {
+        "x": -100.0,
+        "y": -2.0,
+        "width": 200.0,
+        "height": 200.0
+      }
+    },
+    {
+      "a": {
+        "x": 0.0,
+        "y": 0.0,
+        "width": 50.0,
+        "height": 50.0
+      },
+      "b": {
+        "x": -50.0,
+        "y": 0.0,
+        "width": 100.0,
+        "height": 50.0
+      },
+      "containsAB": false,
+      "containsBA": true,
+      "overlaps": true,
+      "partiallyOverlaps": false,
+      "overlapArea": 2500.0,
+      "relativeBInA": {
+        "x": -100.0,
+        "y": 0.0,
+        "width": 200.0,
+        "height": 100.0
+      }
+    },
+    {
+      "a": {
+        "x": 0.0,
+        "y": 0.0,
+        "width": 50.0,
+        "height": 50.0
+      },
+      "b": {
+        "x": -1.0,
+        "y": -51.0,
+        "width": 50.0,
+        "height": 100.0
+      },
+      "containsAB": false,
+      "containsBA": false,
+      "overlaps": true,
+      "partiallyOverlaps": true,
+      "overlapArea": 2401.0,
+      "relativeBInA": {
+        "x": -2.0,
+        "y": -102.0,
+        "width": 100.0,
+        "height": 200.0
+      }
+    },
+    {
+      "a": {
+        "x": 0.0,
+        "y": 0.0,
+        "width": 50.0,
+        "height": 50.0
+      },
+      "b": {
+        "x": -1.0,
+        "y": -50.0,
+        "width": 50.0,
+        "height": 100.0
+      },
+      "containsAB": false,
+      "containsBA": false,
+      "overlaps": true,
+      "partiallyOverlaps": true,
+      "overlapArea": 2450.0,
+      "relativeBInA": {
+        "x": -2.0,
+        "y": -100.0,
+        "width": 100.0,
+        "height": 200.0
+      }
+    },
+    {
+      "a": {
+        "x": 0.0,
+        "y": 0.0,
+        "width": 50.0,
+        "height": 50.0
+      },
+      "b": {
+        "x": -1.0,
+        "y": -1.0,
+        "width": 50.0,
+        "height": 50.0
+      },
+      "containsAB": false,
+      "containsBA": false,
+      "overlaps": true,
+      "partiallyOverlaps": true,
+      "overlapArea": 2401.0,
+      "relativeBInA": {
+        "x": -2.0,
+        "y": -2.0,
+        "width": 100.0,
+        "height": 100.0
+      }
+    },
+    {
+      "a": {
+        "x": 0.0,
+        "y": 0.0,
+        "width": 50.0,
+        "height": 50.0
+      },
+      "b": {
+        "x": -1.0,
+        "y": 0.0,
+        "width": 50.0,
+        "height": 50.0
+      },
+      "containsAB": false,
+      "containsBA": false,
+      "overlaps": true,
+      "partiallyOverlaps": true,
+      "overlapArea": 2450.0,
+      "relativeBInA": {
+        "x": -2.0,
+        "y": 0.0,
+        "width": 100.0,
+        "height": 100.0
+      }
+    },
+    {
+      "a": {
+        "x": 0.0,
+        "y": 0.0,
+        "width": 50.0,
+        "height": 50.0
+      },
+      "b": {
+        "x": -1.0,
+        "y": 0.0,
+        "width": 100.0,
+        "height": 50.0
+      },
+      "containsAB": false,
+      "containsBA": true,
+      "overlaps": true,
+      "partiallyOverlaps": false,
+      "overlapArea": 2500.0,
+      "relativeBInA": {
+        "x": -2.0,
+        "y": 0.0,
+        "width": 200.0,
+        "height": 100.0
+      }
+    },
+    {
+      "a": {
+        "x": 0.0,
+        "y": 0.0,
+        "width": 50.0,
+        "height": 50.0
+      },
+      "b": {
+        "x": 0.0,
+        "y": -50.0,
+        "width": 50.0,
+        "height": 100.0
+      },
+      "containsAB": false,
+      "containsBA": true,
+      "overlaps": true,
+      "partiallyOverlaps": false,
+      "overlapArea": 2500.0,
+      "relativeBInA": {
+        "x": 0.0,
+        "y": -100.0,
+        "width": 100.0,
+        "height": 200.0
+      }
+    },
+    {
+      "a": {
+        "x": 0.0,
+        "y": 0.0,
+        "width": 50.0,
+        "height": 50.0
+      },
+      "b": {
+        "x": 0.0,
+        "y": -1.0,
+        "width": 50.0,
+        "height": 100.0
+      },
+      "containsAB": false,
+      "containsBA": true,
+      "overlaps": true,
+      "partiallyOverlaps": false,
+      "overlapArea": 2500.0,
+      "relativeBInA": {
+        "x": 0.0,
+        "y": -2.0,
+        "width": 100.0,
+        "height": 200.0
+      }
+    },
+    {
+      "a": {
+        "x": 0.0,
+        "y": 0.0,
+        "width": 50.0,
+        "height": 50.0
+      },
+      "b": {
+        "x": 0.0,
+        "y": 0.0,
+        "width": 1.0,
+        "height": 1.0
+      },
+      "containsAB": true,
+      "containsBA": false,
+      "overlaps": true,
+      "partiallyOverlaps": false,
+      "overlapArea": 1.0,
+      "relativeBInA": {
+        "x": 0.0,
+        "y": 0.0,
+        "width": 2.0,
+        "height": 2.0
+      }
+    },
+    {
+      "a": {
+        "x": 0.0,
+        "y": 0.0,
+        "width": 50.0,
+        "height": 50.0
+      },
+      "b": {
+        "x": 0.0,
+        "y": 1.0,
+        "width": 1.0,
+        "height": 1.0
+      },
+      "containsAB": true,
+      "containsBA": false,
+      "overlaps": true,
+      "partiallyOverlaps": false,
+      "overlapArea": 1.0,
+      "relativeBInA": {
+        "x": 0.0,
+        "y": 2.0,
+        "width": 2.0,
+        "height": 2.0
+      }
+    },
+    {
+      "a": {
+        "x": 0.0,
+        "y": 0.0,
+        "width": 100.0,
+        "height": 50.0
+      },
+      "b": {
+        "x": -151.0,
+        "y": -151.0,
+        "width": 1.0,
+        "height": 1.0
+      },
+      "containsAB": false,
+      "containsBA": false,
+      "overlaps": false,
+      "partiallyOverlaps": false,
+      "overlapArea": 0.0,
+      "relativeBInA": {
+        "x": -151.0,
+        "y": -302.0,
+        "width": 1.0,
+        "height": 2.0
+      }
+    },
+    {
+      "a": {
+        "x": 0.0,
+        "y": 0.0,
+        "width": 100.0,
+        "height": 50.0
+      },
+      "b": {
+        "x": -151.0,
+        "y": -151.0,
+        "width": 50.0,
+        "height": 50.0
+      },
+      "containsAB": false,
+      "containsBA": false,
+      "overlaps": false,
+      "partiallyOverlaps": false,
+      "overlapArea": 0.0,
+      "relativeBInA": {
+        "x": -151.0,
+        "y": -302.0,
+        "width": 50.0,
+        "height": 100.0
+      }
+    },
+    {
+      "a": {
+        "x": 0.0,
+        "y": 0.0,
+        "width": 100.0,
+        "height": 50.0
+      },
+      "b": {
+        "x": -151.0,
+        "y": -151.0,
+        "width": 100.0,
+        "height": 50.0
+      },
+      "containsAB": false,
+      "containsBA": false,
+      "overlaps": false,
+      "partiallyOverlaps": false,
+      "overlapArea": 0.0,
+      "relativeBInA": {
+        "x": -151.0,
+        "y": -302.0,
+        "width": 100.0,
+        "height": 100.0
+      }
+    },
+    {
+      "a": {
+        "x": 0.0,
+        "y": 0.0,
+        "width": 100.0,
+        "height": 50.0
+      },
+      "b": {
+        "x": -151.0,
+        "y": -151.0,
+        "width": 50.0,
+        "height": 100.0
+      },
+      "containsAB": false,
+      "containsBA": false,
+      "overlaps": false,
+      "partiallyOverlaps": false,
+      "overlapArea": 0.0,
+      "relativeBInA": {
+        "x": -151.0,
+        "y": -302.0,
+        "width": 50.0,
+        "height": 200.0
+      }
+    },
+    {
+      "a": {
+        "x": 0.0,
+        "y": 0.0,
+        "width": 100.0,
+        "height": 50.0
+      },
+      "b": {
+        "x": -151.0,
+        "y": -151.0,
+        "width": 100.0,
+        "height": 100.0
+      },
+      "containsAB": false,
+      "containsBA": false,
+      "overlaps": false,
+      "partiallyOverlaps": false,
+      "overlapArea": 0.0,
+      "relativeBInA": {
+        "x": -151.0,
+        "y": -302.0,
+        "width": 100.0,
+        "height": 200.0
+      }
+    },
+    {
+      "a": {
+        "x": 0.0,
+        "y": 0.0,
+        "width": 100.0,
+        "height": 50.0
+      },
+      "b": {
+        "x": -151.0,
+        "y": -150.0,
+        "width": 1.0,
+        "height": 1.0
+      },
+      "containsAB": false,
+      "containsBA": false,
+      "overlaps": false,
+      "partiallyOverlaps": false,
+      "overlapArea": 0.0,
+      "relativeBInA": {
+        "x": -151.0,
+        "y": -300.0,
+        "width": 1.0,
+        "height": 2.0
+      }
+    },
+    {
+      "a": {
+        "x": 0.0,
+        "y": 0.0,
+        "width": 100.0,
+        "height": 50.0
+      },
+      "b": {
+        "x": -151.0,
+        "y": -150.0,
+        "width": 50.0,
+        "height": 50.0
+      },
+      "containsAB": false,
+      "containsBA": false,
+      "overlaps": false,
+      "partiallyOverlaps": false,
+      "overlapArea": 0.0,
+      "relativeBInA": {
+        "x": -151.0,
+        "y": -300.0,
+        "width": 50.0,
+        "height": 100.0
+      }
+    },
+    {
+      "a": {
+        "x": 0.0,
+        "y": 0.0,
+        "width": 100.0,
+        "height": 50.0
+      },
+      "b": {
+        "x": -151.0,
+        "y": -150.0,
+        "width": 100.0,
+        "height": 50.0
+      },
+      "containsAB": false,
+      "containsBA": false,
+      "overlaps": false,
+      "partiallyOverlaps": false,
+      "overlapArea": 0.0,
+      "relativeBInA": {
+        "x": -151.0,
+        "y": -300.0,
+        "width": 100.0,
+        "height": 100.0
+      }
+    },
+    {
+      "a": {
+        "x": 0.0,
+        "y": 0.0,
+        "width": 100.0,
+        "height": 50.0
+      },
+      "b": {
+        "x": -151.0,
+        "y": -150.0,
+        "width": 50.0,
+        "height": 100.0
+      },
+      "containsAB": false,
+      "containsBA": false,
+      "overlaps": false,
+      "partiallyOverlaps": false,
+      "overlapArea": 0.0,
+      "relativeBInA": {
+        "x": -151.0,
+        "y": -300.0,
+        "width": 50.0,
+        "height": 200.0
+      }
+    },
+    {
+      "a": {
+        "x": 0.0,
+        "y": 0.0,
+        "width": 100.0,
+        "height": 50.0
+      },
+      "b": {
+        "x": -151.0,
+        "y": -150.0,
+        "width": 100.0,
+        "height": 100.0
+      },
+      "containsAB": false,
+      "containsBA": false,
+      "overlaps": false,
+      "partiallyOverlaps": false,
+      "overlapArea": 0.0,
+      "relativeBInA": {
+        "x": -151.0,
+        "y": -300.0,
+        "width": 100.0,
+        "height": 200.0
+      }
+    },
+    {
+      "a": {
+        "x": 0.0,
+        "y": 0.0,
+        "width": 100.0,
+        "height": 50.0
+      },
+      "b": {
+        "x": -51.0,
+        "y": -51.0,
+        "width": 100.0,
+        "height": 100.0
+      },
+      "containsAB": false,
+      "containsBA": false,
+      "overlaps": true,
+      "partiallyOverlaps": true,
+      "overlapArea": 2401.0,
+      "relativeBInA": {
+        "x": -51.0,
+        "y": -102.0,
+        "width": 100.0,
+        "height": 200.0
+      }
+    },
+    {
+      "a": {
+        "x": 0.0,
+        "y": 0.0,
+        "width": 100.0,
+        "height": 50.0
+      },
+      "b": {
+        "x": -51.0,
+        "y": -50.0,
+        "width": 100.0,
+        "height": 100.0
+      },
+      "containsAB": false,
+      "containsBA": false,
+      "overlaps": true,
+      "partiallyOverlaps": true,
+      "overlapArea": 2450.0,
+      "relativeBInA": {
+        "x": -51.0,
+        "y": -100.0,
+        "width": 100.0,
+        "height": 200.0
+      }
+    },
+    {
+      "a": {
+        "x": 0.0,
+        "y": 0.0,
+        "width": 100.0,
+        "height": 50.0
+      },
+      "b": {
+        "x": -51.0,
+        "y": -1.0,
+        "width": 100.0,
+        "height": 50.0
+      },
+      "containsAB": false,
+      "containsBA": false,
+      "overlaps": true,
+      "partiallyOverlaps": true,
+      "overlapArea": 2401.0,
+      "relativeBInA": {
+        "x": -51.0,
+        "y": -2.0,
+        "width": 100.0,
+        "height": 100.0
+      }
+    },
+    {
+      "a": {
+        "x": 0.0,
+        "y": 0.0,
+        "width": 100.0,
+        "height": 50.0
+      },
+      "b": {
+        "x": -51.0,
+        "y": 0.0,
+        "width": 100.0,
+        "height": 50.0
+      },
+      "containsAB": false,
+      "containsBA": false,
+      "overlaps": true,
+      "partiallyOverlaps": true,
+      "overlapArea": 2450.0,
+      "relativeBInA": {
+        "x": -51.0,
+        "y": 0.0,
+        "width": 100.0,
+        "height": 100.0
+      }
+    },
+    {
+      "a": {
+        "x": 0.0,
+        "y": 0.0,
+        "width": 100.0,
+        "height": 50.0
+      },
+      "b": {
+        "x": -1.0,
+        "y": -51.0,
+        "width": 50.0,
+        "height": 100.0
+      },
+      "containsAB": false,
+      "containsBA": false,
+      "overlaps": true,
+      "partiallyOverlaps": true,
+      "overlapArea": 2401.0,
+      "relativeBInA": {
+        "x": -1.0,
+        "y": -102.0,
+        "width": 50.0,
+        "height": 200.0
+      }
+    },
+    {
+      "a": {
+        "x": 0.0,
+        "y": 0.0,
+        "width": 100.0,
+        "height": 50.0
+      },
+      "b": {
+        "x": -1.0,
+        "y": -50.0,
+        "width": 50.0,
+        "height": 100.0
+      },
+      "containsAB": false,
+      "containsBA": false,
+      "overlaps": true,
+      "partiallyOverlaps": true,
+      "overlapArea": 2450.0,
+      "relativeBInA": {
+        "x": -1.0,
+        "y": -100.0,
+        "width": 50.0,
+        "height": 200.0
+      }
+    },
+    {
+      "a": {
+        "x": 0.0,
+        "y": 0.0,
+        "width": 100.0,
+        "height": 50.0
+      },
+      "b": {
+        "x": -1.0,
+        "y": -1.0,
+        "width": 50.0,
+        "height": 50.0
+      },
+      "containsAB": false,
+      "containsBA": false,
+      "overlaps": true,
+      "partiallyOverlaps": true,
+      "overlapArea": 2401.0,
+      "relativeBInA": {
+        "x": -1.0,
+        "y": -2.0,
+        "width": 50.0,
+        "height": 100.0
+      }
+    },
+    {
+      "a": {
+        "x": 0.0,
+        "y": 0.0,
+        "width": 100.0,
+        "height": 50.0
+      },
+      "b": {
+        "x": -1.0,
+        "y": 0.0,
+        "width": 50.0,
+        "height": 50.0
+      },
+      "containsAB": false,
+      "containsBA": false,
+      "overlaps": true,
+      "partiallyOverlaps": true,
+      "overlapArea": 2450.0,
+      "relativeBInA": {
+        "x": -1.0,
+        "y": 0.0,
+        "width": 50.0,
+        "height": 100.0
+      }
+    },
+    {
+      "a": {
+        "x": 0.0,
+        "y": 0.0,
+        "width": 100.0,
+        "height": 50.0
+      },
+      "b": {
+        "x": 0.0,
+        "y": -50.0,
+        "width": 100.0,
+        "height": 100.0
+      },
+      "containsAB": false,
+      "containsBA": true,
+      "overlaps": true,
+      "partiallyOverlaps": false,
+      "overlapArea": 5000.0,
+      "relativeBInA": {
+        "x": 0.0,
+        "y": -100.0,
+        "width": 100.0,
+        "height": 200.0
+      }
+    },
+    {
+      "a": {
+        "x": 0.0,
+        "y": 0.0,
+        "width": 100.0,
+        "height": 50.0
+      },
+      "b": {
+        "x": 0.0,
+        "y": -1.0,
+        "width": 100.0,
+        "height": 100.0
+      },
+      "containsAB": false,
+      "containsBA": true,
+      "overlaps": true,
+      "partiallyOverlaps": false,
+      "overlapArea": 5000.0,
+      "relativeBInA": {
+        "x": 0.0,
+        "y": -2.0,
+        "width": 100.0,
+        "height": 200.0
+      }
+    },
+    {
+      "a": {
+        "x": 0.0,
+        "y": 0.0,
+        "width": 100.0,
+        "height": 50.0
+      },
+      "b": {
+        "x": 0.0,
+        "y": 0.0,
+        "width": 1.0,
+        "height": 1.0
+      },
+      "containsAB": true,
+      "containsBA": false,
+      "overlaps": true,
+      "partiallyOverlaps": false,
+      "overlapArea": 1.0,
+      "relativeBInA": {
+        "x": 0.0,
+        "y": 0.0,
+        "width": 1.0,
+        "height": 2.0
+      }
+    },
+    {
+      "a": {
+        "x": 0.0,
+        "y": 0.0,
+        "width": 100.0,
+        "height": 50.0
+      },
+      "b": {
+        "x": 0.0,
+        "y": 0.0,
+        "width": 50.0,
+        "height": 50.0
+      },
+      "containsAB": true,
+      "containsBA": false,
+      "overlaps": true,
+      "partiallyOverlaps": false,
+      "overlapArea": 2500.0,
+      "relativeBInA": {
+        "x": 0.0,
+        "y": 0.0,
+        "width": 50.0,
+        "height": 100.0
+      }
+    },
+    {
+      "a": {
+        "x": 0.0,
+        "y": 0.0,
+        "width": 100.0,
+        "height": 50.0
+      },
+      "b": {
+        "x": 0.0,
+        "y": 1.0,
+        "width": 1.0,
+        "height": 1.0
+      },
+      "containsAB": true,
+      "containsBA": false,
+      "overlaps": true,
+      "partiallyOverlaps": false,
+      "overlapArea": 1.0,
+      "relativeBInA": {
+        "x": 0.0,
+        "y": 2.0,
+        "width": 1.0,
+        "height": 2.0
+      }
+    },
+    {
+      "a": {
+        "x": 0.0,
+        "y": 0.0,
+        "width": 100.0,
+        "height": 50.0
+      },
+      "b": {
+        "x": 1.0,
+        "y": 0.0,
+        "width": 50.0,
+        "height": 50.0
+      },
+      "containsAB": true,
+      "containsBA": false,
+      "overlaps": true,
+      "partiallyOverlaps": false,
+      "overlapArea": 2500.0,
+      "relativeBInA": {
+        "x": 1.0,
+        "y": 0.0,
+        "width": 50.0,
+        "height": 100.0
+      }
+    },
+    {
+      "a": {
+        "x": 0.0,
+        "y": 0.0,
+        "width": 50.0,
+        "height": 100.0
+      },
+      "b": {
+        "x": -151.0,
+        "y": -151.0,
+        "width": 1.0,
+        "height": 1.0
+      },
+      "containsAB": false,
+      "containsBA": false,
+      "overlaps": false,
+      "partiallyOverlaps": false,
+      "overlapArea": 0.0,
+      "relativeBInA": {
+        "x": -302.0,
+        "y": -151.0,
+        "width": 2.0,
+        "height": 1.0
+      }
+    },
+    {
+      "a": {
+        "x": 0.0,
+        "y": 0.0,
+        "width": 50.0,
+        "height": 100.0
+      },
+      "b": {
+        "x": -151.0,
+        "y": -151.0,
+        "width": 50.0,
+        "height": 50.0
+      },
+      "containsAB": false,
+      "containsBA": false,
+      "overlaps": false,
+      "partiallyOverlaps": false,
+      "overlapArea": 0.0,
+      "relativeBInA": {
+        "x": -302.0,
+        "y": -151.0,
+        "width": 100.0,
+        "height": 50.0
+      }
+    },
+    {
+      "a": {
+        "x": 0.0,
+        "y": 0.0,
+        "width": 50.0,
+        "height": 100.0
+      },
+      "b": {
+        "x": -151.0,
+        "y": -151.0,
+        "width": 100.0,
+        "height": 50.0
+      },
+      "containsAB": false,
+      "containsBA": false,
+      "overlaps": false,
+      "partiallyOverlaps": false,
+      "overlapArea": 0.0,
+      "relativeBInA": {
+        "x": -302.0,
+        "y": -151.0,
+        "width": 200.0,
+        "height": 50.0
+      }
+    },
+    {
+      "a": {
+        "x": 0.0,
+        "y": 0.0,
+        "width": 50.0,
+        "height": 100.0
+      },
+      "b": {
+        "x": -151.0,
+        "y": -151.0,
+        "width": 50.0,
+        "height": 100.0
+      },
+      "containsAB": false,
+      "containsBA": false,
+      "overlaps": false,
+      "partiallyOverlaps": false,
+      "overlapArea": 0.0,
+      "relativeBInA": {
+        "x": -302.0,
+        "y": -151.0,
+        "width": 100.0,
+        "height": 100.0
+      }
+    },
+    {
+      "a": {
+        "x": 0.0,
+        "y": 0.0,
+        "width": 50.0,
+        "height": 100.0
+      },
+      "b": {
+        "x": -151.0,
+        "y": -151.0,
+        "width": 100.0,
+        "height": 100.0
+      },
+      "containsAB": false,
+      "containsBA": false,
+      "overlaps": false,
+      "partiallyOverlaps": false,
+      "overlapArea": 0.0,
+      "relativeBInA": {
+        "x": -302.0,
+        "y": -151.0,
+        "width": 200.0,
+        "height": 100.0
+      }
+    },
+    {
+      "a": {
+        "x": 0.0,
+        "y": 0.0,
+        "width": 50.0,
+        "height": 100.0
+      },
+      "b": {
+        "x": -151.0,
+        "y": -150.0,
+        "width": 1.0,
+        "height": 1.0
+      },
+      "containsAB": false,
+      "containsBA": false,
+      "overlaps": false,
+      "partiallyOverlaps": false,
+      "overlapArea": 0.0,
+      "relativeBInA": {
+        "x": -302.0,
+        "y": -150.0,
+        "width": 2.0,
+        "height": 1.0
+      }
+    },
+    {
+      "a": {
+        "x": 0.0,
+        "y": 0.0,
+        "width": 50.0,
+        "height": 100.0
+      },
+      "b": {
+        "x": -151.0,
+        "y": -150.0,
+        "width": 50.0,
+        "height": 50.0
+      },
+      "containsAB": false,
+      "containsBA": false,
+      "overlaps": false,
+      "partiallyOverlaps": false,
+      "overlapArea": 0.0,
+      "relativeBInA": {
+        "x": -302.0,
+        "y": -150.0,
+        "width": 100.0,
+        "height": 50.0
+      }
+    },
+    {
+      "a": {
+        "x": 0.0,
+        "y": 0.0,
+        "width": 50.0,
+        "height": 100.0
+      },
+      "b": {
+        "x": -151.0,
+        "y": -150.0,
+        "width": 100.0,
+        "height": 50.0
+      },
+      "containsAB": false,
+      "containsBA": false,
+      "overlaps": false,
+      "partiallyOverlaps": false,
+      "overlapArea": 0.0,
+      "relativeBInA": {
+        "x": -302.0,
+        "y": -150.0,
+        "width": 200.0,
+        "height": 50.0
+      }
+    },
+    {
+      "a": {
+        "x": 0.0,
+        "y": 0.0,
+        "width": 50.0,
+        "height": 100.0
+      },
+      "b": {
+        "x": -151.0,
+        "y": -150.0,
+        "width": 50.0,
+        "height": 100.0
+      },
+      "containsAB": false,
+      "containsBA": false,
+      "overlaps": false,
+      "partiallyOverlaps": false,
+      "overlapArea": 0.0,
+      "relativeBInA": {
+        "x": -302.0,
+        "y": -150.0,
+        "width": 100.0,
+        "height": 100.0
+      }
+    },
+    {
+      "a": {
+        "x": 0.0,
+        "y": 0.0,
+        "width": 50.0,
+        "height": 100.0
+      },
+      "b": {
+        "x": -151.0,
+        "y": -150.0,
+        "width": 100.0,
+        "height": 100.0
+      },
+      "containsAB": false,
+      "containsBA": false,
+      "overlaps": false,
+      "partiallyOverlaps": false,
+      "overlapArea": 0.0,
+      "relativeBInA": {
+        "x": -302.0,
+        "y": -150.0,
+        "width": 200.0,
+        "height": 100.0
+      }
+    },
+    {
+      "a": {
+        "x": 0.0,
+        "y": 0.0,
+        "width": 50.0,
+        "height": 100.0
+      },
+      "b": {
+        "x": -51.0,
+        "y": -51.0,
+        "width": 100.0,
+        "height": 100.0
+      },
+      "containsAB": false,
+      "containsBA": false,
+      "overlaps": true,
+      "partiallyOverlaps": true,
+      "overlapArea": 2401.0,
+      "relativeBInA": {
+        "x": -102.0,
+        "y": -51.0,
+        "width": 200.0,
+        "height": 100.0
+      }
+    },
+    {
+      "a": {
+        "x": 0.0,
+        "y": 0.0,
+        "width": 50.0,
+        "height": 100.0
+      },
+      "b": {
+        "x": -51.0,
+        "y": -50.0,
+        "width": 100.0,
+        "height": 100.0
+      },
+      "containsAB": false,
+      "containsBA": false,
+      "overlaps": true,
+      "partiallyOverlaps": true,
+      "overlapArea": 2450.0,
+      "relativeBInA": {
+        "x": -102.0,
+        "y": -50.0,
+        "width": 200.0,
+        "height": 100.0
+      }
+    },
+    {
+      "a": {
+        "x": 0.0,
+        "y": 0.0,
+        "width": 50.0,
+        "height": 100.0
+      },
+      "b": {
+        "x": -51.0,
+        "y": -1.0,
+        "width": 100.0,
+        "height": 50.0
+      },
+      "containsAB": false,
+      "containsBA": false,
+      "overlaps": true,
+      "partiallyOverlaps": true,
+      "overlapArea": 2401.0,
+      "relativeBInA": {
+        "x": -102.0,
+        "y": -1.0,
+        "width": 200.0,
+        "height": 50.0
+      }
+    },
+    {
+      "a": {
+        "x": 0.0,
+        "y": 0.0,
+        "width": 50.0,
+        "height": 100.0
+      },
+      "b": {
+        "x": -51.0,
+        "y": 0.0,
+        "width": 100.0,
+        "height": 50.0
+      },
+      "containsAB": false,
+      "containsBA": false,
+      "overlaps": true,
+      "partiallyOverlaps": true,
+      "overlapArea": 2450.0,
+      "relativeBInA": {
+        "x": -102.0,
+        "y": 0.0,
+        "width": 200.0,
+        "height": 50.0
+      }
+    },
+    {
+      "a": {
+        "x": 0.0,
+        "y": 0.0,
+        "width": 50.0,
+        "height": 100.0
+      },
+      "b": {
+        "x": -50.0,
+        "y": 0.0,
+        "width": 100.0,
+        "height": 100.0
+      },
+      "containsAB": false,
+      "containsBA": true,
+      "overlaps": true,
+      "partiallyOverlaps": false,
+      "overlapArea": 5000.0,
+      "relativeBInA": {
+        "x": -100.0,
+        "y": 0.0,
+        "width": 200.0,
+        "height": 100.0
+      }
+    },
+    {
+      "a": {
+        "x": 0.0,
+        "y": 0.0,
+        "width": 50.0,
+        "height": 100.0
+      },
+      "b": {
+        "x": -1.0,
+        "y": -51.0,
+        "width": 50.0,
+        "height": 100.0
+      },
+      "containsAB": false,
+      "containsBA": false,
+      "overlaps": true,
+      "partiallyOverlaps": true,
+      "overlapArea": 2401.0,
+      "relativeBInA": {
+        "x": -2.0,
+        "y": -51.0,
+        "width": 100.0,
+        "height": 100.0
+      }
+    },
+    {
+      "a": {
+        "x": 0.0,
+        "y": 0.0,
+        "width": 50.0,
+        "height": 100.0
+      },
+      "b": {
+        "x": -1.0,
+        "y": -50.0,
+        "width": 50.0,
+        "height": 100.0
+      },
+      "containsAB": false,
+      "containsBA": false,
+      "overlaps": true,
+      "partiallyOverlaps": true,
+      "overlapArea": 2450.0,
+      "relativeBInA": {
+        "x": -2.0,
+        "y": -50.0,
+        "width": 100.0,
+        "height": 100.0
+      }
+    },
+    {
+      "a": {
+        "x": 0.0,
+        "y": 0.0,
+        "width": 50.0,
+        "height": 100.0
+      },
+      "b": {
+        "x": -1.0,
+        "y": -1.0,
+        "width": 50.0,
+        "height": 50.0
+      },
+      "containsAB": false,
+      "containsBA": false,
+      "overlaps": true,
+      "partiallyOverlaps": true,
+      "overlapArea": 2401.0,
+      "relativeBInA": {
+        "x": -2.0,
+        "y": -1.0,
+        "width": 100.0,
+        "height": 50.0
+      }
+    },
+    {
+      "a": {
+        "x": 0.0,
+        "y": 0.0,
+        "width": 50.0,
+        "height": 100.0
+      },
+      "b": {
+        "x": -1.0,
+        "y": 0.0,
+        "width": 50.0,
+        "height": 50.0
+      },
+      "containsAB": false,
+      "containsBA": false,
+      "overlaps": true,
+      "partiallyOverlaps": true,
+      "overlapArea": 2450.0,
+      "relativeBInA": {
+        "x": -2.0,
+        "y": 0.0,
+        "width": 100.0,
+        "height": 50.0
+      }
+    },
+    {
+      "a": {
+        "x": 0.0,
+        "y": 0.0,
+        "width": 50.0,
+        "height": 100.0
+      },
+      "b": {
+        "x": -1.0,
+        "y": 0.0,
+        "width": 100.0,
+        "height": 100.0
+      },
+      "containsAB": false,
+      "containsBA": true,
+      "overlaps": true,
+      "partiallyOverlaps": false,
+      "overlapArea": 5000.0,
+      "relativeBInA": {
+        "x": -2.0,
+        "y": 0.0,
+        "width": 200.0,
+        "height": 100.0
+      }
+    },
+    {
+      "a": {
+        "x": 0.0,
+        "y": 0.0,
+        "width": 50.0,
+        "height": 100.0
+      },
+      "b": {
+        "x": 0.0,
+        "y": 0.0,
+        "width": 1.0,
+        "height": 1.0
+      },
+      "containsAB": true,
+      "containsBA": false,
+      "overlaps": true,
+      "partiallyOverlaps": false,
+      "overlapArea": 1.0,
+      "relativeBInA": {
+        "x": 0.0,
+        "y": 0.0,
+        "width": 2.0,
+        "height": 1.0
+      }
+    },
+    {
+      "a": {
+        "x": 0.0,
+        "y": 0.0,
+        "width": 50.0,
+        "height": 100.0
+      },
+      "b": {
+        "x": 0.0,
+        "y": 0.0,
+        "width": 50.0,
+        "height": 50.0
+      },
+      "containsAB": true,
+      "containsBA": false,
+      "overlaps": true,
+      "partiallyOverlaps": false,
+      "overlapArea": 2500.0,
+      "relativeBInA": {
+        "x": 0.0,
+        "y": 0.0,
+        "width": 100.0,
+        "height": 50.0
+      }
+    },
+    {
+      "a": {
+        "x": 0.0,
+        "y": 0.0,
+        "width": 50.0,
+        "height": 100.0
+      },
+      "b": {
+        "x": 0.0,
+        "y": 1.0,
+        "width": 1.0,
+        "height": 1.0
+      },
+      "containsAB": true,
+      "containsBA": false,
+      "overlaps": true,
+      "partiallyOverlaps": false,
+      "overlapArea": 1.0,
+      "relativeBInA": {
+        "x": 0.0,
+        "y": 1.0,
+        "width": 2.0,
+        "height": 1.0
+      }
+    },
+    {
+      "a": {
+        "x": 0.0,
+        "y": 0.0,
+        "width": 50.0,
+        "height": 100.0
+      },
+      "b": {
+        "x": 0.0,
+        "y": 1.0,
+        "width": 50.0,
+        "height": 50.0
+      },
+      "containsAB": true,
+      "containsBA": false,
+      "overlaps": true,
+      "partiallyOverlaps": false,
+      "overlapArea": 2500.0,
+      "relativeBInA": {
+        "x": 0.0,
+        "y": 1.0,
+        "width": 100.0,
+        "height": 50.0
+      }
+    },
+    {
+      "a": {
+        "x": 0.0,
+        "y": 0.0,
+        "width": 100.0,
+        "height": 100.0
+      },
+      "b": {
+        "x": -151.0,
+        "y": -151.0,
+        "width": 1.0,
+        "height": 1.0
+      },
+      "containsAB": false,
+      "containsBA": false,
+      "overlaps": false,
+      "partiallyOverlaps": false,
+      "overlapArea": 0.0,
+      "relativeBInA": {
+        "x": -151.0,
+        "y": -151.0,
+        "width": 1.0,
+        "height": 1.0
+      }
+    },
+    {
+      "a": {
+        "x": 0.0,
+        "y": 0.0,
+        "width": 100.0,
+        "height": 100.0
+      },
+      "b": {
+        "x": -151.0,
+        "y": -151.0,
+        "width": 50.0,
+        "height": 50.0
+      },
+      "containsAB": false,
+      "containsBA": false,
+      "overlaps": false,
+      "partiallyOverlaps": false,
+      "overlapArea": 0.0,
+      "relativeBInA": {
+        "x": -151.0,
+        "y": -151.0,
+        "width": 50.0,
+        "height": 50.0
+      }
+    },
+    {
+      "a": {
+        "x": 0.0,
+        "y": 0.0,
+        "width": 100.0,
+        "height": 100.0
+      },
+      "b": {
+        "x": -151.0,
+        "y": -151.0,
+        "width": 100.0,
+        "height": 50.0
+      },
+      "containsAB": false,
+      "containsBA": false,
+      "overlaps": false,
+      "partiallyOverlaps": false,
+      "overlapArea": 0.0,
+      "relativeBInA": {
+        "x": -151.0,
+        "y": -151.0,
+        "width": 100.0,
+        "height": 50.0
+      }
+    },
+    {
+      "a": {
+        "x": 0.0,
+        "y": 0.0,
+        "width": 100.0,
+        "height": 100.0
+      },
+      "b": {
+        "x": -151.0,
+        "y": -151.0,
+        "width": 50.0,
+        "height": 100.0
+      },
+      "containsAB": false,
+      "containsBA": false,
+      "overlaps": false,
+      "partiallyOverlaps": false,
+      "overlapArea": 0.0,
+      "relativeBInA": {
+        "x": -151.0,
+        "y": -151.0,
+        "width": 50.0,
+        "height": 100.0
+      }
+    },
+    {
+      "a": {
+        "x": 0.0,
+        "y": 0.0,
+        "width": 100.0,
+        "height": 100.0
+      },
+      "b": {
+        "x": -151.0,
+        "y": -151.0,
+        "width": 100.0,
+        "height": 100.0
+      },
+      "containsAB": false,
+      "containsBA": false,
+      "overlaps": false,
+      "partiallyOverlaps": false,
+      "overlapArea": 0.0,
+      "relativeBInA": {
+        "x": -151.0,
+        "y": -151.0,
+        "width": 100.0,
+        "height": 100.0
+      }
+    },
+    {
+      "a": {
+        "x": 0.0,
+        "y": 0.0,
+        "width": 100.0,
+        "height": 100.0
+      },
+      "b": {
+        "x": -151.0,
+        "y": -150.0,
+        "width": 1.0,
+        "height": 1.0
+      },
+      "containsAB": false,
+      "containsBA": false,
+      "overlaps": false,
+      "partiallyOverlaps": false,
+      "overlapArea": 0.0,
+      "relativeBInA": {
+        "x": -151.0,
+        "y": -150.0,
+        "width": 1.0,
+        "height": 1.0
+      }
+    },
+    {
+      "a": {
+        "x": 0.0,
+        "y": 0.0,
+        "width": 100.0,
+        "height": 100.0
+      },
+      "b": {
+        "x": -151.0,
+        "y": -150.0,
+        "width": 50.0,
+        "height": 50.0
+      },
+      "containsAB": false,
+      "containsBA": false,
+      "overlaps": false,
+      "partiallyOverlaps": false,
+      "overlapArea": 0.0,
+      "relativeBInA": {
+        "x": -151.0,
+        "y": -150.0,
+        "width": 50.0,
+        "height": 50.0
+      }
+    },
+    {
+      "a": {
+        "x": 0.0,
+        "y": 0.0,
+        "width": 100.0,
+        "height": 100.0
+      },
+      "b": {
+        "x": -151.0,
+        "y": -150.0,
+        "width": 100.0,
+        "height": 50.0
+      },
+      "containsAB": false,
+      "containsBA": false,
+      "overlaps": false,
+      "partiallyOverlaps": false,
+      "overlapArea": 0.0,
+      "relativeBInA": {
+        "x": -151.0,
+        "y": -150.0,
+        "width": 100.0,
+        "height": 50.0
+      }
+    },
+    {
+      "a": {
+        "x": 0.0,
+        "y": 0.0,
+        "width": 100.0,
+        "height": 100.0
+      },
+      "b": {
+        "x": -151.0,
+        "y": -150.0,
+        "width": 50.0,
+        "height": 100.0
+      },
+      "containsAB": false,
+      "containsBA": false,
+      "overlaps": false,
+      "partiallyOverlaps": false,
+      "overlapArea": 0.0,
+      "relativeBInA": {
+        "x": -151.0,
+        "y": -150.0,
+        "width": 50.0,
+        "height": 100.0
+      }
+    },
+    {
+      "a": {
+        "x": 0.0,
+        "y": 0.0,
+        "width": 100.0,
+        "height": 100.0
+      },
+      "b": {
+        "x": -151.0,
+        "y": -150.0,
+        "width": 100.0,
+        "height": 100.0
+      },
+      "containsAB": false,
+      "containsBA": false,
+      "overlaps": false,
+      "partiallyOverlaps": false,
+      "overlapArea": 0.0,
+      "relativeBInA": {
+        "x": -151.0,
+        "y": -150.0,
+        "width": 100.0,
+        "height": 100.0
+      }
+    },
+    {
+      "a": {
+        "x": 0.0,
+        "y": 0.0,
+        "width": 100.0,
+        "height": 100.0
+      },
+      "b": {
+        "x": -51.0,
+        "y": -51.0,
+        "width": 100.0,
+        "height": 100.0
+      },
+      "containsAB": false,
+      "containsBA": false,
+      "overlaps": true,
+      "partiallyOverlaps": true,
+      "overlapArea": 2401.0,
+      "relativeBInA": {
+        "x": -51.0,
+        "y": -51.0,
+        "width": 100.0,
+        "height": 100.0
+      }
+    },
+    {
+      "a": {
+        "x": 0.0,
+        "y": 0.0,
+        "width": 100.0,
+        "height": 100.0
+      },
+      "b": {
+        "x": -51.0,
+        "y": -50.0,
+        "width": 100.0,
+        "height": 100.0
+      },
+      "containsAB": false,
+      "containsBA": false,
+      "overlaps": true,
+      "partiallyOverlaps": true,
+      "overlapArea": 2450.0,
+      "relativeBInA": {
+        "x": -51.0,
+        "y": -50.0,
+        "width": 100.0,
+        "height": 100.0
+      }
+    },
+    {
+      "a": {
+        "x": 0.0,
+        "y": 0.0,
+        "width": 100.0,
+        "height": 100.0
+      },
+      "b": {
+        "x": -51.0,
+        "y": -1.0,
+        "width": 100.0,
+        "height": 50.0
+      },
+      "containsAB": false,
+      "containsBA": false,
+      "overlaps": true,
+      "partiallyOverlaps": true,
+      "overlapArea": 2401.0,
+      "relativeBInA": {
+        "x": -51.0,
+        "y": -1.0,
+        "width": 100.0,
+        "height": 50.0
+      }
+    },
+    {
+      "a": {
+        "x": 0.0,
+        "y": 0.0,
+        "width": 100.0,
+        "height": 100.0
+      },
+      "b": {
+        "x": -51.0,
+        "y": 0.0,
+        "width": 100.0,
+        "height": 50.0
+      },
+      "containsAB": false,
+      "containsBA": false,
+      "overlaps": true,
+      "partiallyOverlaps": true,
+      "overlapArea": 2450.0,
+      "relativeBInA": {
+        "x": -51.0,
+        "y": 0.0,
+        "width": 100.0,
+        "height": 50.0
+      }
+    },
+    {
+      "a": {
+        "x": 0.0,
+        "y": 0.0,
+        "width": 100.0,
+        "height": 100.0
+      },
+      "b": {
+        "x": -1.0,
+        "y": -51.0,
+        "width": 50.0,
+        "height": 100.0
+      },
+      "containsAB": false,
+      "containsBA": false,
+      "overlaps": true,
+      "partiallyOverlaps": true,
+      "overlapArea": 2401.0,
+      "relativeBInA": {
+        "x": -1.0,
+        "y": -51.0,
+        "width": 50.0,
+        "height": 100.0
+      }
+    },
+    {
+      "a": {
+        "x": 0.0,
+        "y": 0.0,
+        "width": 100.0,
+        "height": 100.0
+      },
+      "b": {
+        "x": -1.0,
+        "y": -50.0,
+        "width": 50.0,
+        "height": 100.0
+      },
+      "containsAB": false,
+      "containsBA": false,
+      "overlaps": true,
+      "partiallyOverlaps": true,
+      "overlapArea": 2450.0,
+      "relativeBInA": {
+        "x": -1.0,
+        "y": -50.0,
+        "width": 50.0,
+        "height": 100.0
+      }
+    },
+    {
+      "a": {
+        "x": 0.0,
+        "y": 0.0,
+        "width": 100.0,
+        "height": 100.0
+      },
+      "b": {
+        "x": -1.0,
+        "y": -1.0,
+        "width": 50.0,
+        "height": 50.0
+      },
+      "containsAB": false,
+      "containsBA": false,
+      "overlaps": true,
+      "partiallyOverlaps": true,
+      "overlapArea": 2401.0,
+      "relativeBInA": {
+        "x": -1.0,
+        "y": -1.0,
+        "width": 50.0,
+        "height": 50.0
+      }
+    },
+    {
+      "a": {
+        "x": 0.0,
+        "y": 0.0,
+        "width": 100.0,
+        "height": 100.0
+      },
+      "b": {
+        "x": -1.0,
+        "y": 0.0,
+        "width": 50.0,
+        "height": 50.0
+      },
+      "containsAB": false,
+      "containsBA": false,
+      "overlaps": true,
+      "partiallyOverlaps": true,
+      "overlapArea": 2450.0,
+      "relativeBInA": {
+        "x": -1.0,
+        "y": 0.0,
+        "width": 50.0,
+        "height": 50.0
+      }
+    },
+    {
+      "a": {
+        "x": 0.0,
+        "y": 0.0,
+        "width": 100.0,
+        "height": 100.0
+      },
+      "b": {
+        "x": 0.0,
+        "y": 0.0,
+        "width": 1.0,
+        "height": 1.0
+      },
+      "containsAB": true,
+      "containsBA": false,
+      "overlaps": true,
+      "partiallyOverlaps": false,
+      "overlapArea": 1.0,
+      "relativeBInA": {
+        "x": 0.0,
+        "y": 0.0,
+        "width": 1.0,
+        "height": 1.0
+      }
+    },
+    {
+      "a": {
+        "x": 0.0,
+        "y": 0.0,
+        "width": 100.0,
+        "height": 100.0
+      },
+      "b": {
+        "x": 0.0,
+        "y": 0.0,
+        "width": 50.0,
+        "height": 50.0
+      },
+      "containsAB": true,
+      "containsBA": false,
+      "overlaps": true,
+      "partiallyOverlaps": false,
+      "overlapArea": 2500.0,
+      "relativeBInA": {
+        "x": 0.0,
+        "y": 0.0,
+        "width": 50.0,
+        "height": 50.0
+      }
+    },
+    {
+      "a": {
+        "x": 0.0,
+        "y": 0.0,
+        "width": 100.0,
+        "height": 100.0
+      },
+      "b": {
+        "x": 0.0,
+        "y": 0.0,
+        "width": 100.0,
+        "height": 50.0
+      },
+      "containsAB": true,
+      "containsBA": false,
+      "overlaps": true,
+      "partiallyOverlaps": false,
+      "overlapArea": 5000.0,
+      "relativeBInA": {
+        "x": 0.0,
+        "y": 0.0,
+        "width": 100.0,
+        "height": 50.0
+      }
+    },
+    {
+      "a": {
+        "x": 0.0,
+        "y": 0.0,
+        "width": 100.0,
+        "height": 100.0
+      },
+      "b": {
+        "x": 0.0,
+        "y": 0.0,
+        "width": 50.0,
+        "height": 100.0
+      },
+      "containsAB": true,
+      "containsBA": false,
+      "overlaps": true,
+      "partiallyOverlaps": false,
+      "overlapArea": 5000.0,
+      "relativeBInA": {
+        "x": 0.0,
+        "y": 0.0,
+        "width": 50.0,
+        "height": 100.0
+      }
+    },
+    {
+      "a": {
+        "x": 0.0,
+        "y": 0.0,
+        "width": 100.0,
+        "height": 100.0
+      },
+      "b": {
+        "x": 0.0,
+        "y": 1.0,
+        "width": 1.0,
+        "height": 1.0
+      },
+      "containsAB": true,
+      "containsBA": false,
+      "overlaps": true,
+      "partiallyOverlaps": false,
+      "overlapArea": 1.0,
+      "relativeBInA": {
+        "x": 0.0,
+        "y": 1.0,
+        "width": 1.0,
+        "height": 1.0
+      }
+    },
+    {
+      "a": {
+        "x": 0.0,
+        "y": 0.0,
+        "width": 100.0,
+        "height": 100.0
+      },
+      "b": {
+        "x": 0.0,
+        "y": 1.0,
+        "width": 50.0,
+        "height": 50.0
+      },
+      "containsAB": true,
+      "containsBA": false,
+      "overlaps": true,
+      "partiallyOverlaps": false,
+      "overlapArea": 2500.0,
+      "relativeBInA": {
+        "x": 0.0,
+        "y": 1.0,
+        "width": 50.0,
+        "height": 50.0
+      }
+    },
+    {
+      "a": {
+        "x": 0.0,
+        "y": 0.0,
+        "width": 100.0,
+        "height": 100.0
+      },
+      "b": {
+        "x": 0.0,
+        "y": 1.0,
+        "width": 100.0,
+        "height": 50.0
+      },
+      "containsAB": true,
+      "containsBA": false,
+      "overlaps": true,
+      "partiallyOverlaps": false,
+      "overlapArea": 5000.0,
+      "relativeBInA": {
+        "x": 0.0,
+        "y": 1.0,
+        "width": 100.0,
+        "height": 50.0
+      }
+    },
+    {
+      "a": {
+        "x": 0.0,
+        "y": 0.0,
+        "width": 100.0,
+        "height": 100.0
+      },
+      "b": {
+        "x": 1.0,
+        "y": 0.0,
+        "width": 50.0,
+        "height": 100.0
+      },
+      "containsAB": true,
+      "containsBA": false,
+      "overlaps": true,
+      "partiallyOverlaps": false,
+      "overlapArea": 5000.0,
+      "relativeBInA": {
+        "x": 1.0,
+        "y": 0.0,
+        "width": 50.0,
+        "height": 100.0
+      }
+    }
+  ]
+}

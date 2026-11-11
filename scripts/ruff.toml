@@ -1,0 +1,14 @@
+# Lint settings for the repository scripts, matching the rule selection in
+# backend/pyproject.toml.
+#
+# This exists as a separate file rather than inheriting the backend configuration because ruff
+# resolves configuration by walking up from each linted file, and the backend settings declare
+# ``app`` and ``tests`` as first-party import sources -- which describes nothing here. A script
+# reaches across the repository on purpose: this one imports the backend geometry module after
+# putting it on sys.path, and writes its output next to the frontend it guards.
+line-length = 100
+src = ["../backend"]
+
+[lint]
+select = ["E", "F", "I", "UP", "B", "SIM", "RUF"]
+ignore = ["UP042"]
