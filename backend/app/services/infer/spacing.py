@@ -30,7 +30,7 @@ class GapMeasurement:
     average_gap: float
 
 
-def _measure_row_gaps(children: list["TreeNode"], parent_width: float) -> GapMeasurement:
+def _measure_row_gaps(children: list[TreeNode], parent_width: float) -> GapMeasurement:
     """Measure horizontal gaps between children in a row layout.
 
     Children should be sorted left-to-right by nesting.py.
@@ -64,7 +64,7 @@ def _measure_row_gaps(children: list["TreeNode"], parent_width: float) -> GapMea
     return GapMeasurement(gaps_pct, LayoutMode.ROW, consistent, avg)
 
 
-def _measure_column_gaps(children: list["TreeNode"], parent_height: float) -> GapMeasurement:
+def _measure_column_gaps(children: list[TreeNode], parent_height: float) -> GapMeasurement:
     """Measure vertical gaps between children in a column layout."""
     if len(children) < 2:
         return GapMeasurement([], LayoutMode.COLUMN, True, 0.0)
@@ -93,9 +93,9 @@ def _measure_column_gaps(children: list["TreeNode"], parent_height: float) -> Ga
 
 
 def measure_spacing(
-    children: list["TreeNode"],
+    children: list[TreeNode],
     layout_mode: LayoutMode,
-    parent_rect: "TreeNode.rect",
+    parent_rect: TreeNode.rect,
 ) -> tuple[SpacingInfo | None, str | None]:
     """Measure gap between adjacent siblings.
 
@@ -138,7 +138,7 @@ def measure_spacing(
     return spacing, warning
 
 
-def detect_alignment(children: list["TreeNode"]) -> AlignInfo | None:
+def detect_alignment(children: list[TreeNode]) -> AlignInfo | None:
     """Detect if all children share an edge or center line within tolerance.
 
     Returns alignment info only when it holds for ALL children, because a partial
@@ -163,7 +163,7 @@ def detect_alignment(children: list["TreeNode"]) -> AlignInfo | None:
     )
 
 
-def _detect_horizontal_alignment(children: list["TreeNode"]) -> str | None:
+def _detect_horizontal_alignment(children: list[TreeNode]) -> str | None:
     """Check if all children share left, right, or center x-alignment."""
     lefts = [c.rect.x for c in children]
     rights = [c.rect.right for c in children]
@@ -179,7 +179,7 @@ def _detect_horizontal_alignment(children: list["TreeNode"]) -> str | None:
     return None
 
 
-def _detect_vertical_alignment(children: list["TreeNode"]) -> str | None:
+def _detect_vertical_alignment(children: list[TreeNode]) -> str | None:
     """Check if all children share top, bottom, or center y-alignment."""
     tops = [c.rect.y for c in children]
     bottoms = [c.rect.bottom for c in children]
@@ -204,7 +204,7 @@ def _all_close(values: list[float], tolerance: float) -> bool:
     return (max_val - min_val) <= tolerance
 
 
-def infer_spacing_and_alignment(node: "TreeNode") -> list[dict]:
+def infer_spacing_and_alignment(node: TreeNode) -> list[dict]:
     """Walk the tree and measure spacing/alignment for each container.
 
     Returns list of warnings for inconsistent gaps.

@@ -48,7 +48,7 @@ def to_percent_box(node_rect: Rect, parent_rect: Rect) -> Box:
     )
 
 
-def convert_to_relative(node: "TreeNode") -> None:
+def convert_to_relative(node: TreeNode) -> None:
     """Walk the tree and compute relative Box for each node.
 
     Each node gets a `relative_box` attribute containing its Box in parent percentages.

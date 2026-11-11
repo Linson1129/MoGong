@@ -12,7 +12,6 @@ from app.schemas.layout import ElementRole
 from app.services.infer.roles import infer_role
 from app.services.nesting import TreeNode
 
-
 CANVAS = CanvasConfig(width=1440, height=900)
 
 
@@ -147,8 +146,7 @@ class TestBlockRole:
         parent = make_node("container", 0, 0, 1440, 900, fill_color="#FFFFFF")
         # Wide enough (>= 25% of parent) to avoid button classification.
         child = make_node(
-            "generic", 200, 200, 600, 400,
-            fill_color="#FFFFFF", border_width=0, parent=parent
+            "generic", 200, 200, 600, 400, fill_color="#FFFFFF", border_width=0, parent=parent
         )
 
         role = infer_role(child, CANVAS)

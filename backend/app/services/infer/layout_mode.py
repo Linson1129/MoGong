@@ -17,17 +17,17 @@ if TYPE_CHECKING:
     from app.services.nesting import TreeNode
 
 
-def _horizontal_overlap(a: "TreeNode", b: "TreeNode") -> bool:
+def _horizontal_overlap(a: TreeNode, b: TreeNode) -> bool:
     """True when two nodes overlap on the x-axis."""
     return a.rect.x < b.rect.right and b.rect.x < a.rect.right
 
 
-def _vertical_overlap(a: "TreeNode", b: "TreeNode") -> bool:
+def _vertical_overlap(a: TreeNode, b: TreeNode) -> bool:
     """True when two nodes overlap on the y-axis."""
     return a.rect.y < b.rect.bottom and b.rect.y < a.rect.bottom
 
 
-def _no_horizontal_overlap(children: list["TreeNode"]) -> bool:
+def _no_horizontal_overlap(children: list[TreeNode]) -> bool:
     """True when no two children overlap horizontally (they are side by side)."""
     for i, a in enumerate(children):
         for b in children[i + 1 :]:
@@ -36,7 +36,7 @@ def _no_horizontal_overlap(children: list["TreeNode"]) -> bool:
     return True
 
 
-def _no_vertical_overlap(children: list["TreeNode"]) -> bool:
+def _no_vertical_overlap(children: list[TreeNode]) -> bool:
     """True when no two children overlap vertically (they are stacked top to bottom)."""
     for i, a in enumerate(children):
         for b in children[i + 1 :]:
@@ -45,7 +45,7 @@ def _no_vertical_overlap(children: list["TreeNode"]) -> bool:
     return True
 
 
-def _any_overlap_both_axes(children: list["TreeNode"]) -> bool:
+def _any_overlap_both_axes(children: list[TreeNode]) -> bool:
     """True when any pair of children overlaps in BOTH axes simultaneously.
 
     This is the stack condition: children sitting on top of each other, like tabs or overlays.
@@ -57,7 +57,7 @@ def _any_overlap_both_axes(children: list["TreeNode"]) -> bool:
     return False
 
 
-def infer_layout_mode(children: list["TreeNode"]) -> tuple[LayoutMode, str | None]:
+def infer_layout_mode(children: list[TreeNode]) -> tuple[LayoutMode, str | None]:
     """Determine layout mode from children arrangement.
 
     Returns:
@@ -103,7 +103,7 @@ def infer_layout_mode(children: list["TreeNode"]) -> tuple[LayoutMode, str | Non
     return LayoutMode.FREE, warning
 
 
-def infer_layout_modes_recursive(node: "TreeNode") -> list[dict]:
+def infer_layout_modes_recursive(node: TreeNode) -> list[dict]:
     """Walk the tree and assign layout_mode to each node.
 
     Returns list of warnings for ambiguous (free) layouts.

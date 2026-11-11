@@ -24,31 +24,31 @@ FULL_WIDTH_THRESHOLD = 0.95
 FULL_HEIGHT_THRESHOLD = 0.95
 
 
-def _is_full_width(node: "TreeNode", parent_width: float) -> bool:
+def _is_full_width(node: TreeNode, parent_width: float) -> bool:
     """True when node spans nearly the full width of its parent."""
     return node.rect.width / parent_width >= FULL_WIDTH_THRESHOLD
 
 
-def _is_full_height(node: "TreeNode", parent_height: float) -> bool:
+def _is_full_height(node: TreeNode, parent_height: float) -> bool:
     """True when node spans nearly the full height of its parent."""
     return node.rect.height / parent_height >= FULL_HEIGHT_THRESHOLD
 
 
-def _height_percent_of_canvas(node: "TreeNode", canvas: "CanvasConfig") -> float:
+def _height_percent_of_canvas(node: TreeNode, canvas: CanvasConfig) -> float:
     return node.rect.height / canvas.height * 100
 
 
-def _is_near_top(node: "TreeNode", canvas: "CanvasConfig") -> bool:
+def _is_near_top(node: TreeNode, canvas: CanvasConfig) -> bool:
     """True when element is in the top portion of canvas."""
     return node.rect.y < canvas.height * 0.15
 
 
-def _is_near_bottom(node: "TreeNode", canvas: "CanvasConfig") -> bool:
+def _is_near_bottom(node: TreeNode, canvas: CanvasConfig) -> bool:
     """True when element is in the bottom portion of canvas."""
     return node.rect.bottom > canvas.height * 0.85
 
 
-def _has_fill_and_border(node: "TreeNode") -> bool:
+def _has_fill_and_border(node: TreeNode) -> bool:
     """True when element has visible fill and border, typical of buttons."""
     el = node.element
     has_fill = el.fill.color != "#FFFFFF" or el.fill.opacity < 1.0
@@ -56,12 +56,12 @@ def _has_fill_and_border(node: "TreeNode") -> bool:
     return has_fill and has_border
 
 
-def _is_wide_and_short(node: "TreeNode") -> bool:
+def _is_wide_and_short(node: TreeNode) -> bool:
     """True when aspect ratio is over 3:1, typical of text lines."""
     return node.rect.width / node.rect.height > 3.0
 
 
-def infer_role(node: "TreeNode", canvas: "CanvasConfig") -> ElementRole:
+def infer_role(node: TreeNode, canvas: CanvasConfig) -> ElementRole:
     """Assign a semantic role based on geometry and tree position.
 
     Rules are evaluated top to bottom; first match wins.
@@ -79,7 +79,9 @@ def infer_role(node: "TreeNode", canvas: "CanvasConfig") -> ElementRole:
 
     # Determine if parent is root and get parent dimensions.
     parent_is_root = parent is not None and parent.is_root
-    parent_width = canvas.width if parent_is_root else (parent.rect.width if parent else canvas.width)
+    parent_width = (
+        canvas.width if parent_is_root else (parent.rect.width if parent else canvas.width)
+    )
 
     full_width = _is_full_width(node, parent_width)
     height_pct = _height_percent_of_canvas(node, canvas)
@@ -119,7 +121,7 @@ def infer_role(node: "TreeNode", canvas: "CanvasConfig") -> ElementRole:
     return ElementRole.BLOCK
 
 
-def infer_roles_recursive(node: "TreeNode", canvas: "CanvasConfig") -> None:
+def infer_roles_recursive(node: TreeNode, canvas: CanvasConfig) -> None:
     """Walk the tree and assign role to each element node.
 
     Skips the root node, which gets "region" by definition.

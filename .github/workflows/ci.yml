@@ -1,0 +1,88 @@
+# CI: 每次 push / PR 跑与本地 `make lint` + `make test` 等价的检查。
+#
+# 两个 job 互相独立、并行执行：一端失败不会掩盖另一端的结论，日志也按端分组。
+#   - backend:  ruff check/format + pytest（Python 3.11，即 pyproject 的 requires-python 下限）
+#   - frontend: tsc + eslint + vitest + next build
+#
+# 命令刻意不依赖本地 .venv（CI 里不存在），而是直接调用装在 venv/bin 下的工具，
+# 与 Makefile 中的等价物保持一致。改 Makefile 里的检查命令时记得同步这里。
+
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  backend:
+    name: Backend (ruff + pytest)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: backend/pyproject.toml
+
+      - name: Install dependencies
+        run: |
+          python -m venv .venv
+          .venv/bin/pip install --upgrade pip
+          .venv/bin/pip install -e ".[dev]"
+
+      - name: Ruff check
+        run: |
+          .venv/bin/ruff check app tests
+          .venv/bin/ruff format --check app tests
+          cd ../scripts
+          ../backend/.venv/bin/ruff check .
+          ../backend/.venv/bin/ruff format --check .
+
+      - name: Pytest
+        run: .venv/bin/python -m pytest -q
+
+  frontend:
+    name: Frontend (tsc + eslint + vitest + build)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: ESLint
+        run: npm run lint
+
+      - name: Vitest
+        run: npm run test
+
+      - name: Production build
+        run: npm run build

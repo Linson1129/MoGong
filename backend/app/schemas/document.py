@@ -39,7 +39,7 @@ def _normalize_hex_color(value: str) -> str:
 
 
 class BorderStyle(str, Enum):
-    """边框样式：实线表示固定区域，虚线表示可折叠区域。"""
+    """Border style: solid marks a fixed region, dashed marks a collapsible one."""
 
     SOLID = "solid"
     DASHED = "dashed"
@@ -85,7 +85,8 @@ class Border(CamelModel):
 
     @model_validator(mode="after")
     def _reconcile_width_and_style(self) -> Self:
-        # 宽度为0时，样式默认为实线
+        # A zero width means "no border", so the style carries no information; pinning it to
+        # solid keeps one canonical spelling of the invisible state for the compiler to read.
         if self.width <= 0:
             self.style = BorderStyle.SOLID
         return self

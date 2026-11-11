@@ -168,8 +168,8 @@ def is_degenerate(width: float, height: float) -> bool:
 
 def assert_no_element_dropped(
     document: MoGongDocument,
-    layout: "LayoutDocument",
-) -> list["LayoutWarning"]:
+    layout: LayoutDocument,
+) -> list[LayoutWarning]:
     """Core invariant: every document element must appear in the compiled tree.
 
     This is the check that turns a whole class of compiler bug into a test failure instead of

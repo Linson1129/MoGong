@@ -21,7 +21,7 @@ Pipeline stages (see docs/json-schema.md section 4):
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from app.schemas.document import MoGongDocument
 from app.schemas.layout import (
@@ -101,7 +101,7 @@ def _assemble_layout_document(tree: TreeNode, document: MoGongDocument) -> Layou
     meta = LayoutMeta(
         name=document.meta.name,
         source="MoGong",
-        generated_at=datetime.now(timezone.utc).isoformat(),
+        generated_at=datetime.now(UTC).isoformat(),
     )
 
     return LayoutDocument(

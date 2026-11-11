@@ -94,9 +94,9 @@ class TestLayoutModeFree:
     def test_mixed_arrangement_is_free_with_warning(self) -> None:
         """Some children overlap horizontally, some overlap vertically, but not all."""
         children = [
-            make_node(0, 0, 200, 100, "a"),     # Top left
-            make_node(100, 100, 200, 100, "b"), # Center, overlaps both axes with 'a'
-            make_node(0, 150, 100, 100, "c"),   # Bottom left
+            make_node(0, 0, 200, 100, "a"),  # Top left
+            make_node(100, 100, 200, 100, "b"),  # Center, overlaps both axes with 'a'
+            make_node(0, 150, 100, 100, "c"),  # Bottom left
         ]
         mode, warning = infer_layout_mode(children)
         # This is an ambiguous case.

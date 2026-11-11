@@ -14,7 +14,9 @@ from app.schemas.layout import LayoutDocument, LayoutWarningCode
 from app.services.compiler import compile_document
 
 
-def make_document(elements: list[Element], width: float = 1440, height: float = 900) -> MoGongDocument:
+def make_document(
+    elements: list[Element], width: float = 1440, height: float = 900
+) -> MoGongDocument:
     return MoGongDocument(
         meta=DocumentMeta(id="test-layout", name="Test Page"),
         canvas=CanvasConfig(width=width, height=height),
@@ -84,10 +86,12 @@ class TestCompileSimpleLayout:
     def test_nested_element_percentages_are_relative_to_parent(self) -> None:
         """A child at (200,100,200,150) inside parent (100,50,400,300) should be
         relative: x=(200-100)/400*100=25%, y=(100-50)/300*100=16.67%."""
-        doc = make_document([
-            make_element("parent", 100, 50, 400, 300),
-            make_element("child", 200, 100, 200, 150),
-        ])
+        doc = make_document(
+            [
+                make_element("parent", 100, 50, 400, 300),
+                make_element("child", 200, 100, 200, 150),
+            ]
+        )
         result = compile_document(doc)
 
         parent_node = result.root.children[0]
@@ -102,11 +106,13 @@ class TestCompileSimpleLayout:
 
 class TestCompileHeaderFooter:
     def test_header_footer_produces_navigation_and_contentinfo(self) -> None:
-        doc = make_document([
-            make_element("header", 0, 0, 1440, 60, name="Header"),
-            make_element("main", 0, 60, 1440, 780, name="Main"),
-            make_element("footer", 0, 840, 1440, 60, name="Footer"),
-        ])
+        doc = make_document(
+            [
+                make_element("header", 0, 0, 1440, 60, name="Header"),
+                make_element("main", 0, 60, 1440, 780, name="Main"),
+                make_element("footer", 0, 840, 1440, 60, name="Footer"),
+            ]
+        )
         result = compile_document(doc)
 
         assert len(result.root.children) == 3
@@ -117,20 +123,26 @@ class TestCompileHeaderFooter:
 
 class TestCompileWarnings:
     def test_partial_overlap_produces_warning(self) -> None:
-        doc = make_document([
-            make_element("a", 0, 0, 200, 200),
-            make_element("b", 100, 100, 200, 200),  # Partially overlaps a.
-        ])
+        doc = make_document(
+            [
+                make_element("a", 0, 0, 200, 200),
+                make_element("b", 100, 100, 200, 200),  # Partially overlaps a.
+            ]
+        )
         result = compile_document(doc)
 
         assert len(result.warnings) > 0
-        overlap_warnings = [w for w in result.warnings if w.code == LayoutWarningCode.PARTIAL_OVERLAP]
+        overlap_warnings = [
+            w for w in result.warnings if w.code == LayoutWarningCode.PARTIAL_OVERLAP
+        ]
         assert len(overlap_warnings) == 1
 
     def test_notes_preserved_verbatim(self) -> None:
-        doc = make_document([
-            make_element("e1", 0, 0, 100, 100, note="This is sticky on scroll"),
-        ])
+        doc = make_document(
+            [
+                make_element("e1", 0, 0, 100, 100, note="This is sticky on scroll"),
+            ]
+        )
         result = compile_document(doc)
 
         node = result.root.children[0]
@@ -165,15 +177,19 @@ class TestCompletenessInvariant:
         doc = make_document(elements)
         result = compile_document(doc)
 
-        dropped_warnings = [w for w in result.warnings if w.code == LayoutWarningCode.ELEMENT_DROPPED]
+        dropped_warnings = [
+            w for w in result.warnings if w.code == LayoutWarningCode.ELEMENT_DROPPED
+        ]
         assert dropped_warnings == []
 
 
 class TestStylePropagation:
     def test_fill_and_border_copied_to_output(self) -> None:
-        doc = make_document([
-            make_element("styled", 0, 0, 400, 300, fill_color="#FF0000", border_width=3.0),
-        ])
+        doc = make_document(
+            [
+                make_element("styled", 0, 0, 400, 300, fill_color="#FF0000", border_width=3.0),
+            ]
+        )
         result = compile_document(doc)
 
         node = result.root.children[0]
@@ -182,9 +198,11 @@ class TestStylePropagation:
         assert node.style.border.width == 3.0
 
     def test_no_border_becomes_none(self) -> None:
-        doc = make_document([
-            make_element("noborder", 0, 0, 400, 300, border_width=0.0),
-        ])
+        doc = make_document(
+            [
+                make_element("noborder", 0, 0, 400, 300, border_width=0.0),
+            ]
+        )
         result = compile_document(doc)
 
         node = result.root.children[0]

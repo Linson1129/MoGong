@@ -167,7 +167,8 @@ def build_tree(elements: list[Element], canvas: CanvasConfig) -> tuple[TreeNode,
             node.depth = parent.depth + 1
             parent.children.append(node)
         else:
-            # No container found: attach to root (should be rare; root contains all canvas elements).
+            # No container found: attach to root (should be rare; root contains all canvas
+            # elements).
             node.parent = root
             node.depth = 1
             root.children.append(node)

@@ -7,10 +7,8 @@ and the tree structure invariant (every element appears exactly once).
 
 from __future__ import annotations
 
-import pytest
-
 from app.schemas.document import Border, CanvasConfig, Element, Fill
-from app.services.nesting import TreeNode, build_tree
+from app.services.nesting import build_tree
 
 
 def make_element(
