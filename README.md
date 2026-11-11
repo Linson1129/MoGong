@@ -249,6 +249,23 @@ ruff check .            # Lint
 
 ---
 
+## 使用 Qoder Skill
+
+项目自带一个 `.qoder/skills/mogong-layout/` Skill，用于把导出的 `*.layout.json` 直接交给 Agent。
+
+**启用方式**：将本项目在 Qoder 中打开后，Skill 会自动加载；将 `layout.json` 拖到对话框，
+或直接说“根据这份墨工输出代码”即可触发。
+
+**Skill 内容**：
+- `SKILL.md` —— 字段语义 / 转换算法 / Tailwind 映射约定 / 示例
+- `reference.md` —— JSON Schema 逐字段参考 / Role 推断规则 / Layout 判断条件 / Warnings 处理策略
+
+**跨 Agent 适配**：Skill 正文不依赖 Qoder 专有语法，可直接拷贝到 Cursor (`.cursor/rules/`)、
+Claude Projects、Windsurf 等支持 Markdown Prompt 的环境。如需使用其他 Agent，把 `SKILL.md`
+内容粘到他们的 System Prompt 或 Rules 文件中即可。
+
+---
+
 ## 里程碑状态
 
 | 里程碑 | 内容 | 状态 |
@@ -258,7 +275,7 @@ ruff check .            # Lint
 | M2 | 画布绘制、选中、移动、缩放、删除、撤销 | ✅ |
 | M3 | 备注、颜色、边框、图标 Stamp、图层 | ✅ |
 | M4 | 编译器管线 + 前端导出/导入 + 主题切换 | ✅ |
-| M5 | Qoder Skill 封装 / Agent 集成 | 规划中 |
+| M5 | Qoder Skill 封装 / Agent 集成 | ✅ |
 
 ---
 
