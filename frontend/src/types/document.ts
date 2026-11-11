@@ -9,7 +9,7 @@
  * to be shaped differently -- for example a rectangle mid-drag, which has no stable bounds yet.
  */
 
-export type BorderStyle = "none" | "solid" | "dashed" | "dotted";
+export type BorderStyle = "solid" | "dashed";
 
 export interface Fill {
   /** Uppercase 6-digit hex, `#RRGGBB`. The schema rejects anything else. */
@@ -50,21 +50,6 @@ export interface LayoutElement {
   visible: boolean;
   /** True when this element represents an icon stamp rather than a rectangular region. */
   stamp: boolean;
-  /** Optional layer assignment. Null means the element is on the default (unnamed) layer. */
-  layerId: string | null;
-}
-
-/**
- * A layer groups elements for collective visibility, locking, and naming.
- *
- * Layers are an organizational tool, not a rendering primitive. The compiler flattens them when
- * exporting, but the editor uses them to let the user hide or lock related regions together.
- */
-export interface Layer {
-  id: string;
-  name: string;
-  visible: boolean;
-  locked: boolean;
 }
 
 export interface CanvasConfig {
@@ -99,8 +84,6 @@ export interface MoGongDocument {
    * which means an edit can never leave a stale parentId behind.
    */
   elements: LayoutElement[];
-  /** User-defined layers for grouping elements. Empty array means no layers (all on default). */
-  layers: Layer[];
   viewport: Viewport;
 }
 

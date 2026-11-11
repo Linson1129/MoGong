@@ -39,12 +39,10 @@ def _normalize_hex_color(value: str) -> str:
 
 
 class BorderStyle(str, Enum):
-    """Border stroke styles. ``none`` is a real variant because the UI exposes it as a choice."""
+    """边框样式：实线表示固定区域，虚线表示可折叠区域。"""
 
-    NONE = "none"
     SOLID = "solid"
     DASHED = "dashed"
-    DOTTED = "dotted"
 
 
 class Fill(CamelModel):
@@ -87,16 +85,13 @@ class Border(CamelModel):
 
     @model_validator(mode="after")
     def _reconcile_width_and_style(self) -> Self:
+        # 宽度为0时，样式默认为实线
         if self.width <= 0:
-            self.style = BorderStyle.NONE
-        elif self.style is BorderStyle.NONE:
-            # A positive width is the stronger signal: it can only come from a deliberate drag of
-            # the width control, whereas style still holding its unset value means nothing chose it.
             self.style = BorderStyle.SOLID
         return self
 
     def is_visible(self) -> bool:
-        return self.style is not BorderStyle.NONE and self.width > 0
+        return self.width > 0
 
 
 class Element(CamelModel):
@@ -124,7 +119,6 @@ class Element(CamelModel):
     locked: bool = False
     visible: bool = True
     stamp: bool = False
-    layer_id: str | None = None
 
     @model_validator(mode="before")
     @classmethod
@@ -168,21 +162,6 @@ class Element(CamelModel):
     @property
     def area(self) -> float:
         return self.width * self.height
-
-
-class Layer(CamelModel):
-    """A layer groups elements for collective visibility, locking, and naming.
-
-    Layers are an organizational tool, not a rendering primitive. The compiler flattens them when
-    exporting, but the editor uses them to let the user hide or lock related regions together.
-    """
-
-    model_config = ConfigDict(extra="forbid")
-
-    id: str = Field(min_length=1)
-    name: str = ""
-    visible: bool = True
-    locked: bool = False
 
 
 class CanvasConfig(CamelModel):
@@ -234,7 +213,6 @@ class MoGongDocument(CamelModel):
     meta: DocumentMeta
     canvas: CanvasConfig = Field(default_factory=CanvasConfig)
     elements: list[Element] = Field(default_factory=list)
-    layers: list[Layer] = Field(default_factory=list)
     viewport: Viewport = Field(default_factory=Viewport)
 
     @model_validator(mode="after")

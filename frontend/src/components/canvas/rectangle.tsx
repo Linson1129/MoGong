@@ -38,7 +38,6 @@ const HOVER_COLOR = "#93C5FD";
 function dashPattern(style: LayoutElement["border"]["style"], width: number): string | undefined {
   if (width <= 0) return undefined;
   if (style === "dashed") return `${width * 3} ${width * 2}`;
-  if (style === "dotted") return `${width} ${width * 2}`;
   return undefined;
 }
 
@@ -79,7 +78,7 @@ export const Rectangle = memo(function Rectangle({
           cy={cy}
           r={r}
           fill={element.fill.color}
-          stroke={border.width > 0 && border.style !== "none" ? border.color : undefined}
+          stroke={border.width > 0 ? border.color : undefined}
           strokeWidth={border.width > 0 ? border.width : undefined}
           strokeDasharray={dashPattern(border.style, border.width)}
         />
@@ -159,9 +158,8 @@ export const Rectangle = memo(function Rectangle({
         width={element.width}
         height={element.height}
         fill={element.fill.color}
-        // A zero-width border still paints a hairline in some renderers if the stroke is set, so
-        // the stroke is omitted entirely rather than relied on to be invisible.
-        stroke={border.width > 0 && border.style !== "none" ? border.color : undefined}
+        // 宽度为 0 时不渲染边框
+        stroke={border.width > 0 ? border.color : undefined}
         strokeWidth={border.width > 0 ? border.width : undefined}
         strokeDasharray={dashPattern(border.style, border.width)}
         rx={border.radius > 0 ? border.radius : undefined}

@@ -10,7 +10,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import { AppearancePanel } from "./appearance-panel";
-import { LayerPanel } from "./layer-panel";
 import { useDocumentStore } from "@/stores/use-document-store";
 import { useInteractionStore } from "@/stores/use-interaction-store";
 
@@ -135,10 +134,6 @@ export function Sidebar() {
             ))}
           </ul>
         )}
-      </div>
-
-      <div className="border-t border-slate-800">
-        <LayerPanel />
       </div>
 
       <div className="border-t border-slate-800">

@@ -1,8 +1,7 @@
 /**
- * Appearance panel: fill and border editors for the selected element.
+ * 外观面板：选中元素的填充和边框编辑器。
  *
- * Shown only when an element is selected. Changes are written directly to the document store via
- * updateFill and updateBorder. The panel is intentionally narrow: width, style, color, radius.
+ * 仅在选中元素时显示。修改通过 updateFill 和 updateBorder 直接写入文档存储。
  */
 
 import { ColorPicker } from "./color-picker";
@@ -16,97 +15,59 @@ export function AppearancePanel() {
   const updateFill = useDocumentStore((state) => state.updateFill);
   const updateBorder = useDocumentStore((state) => state.updateBorder);
   const updateElement = useDocumentStore((state) => state.updateElement);
-  const layers = useDocumentStore((state) => state.layers);
 
   if (!selectedId || !element) {
     return (
       <div className="px-4 pb-4">
-        <p className="text-xs text-slate-500">Select a region to edit its appearance.</p>
+        <p className="text-xs text-slate-500">选中一个区域以编辑其外观。</p>
       </div>
     );
   }
 
   return (
     <div className="space-y-4 px-4 pb-4">
-      {/* Name section */}
+      {/* 名称 */}
       <div>
         <label className="mb-1.5 block text-[11px] font-medium uppercase tracking-wider text-slate-400">
-          Name
+          名称
         </label>
         <input
           type="text"
           value={element.name}
           onChange={(e) => updateElement(selectedId, { name: e.target.value })}
-          placeholder="Region name..."
+          placeholder="区域名称..."
           className="w-full rounded border border-slate-700 bg-slate-800 px-2 py-1 text-xs text-slate-200 outline-none focus:border-blue-500"
         />
       </div>
 
-      {/* Fill section */}
+      {/* 填充 */}
       <div>
         <label className="mb-1.5 block text-[11px] font-medium uppercase tracking-wider text-slate-400">
-          Fill
+          填充
         </label>
         <ColorPicker
           value={element.fill.color}
           onSelect={(color) => updateFill(selectedId, { color })}
           swatches={PALETTE.fills}
         />
-        <div className="mt-2">
-          <label className="mb-1 block text-[10px] text-slate-500">Opacity</label>
-          <input
-            type="range"
-            min={0}
-            max={1}
-            step={0.05}
-            value={element.fill.opacity}
-            onChange={(e) => updateFill(selectedId, { opacity: parseFloat(e.target.value) })}
-            className="w-full accent-blue-500"
-          />
-          <span className="text-[10px] text-slate-500">{Math.round(element.fill.opacity * 100)}%</span>
-        </div>
       </div>
 
-      {/* Border section: style only. Color, width, and radius are removed per Captain's feedback.
-          Style conveys semantic meaning: dashed = collapsible, solid = permanent. */}
+      {/* 边框：仅实线和虚线两种 */}
       <div>
         <label className="mb-1.5 block text-[11px] font-medium uppercase tracking-wider text-slate-400">
-          Border
+          边框
         </label>
         <select
-          value={element.border.style}
-          onChange={(e) => updateBorder(selectedId, { style: e.target.value as "solid" | "dashed" | "dotted" | "none" })}
+          value={element.border.style === "dashed" ? "dashed" : "solid"}
+          onChange={(e) => updateBorder(selectedId, { style: e.target.value as "solid" | "dashed" })}
           className="w-full rounded border border-slate-700 bg-slate-800 px-2 py-1 text-xs text-slate-200"
         >
-          <option value="solid">Solid (permanent)</option>
-          <option value="dashed">Dashed (collapsible)</option>
-          <option value="dotted">Dotted</option>
-          <option value="none">None</option>
+          <option value="solid">实线（固定）</option>
+          <option value="dashed">虚线（可折叠）</option>
         </select>
       </div>
 
-      {/* Layer assignment */}
-      {layers.length > 0 && (
-        <div>
-          <label className="mb-1.5 block text-[11px] font-medium uppercase tracking-wider text-slate-400">
-            Layer
-          </label>
-          <select
-            value={element.layerId ?? ""}
-            onChange={(e) => updateElement(selectedId, { layerId: e.target.value || null })}
-            className="w-full rounded border border-slate-700 bg-slate-800 px-2 py-1 text-xs text-slate-200"
-          >
-            <option value="">Unassigned</option>
-            {layers.map((layer) => (
-              <option key={layer.id} value={layer.id}>
-                {layer.name}
-              </option>
-            ))}
-          </select>
-        </div>
-      )}
-
-      {/* Lock/Hide toggles */}
+      {/* 锁定/隐藏切换 */}
       <div className="flex gap-2">
         <button
           type="button"
@@ -117,7 +78,7 @@ export function AppearancePanel() {
               : "border-slate-700 bg-slate-800 text-slate-300 hover:bg-slate-700"
           }`}
         >
-          {element.locked ? "Locked" : "Lock"}
+          {element.locked ? "已锁定" : "锁定"}
         </button>
         <button
           type="button"
@@ -128,7 +89,7 @@ export function AppearancePanel() {
               : "border-slate-700 bg-slate-800 text-slate-300 hover:bg-slate-700"
           }`}
         >
-          {element.visible ? "Visible" : "Hidden"}
+          {element.visible ? "可见" : "隐藏"}
         </button>
       </div>
     </div>

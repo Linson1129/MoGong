@@ -30,7 +30,6 @@ function documentWith(elements: LayoutElement[]): MoGongDocument {
     meta: { id: "layout-test", name: "test", createdAt: null, updatedAt: null },
     canvas: { ...DEFAULT_CANVAS },
     elements,
-    layers: [],
     viewport: { zoom: 1, panX: 0, panY: 0 },
   };
 }
@@ -120,19 +119,13 @@ describe("updateBorder", () => {
   it("treats width as the only authority on whether a border exists", () => {
     store().updateBorder("e1", { style: "dashed" });
     store().updateBorder("e1", { width: 0 });
-    expect(store().elements[0].border.style).toBe("none");
-  });
-
-  it("repairs a style-only request that would otherwise be contradictory", () => {
-    // Asking for "none" while keeping a positive width has no meaning; reading it as solid is what
-    // backend/app/schemas/document.py does, and the two must not disagree about the same drawing.
-    store().updateBorder("e1", { width: 3, style: "none" });
-    expect(store().elements[0].border).toMatchObject({ width: 3, style: "solid" });
+    // 宽度为 0 时，样式被重置为 solid
+    expect(store().elements[0].border.style).toBe("solid");
   });
 
   it("leaves a coherent request alone", () => {
-    store().updateBorder("e1", { width: 2, style: "dotted" });
-    expect(store().elements[0].border).toMatchObject({ width: 2, style: "dotted" });
+    store().updateBorder("e1", { width: 2, style: "dashed" });
+    expect(store().elements[0].border).toMatchObject({ width: 2, style: "dashed" });
   });
 
   it("keeps the untouched border fields", () => {
@@ -297,7 +290,6 @@ describe("toDocument", () => {
       "fill",
       "height",
       "id",
-      "layerId",
       "locked",
       "name",
       "note",
