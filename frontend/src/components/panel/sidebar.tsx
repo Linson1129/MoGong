@@ -10,7 +10,7 @@
  * UI copy uses American spelling to match the schema field names the user sees in exported JSON.
  */
 
-import { PanelPlaceholder } from "./panel-placeholder";
+import { AppearancePanel } from "./appearance-panel";
 import { useDocumentStore } from "@/stores/use-document-store";
 import { useInteractionStore } from "@/stores/use-interaction-store";
 
@@ -61,16 +61,7 @@ export function Sidebar() {
 
       <div className="border-t border-slate-800">
         <SectionTitle>Appearance</SectionTitle>
-        <PanelPlaceholder
-          readyFrom="M3"
-          items={[
-            "Fill color",
-            "Fill opacity",
-            "Border width, style, color",
-            "Corner radius",
-            "Name and note",
-          ]}
-        />
+        <AppearancePanel />
       </div>
     </aside>
   );
