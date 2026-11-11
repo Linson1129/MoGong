@@ -85,45 +85,51 @@ export const GEOMETRY_EPSILON = 1e-9;
 /** Element ids are also filenames, so they carry the same restriction the backend enforces. */
 export const LAYOUT_ID_PATTERN = /^[a-zA-Z0-9][a-zA-Z0-9._-]{0,63}$/;
 
-/** Swatches offered in the sidebar. A curated short list beats an unpickable color field. */
+/** 侧边栏提供的色板。精选 8 种高对比度颜色，避免相似色混淆。 */
 export const PALETTE = {
-  /** Default 8 soft colors shown in the collapsed picker. */
+  /** 默认 8 种高对比度颜色。 */
   fills: [
-    "#FFFFFF", // white
-    "#F1F5F9", // slate-100
-    "#E2E8F0", // slate-200
-    "#CBD5E1", // slate-300
-    "#DBEAFE", // blue-100
-    "#DCFCE7", // green-100
-    "#FEF3C7", // amber-100
-    "#FEE2E2", // red-100 (soft pink, not bright red)
+    "#FFFFFF", // 白色
+    "#E2E8F0", // 浅灰
+    "#93C5FD", // 蓝色
+    "#86EFAC", // 绿色
+    "#FCD34D", // 黄色
+    "#FCA5A5", // 红色
+    "#C4B5FD", // 紫色
+    "#5EEAD4", // 青色
   ],
-  /** Extended palette shown when the user clicks expand. */
+  /** 点击展开后显示的扩展色板。 */
   fillsExtended: [
-    "#F8FAFC", // slate-50
-    "#F1F5F9", // slate-100
-    "#E2E8F0", // slate-200
-    "#CBD5E1", // slate-300
-    "#94A3B8", // slate-400
-    "#64748B", // slate-500
-    "#475569", // slate-600
-    "#334155", // slate-700
-    "#DBEAFE", // blue-100
-    "#BFDBFE", // blue-200
-    "#93C5FD", // blue-300
-    "#60A5FA", // blue-400
-    "#DCFCE7", // green-100
-    "#BBF7D0", // green-200
-    "#86EFAC", // green-300
-    "#4ADE80", // green-400
-    "#FEF3C7", // amber-100
-    "#FDE68A", // amber-200
-    "#FCD34D", // amber-300
-    "#FBBF24", // amber-400
-    "#FEE2E2", // red-100 (soft pink)
-    "#FECACA", // red-200 (soft red)
-    "#FCA5A5", // red-300
-    "#F87171", // red-400
+    "#FFFFFF", // 白色
+    "#F1F5F9", //  slate-100
+    "#E2E8F0", // 浅灰
+    "#CBD5E1", // 深灰
+    "#94A3B8", // 灰色
+    "#64748B", // 暗灰
+    "#DBEAFE", // 浅蓝
+    "#93C5FD", // 蓝色
+    "#60A5FA", // 深蓝
+    "#3B82F6", // 蓝色 500
+    "#DCFCE7", // 浅绿
+    "#86EFAC", // 绿色
+    "#4ADE80", // 深绿
+    "#22C55E", // 绿色 500
+    "#FEF3C7", // 浅黄
+    "#FCD34D", // 黄色
+    "#FBBF24", // 深黄
+    "#F59E0B", // 黄色 500
+    "#FEE2E2", // 浅红
+    "#FCA5A5", // 红色
+    "#F87171", // 深红
+    "#EF4444", // 红色 500
+    "#EDE9FE", // 浅紫
+    "#C4B5FD", // 紫色
+    "#A78BFA", // 深紫
+    "#8B5CF6", // 紫色 500
+    "#CCFBF1", // 浅青
+    "#5EEAD4", // 青色
+    "#2DD4BF", // 深青
+    "#14B8A6", // 青色 500
   ],
   borders: ["#000000", "#0F172A", "#334155", "#64748B", "#94A3B8", "#CBD5E1", "#E2E8F0", "#FFFFFF"],
 } as const;
