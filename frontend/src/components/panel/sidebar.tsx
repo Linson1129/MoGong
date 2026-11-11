@@ -10,6 +10,8 @@
  * UI copy uses American spelling to match the schema field names the user sees in exported JSON.
  */
 
+import { useEffect, useRef } from "react";
+
 import { AppearancePanel } from "./appearance-panel";
 import { useDocumentStore } from "@/stores/use-document-store";
 import { useInteractionStore } from "@/stores/use-interaction-store";
@@ -18,6 +20,16 @@ export function Sidebar() {
   const elements = useDocumentStore((state) => state.elements);
   const select = useInteractionStore((state) => state.select);
   const selectedId = useInteractionStore((state) => state.selectedId);
+
+  // Ref for auto-scrolling to the selected item.
+  const selectedRef = useRef<HTMLLIElement>(null);
+
+  // Scroll to the selected item when selection changes.
+  useEffect(() => {
+    if (selectedId && selectedRef.current) {
+      selectedRef.current.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }
+  }, [selectedId]);
 
   return (
     <aside className="flex w-72 shrink-0 flex-col border-l border-slate-800 bg-slate-900">
@@ -32,7 +44,7 @@ export function Sidebar() {
         ) : (
           <ul className="space-y-0.5">
             {elements.map((element, index) => (
-              <li key={element.id}>
+              <li key={element.id} ref={element.id === selectedId ? selectedRef : undefined}>
                 <button
                   type="button"
                   onClick={() => select(element.id)}
