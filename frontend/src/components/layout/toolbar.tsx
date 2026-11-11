@@ -29,6 +29,15 @@ export function Toolbar() {
     <header className="flex h-12 shrink-0 items-center gap-4 border-b border-slate-800 bg-slate-900 px-4">
       <div className="flex items-baseline gap-2">
         <span className="text-sm font-semibold tracking-tight">MoGong</span>
+        {/* Tutorial placeholder: will open a help panel in the future. */}
+        <button
+          type="button"
+          className="flex h-5 w-5 items-center justify-center rounded-full border border-slate-600 text-[10px] text-slate-400 hover:border-slate-400 hover:text-slate-200"
+          title="How to use MoGong (coming soon)"
+          aria-label="Help"
+        >
+          ?
+        </button>
       </div>
 
       <div className="h-5 w-px bg-slate-800" />

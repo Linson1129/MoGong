@@ -510,19 +510,6 @@ export function SvgCanvas() {
             pointerEvents="none"
           />
         )}
-
-        {elements.length === 0 && gesture.kind !== "drawing" && (
-          <text
-            x={canvas.width / 2}
-            y={canvas.height / 2}
-            textAnchor="middle"
-            fill="#94A3B8"
-            fontSize={16 / zoom}
-            pointerEvents="none"
-          >
-            Press and hold the left button, then drag, to draw a region.
-          </text>
-        )}
       </g>
     </svg>
 
