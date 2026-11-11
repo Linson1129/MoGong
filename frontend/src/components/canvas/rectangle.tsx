@@ -24,6 +24,8 @@ interface RectangleProps {
    * at 400 percent, and either way it stops being UI and starts being artwork.
    */
   zoom: number;
+  /** Called when the element is double-clicked. Used to start note editing. */
+  onDoubleClick?: () => void;
 }
 
 /** Selection outline colour. Deliberately outside the user's palette so it always reads as chrome. */
@@ -42,6 +44,7 @@ export const Rectangle = memo(function Rectangle({
   selected,
   hovered,
   zoom,
+  onDoubleClick,
 }: RectangleProps) {
   if (!element.visible) return null;
 
@@ -55,6 +58,7 @@ export const Rectangle = memo(function Rectangle({
         opacity: element.fill.opacity,
         cursor: element.locked ? "not-allowed" : "move",
       }}
+      onDoubleClick={onDoubleClick}
     >
       <rect
         x={element.x}

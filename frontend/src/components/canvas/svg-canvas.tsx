@@ -10,9 +10,10 @@
  * element back, which would fight the nesting grouping.
  */
 
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 import { ContextMenu } from "./context-menu";
+import { NoteEditor } from "./note-editor";
 import { Rectangle } from "./rectangle";
 import { screenToCanvas } from "@/lib/canvas-coords";
 import { MOUSE_BUTTON } from "@/lib/constants";
@@ -30,6 +31,7 @@ export function SvgCanvas() {
   const canvas = useDocumentStore((state) => state.canvas);
   const addElement = useDocumentStore((state) => state.addElement);
   const updateElement = useDocumentStore((state) => state.updateElement);
+  const setNote = useDocumentStore((state) => state.setNote);
 
   const selectedId = useInteractionStore((state) => state.selectedId);
   const hoveredId = useInteractionStore((state) => state.hoveredId);
@@ -39,9 +41,25 @@ export function SvgCanvas() {
   const select = useInteractionStore((state) => state.select);
   const inspect = useInteractionStore((state) => state.inspect);
   const inspectedId = useInteractionStore((state) => state.inspectedId);
+  const noteEditingId = useInteractionStore((state) => state.noteEditingId);
+  const beginNoteEditing = useInteractionStore((state) => state.beginNoteEditing);
+  const endNoteEditing = useInteractionStore((state) => state.endNoteEditing);
 
   // Context menu state: position and which element it is for. Null when closed.
   const [contextMenu, setContextMenu] = useState<{ x: number; y: number; elementId: string } | null>(null);
+
+  // Canvas bounding rect for positioning the note editor. Updated on mount and resize.
+  const [canvasRect, setCanvasRect] = useState<DOMRect | null>(null);
+  useEffect(() => {
+    const updateRect = () => {
+      if (svgRef.current) {
+        setCanvasRect(svgRef.current.getBoundingClientRect());
+      }
+    };
+    updateRect();
+    window.addEventListener("resize", updateRect);
+    return () => window.removeEventListener("resize", updateRect);
+  }, []);
 
   const zoom = useViewStore((state) => state.zoom);
   const panX = useViewStore((state) => state.panX);
@@ -454,6 +472,11 @@ export function SvgCanvas() {
               selected={element.id === selectedId}
               hovered={element.id === hoveredId}
               zoom={zoom}
+              onDoubleClick={() => {
+                if (!element.locked) {
+                  beginNoteEditing(element.id);
+                }
+              }}
             />
           );
         })}
@@ -501,6 +524,26 @@ export function SvgCanvas() {
         }}
       />
     )}
+
+    {/* Note editor: rendered outside the SVG so it can use HTML positioning. */}
+    {noteEditingId !== null && (() => {
+      const editingElement = elements.find((el) => el.id === noteEditingId);
+      if (!editingElement) return null;
+      return (
+        <NoteEditor
+          element={editingElement}
+          zoom={zoom}
+          panX={panX}
+          panY={panY}
+          canvasRect={canvasRect}
+          onSave={(note) => {
+            setNote(noteEditingId, note);
+            endNoteEditing();
+          }}
+          onCancel={() => endNoteEditing()}
+        />
+      );
+    })()}
   </>
   );
 }
