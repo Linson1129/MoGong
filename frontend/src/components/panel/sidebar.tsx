@@ -1,10 +1,8 @@
 /**
- * Right sidebar: the region list and, from M3, the attribute editors.
+ * 右侧边栏：区域列表和属性编辑器。
  *
- * The list is live in M1 because it is the cheapest proof that the document and interaction stores
- * are wired to rendering: add an element, see it named here, click it, see the canvas outline move.
- *
- * UI copy uses American spelling to match the schema field names the user sees in exported JSON.
+ * 列表从 M1 开始就是实时的，因为这是证明文档存储和交互存储正确连接到渲染的最简单方式：
+ * 添加一个元素，在这里看到它的名称，点击它，看到画布上的轮廓移动。
  */
 
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -13,7 +11,7 @@ import { AppearancePanel } from "./appearance-panel";
 import { useDocumentStore } from "@/stores/use-document-store";
 import { useInteractionStore } from "@/stores/use-interaction-store";
 
-/** Context menu state for the region list. */
+/** 区域列表的右键菜单状态。 */
 interface RegionContextMenu {
   x: number;
   y: number;
@@ -27,21 +25,21 @@ export function Sidebar() {
   const removeElement = useDocumentStore((state) => state.removeElement);
   const reorderElement = useDocumentStore((state) => state.reorderElement);
 
-  // Ref for auto-scrolling to the selected item.
+  // 自动滚动到选中项的 ref
   const selectedRef = useRef<HTMLLIElement>(null);
 
-  // Context menu state for region list items.
+  // 区域列表右键菜单状态
   const [contextMenu, setContextMenu] = useState<RegionContextMenu | null>(null);
   const menuRef = useRef<HTMLDivElement>(null);
 
-  // Scroll to the selected item when selection changes.
+  // 选中项变化时自动滚动到该项
   useEffect(() => {
     if (selectedId && selectedRef.current) {
       selectedRef.current.scrollIntoView({ behavior: "smooth", block: "nearest" });
     }
   }, [selectedId]);
 
-  // Close context menu on click outside or Escape.
+  // 点击外部或按 Escape 关闭右键菜单
   useEffect(() => {
     if (!contextMenu) return;
 
@@ -95,13 +93,12 @@ export function Sidebar() {
 
   return (
     <aside className="flex w-72 shrink-0 flex-col border-l border-slate-800 bg-slate-900">
-      <SectionTitle>Regions</SectionTitle>
+      <SectionTitle>区域</SectionTitle>
 
       <div className="min-h-0 flex-1 overflow-y-auto px-2 pb-3">
         {elements.length === 0 ? (
           <p className="px-2 py-3 text-xs leading-relaxed text-slate-500">
-            No regions yet. Each rectangle you draw becomes one element in the compiled JSON that
-            Cursor reads.
+            还没有区域。你绘制的每个矩形都会成为编译后 JSON 中的一个元素。
           </p>
         ) : (
           <ul className="space-y-0.5">
@@ -123,10 +120,10 @@ export function Sidebar() {
                     style={{ background: element.fill.color }}
                     aria-hidden
                   />
-                  <span className="truncate">{element.name || `Region ${index + 1}`}</span>
+                  <span className="truncate">{element.name || `区域 ${index + 1}`}</span>
                   {element.stamp && (
                     <span className="shrink-0 rounded bg-slate-700 px-1 text-[9px] text-slate-400">
-                      icon
+                      图标
                     </span>
                   )}
                 </button>
@@ -137,11 +134,11 @@ export function Sidebar() {
       </div>
 
       <div className="border-t border-slate-800">
-        <SectionTitle>Appearance</SectionTitle>
+        <SectionTitle>外观</SectionTitle>
         <AppearancePanel />
       </div>
 
-      {/* Context menu for region list items */}
+      {/* 区域列表的右键菜单 */}
       {contextMenu && (
         <div
           ref={menuRef}
@@ -153,14 +150,14 @@ export function Sidebar() {
             className="flex w-full items-center px-3 py-1.5 text-left text-sm text-slate-200 hover:bg-slate-700"
             onClick={handleBringToFront}
           >
-            Bring to Front
+            置于顶层
           </button>
           <button
             type="button"
             className="flex w-full items-center px-3 py-1.5 text-left text-sm text-slate-200 hover:bg-slate-700"
             onClick={handleSendToBack}
           >
-            Send to Back
+            置于底层
           </button>
           <div className="my-1 border-t border-slate-700" />
           <button
@@ -168,7 +165,7 @@ export function Sidebar() {
             className="flex w-full items-center px-3 py-1.5 text-left text-sm text-red-400 hover:bg-slate-700"
             onClick={handleDelete}
           >
-            Delete
+            删除
           </button>
         </div>
       )}

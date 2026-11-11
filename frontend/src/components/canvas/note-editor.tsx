@@ -1,12 +1,11 @@
 /**
- * Note editor: a floating sticky-note panel for editing element notes.
+ * 备注编辑器：用于编辑元素备注的浮动便签面板。
  *
- * Unlike the previous overlaid input, this is a standalone panel that does not auto-save on blur
- * or Enter. The user must explicitly click Save or Cancel, or press Escape to cancel. This avoids
- * the IME issue where pressing Enter to confirm input would accidentally save and close the editor.
+ * 与之前覆盖式输入框不同，这是一个独立面板，不会在失焦或回车时自动保存。
+ * 用户必须显式点击保存或取消，或按 Escape 取消。这样可以避免 IME 问题——
+ * 按回车确认输入法时会意外保存并关闭编辑器。
  *
- * The panel is positioned near the element but does not overlap it, so the user can see both the
- * note and the element.
+ * 面板定位在元素旁边，不会遮挡元素，方便用户同时查看备注和元素。
  */
 
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -28,20 +27,20 @@ export function NoteEditor({ element, zoom, panX, panY, canvasRect, onSave, onCa
   const panelRef = useRef<HTMLDivElement>(null);
   const [value, setValue] = useState(element.note ?? "");
 
-  // Focus the textarea on mount.
+  // 挂载时聚焦到文本框
   useEffect(() => {
     textareaRef.current?.focus();
     textareaRef.current?.select();
   }, []);
 
-  // Cancel on Escape. Enter is deliberately ignored to allow multi-line input and IME confirmation.
+  // 按 Escape 取消。故意忽略回车键以支持多行输入和 IME 确认。
   const handleKeyDown = useCallback(
     (event: React.KeyboardEvent) => {
       if (event.key === "Escape") {
         event.preventDefault();
         onCancel();
       }
-      // Ctrl+Enter or Cmd+Enter saves explicitly.
+      // Ctrl+Enter 或 Cmd+Enter 显式保存
       if (event.key === "Enter" && (event.ctrlKey || event.metaKey)) {
         event.preventDefault();
         onSave(value.trim() || null);
@@ -50,15 +49,15 @@ export function NoteEditor({ element, zoom, panX, panY, canvasRect, onSave, onCa
     [value, onSave, onCancel],
   );
 
-  // Close on click outside the panel.
+  // 点击面板外部关闭
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (panelRef.current && !panelRef.current.contains(event.target as Node)) {
-        // Do not auto-save; treat as cancel.
+        // 不自动保存，视为取消
         onCancel();
       }
     };
-    // Delay adding the listener to avoid catching the double-click that opened the editor.
+    // 延迟添加监听器，避免捕获打开编辑器的双击事件
     const timeoutId = setTimeout(() => {
       document.addEventListener("mousedown", handleClickOutside);
     }, 100);
@@ -72,7 +71,7 @@ export function NoteEditor({ element, zoom, panX, panY, canvasRect, onSave, onCa
     onSave(value.trim() || null);
   }, [value, onSave]);
 
-  // Position the panel to the right of the element, or below if not enough space.
+  // 面板定位在元素右侧，空间不足时显示在下方
   const screenX = canvasRect ? canvasRect.left + panX + element.x * zoom + element.width * zoom + 8 : 0;
   const screenY = canvasRect ? canvasRect.top + panY + element.y * zoom : 0;
 
@@ -89,7 +88,7 @@ export function NoteEditor({ element, zoom, panX, panY, canvasRect, onSave, onCa
         onChange={(e) => setValue(e.target.value)}
         className="w-full resize-none rounded border border-slate-600 bg-slate-700 px-2 py-1 text-sm text-slate-100 outline-none focus:border-blue-400"
         rows={3}
-        placeholder="Add a note..."
+        placeholder="添加备注..."
       />
       <div className="mt-2 flex gap-2">
         <button
@@ -97,17 +96,17 @@ export function NoteEditor({ element, zoom, panX, panY, canvasRect, onSave, onCa
           onClick={handleSave}
           className="flex-1 rounded bg-blue-500 px-2 py-1 text-xs font-medium text-white hover:bg-blue-600"
         >
-          Save
+          保存
         </button>
         <button
           type="button"
           onClick={onCancel}
           className="flex-1 rounded bg-slate-600 px-2 py-1 text-xs font-medium text-slate-200 hover:bg-slate-500"
         >
-          Cancel
+          取消
         </button>
       </div>
-      <p className="mt-1 text-[10px] text-slate-500">Ctrl+Enter to save, Esc to cancel</p>
+      <p className="mt-1 text-[10px] text-slate-500">Ctrl+Enter 保存，Esc 取消</p>
     </div>
   );
 }
