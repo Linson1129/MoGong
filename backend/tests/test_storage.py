@@ -159,14 +159,16 @@ class TestCompiledOutput:
     def test_compiled_files_are_written_where_documents_are_not(
         self, repo: LayoutRepository, tmp_path: Path, document
     ) -> None:
-        target = tmp_path / "compiled" / f"{document.meta.id}.layout.json"
-        repo.save_compiled(document.meta.id, {"format": "mogong.layout"}, target)
-        assert target.is_file()
+        target_dir = tmp_path / "compiled"
+        repo.save_compiled(document.meta.id, {"format": "mogong.layout"}, target_dir)
+        written = target_dir / f"{document.meta.id}.layout.json"
+        assert written.is_file()
         assert document.meta.id not in repo.list_ids()
 
     def test_parent_directory_is_created_on_demand(
         self, repo: LayoutRepository, tmp_path: Path
     ) -> None:
-        target = tmp_path / "deep" / "nested" / "out.layout.json"
-        repo.save_compiled("home", {}, target)
-        assert target.is_file()
+        target_dir = tmp_path / "deep" / "nested"
+        repo.save_compiled("home", {}, target_dir)
+        written = target_dir / "home.layout.json"
+        assert written.is_file()

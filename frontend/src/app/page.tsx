@@ -12,12 +12,20 @@
 
 "use client";
 
+import { useEffect } from "react";
+
 import { EditorShell } from "@/components/layout/editor-shell";
 import { useArrowKeyPanning } from "@/hooks/use-arrow-key-panning";
 import { useDeleteKey } from "@/hooks/use-delete-key";
 import { useHistory } from "@/hooks/use-history";
+import { hydrateFromStorage } from "@/stores/use-document-store";
 
 export default function EditorPage() {
+  // 客户端挂载后从 localStorage 恢复文档，避免 SSR Hydration 不匹配。
+  useEffect(() => {
+    hydrateFromStorage();
+  }, []);
+
   useHistory();
   useArrowKeyPanning();
   useDeleteKey();

@@ -102,6 +102,7 @@ class LayoutRepository:
         """
         validate_layout_id(layout_id)
         target = Path(target)
-        target.parent.mkdir(parents=True, exist_ok=True)
-        target.write_text(json.dumps(payload, indent=2, ensure_ascii=False), encoding="utf-8")
-        return target
+        target.mkdir(parents=True, exist_ok=True)
+        file_path = target / f"{layout_id}.layout.json"
+        file_path.write_text(json.dumps(payload, indent=2, ensure_ascii=False), encoding="utf-8")
+        return file_path

@@ -111,26 +111,12 @@ function editElement(id: string, change: (element: LayoutElement) => LayoutEleme
   };
 }
 
+/**
+ * 始终返回默认初始状态（不读 localStorage）。
+ * 这样服务端和客户端的初始渲染结果一致，避免 Hydration 错误。
+ * localStorage 的读取通过 hydrateFromStorage() 在客户端挂载后执行。
+ */
 const initialState = (): DocumentState => {
-  // 尝试从 localStorage 加载已保存的文档
-  if (typeof window !== "undefined") {
-    try {
-      const stored = localStorage.getItem(STORAGE_KEY);
-      if (stored) {
-        const parsed = JSON.parse(stored);
-        if (parsed && parsed.elements && parsed.canvas && parsed.meta) {
-          return {
-            meta: parsed.meta,
-            canvas: parsed.canvas,
-            elements: parsed.elements,
-            revision: 0,
-          };
-        }
-      }
-    } catch {
-      // 忽略解析错误，使用初始状态
-    }
-  }
   return {
     meta: newMeta(`layout-${Date.now().toString(36)}`),
     canvas: { ...DEFAULT_CANVAS },
@@ -138,6 +124,29 @@ const initialState = (): DocumentState => {
     revision: 0,
   };
 };
+
+/**
+ * 从 localStorage 恢复已保存的文档状态。
+ * 只在客户端调用（useEffect 中），不会导致 SSR Hydration 不匹配。
+ */
+export function hydrateFromStorage(): void {
+  if (typeof window === "undefined") return;
+  try {
+    const stored = localStorage.getItem(STORAGE_KEY);
+    if (!stored) return;
+    const parsed = JSON.parse(stored);
+    if (parsed && parsed.elements && parsed.canvas && parsed.meta) {
+      useDocumentStore.setState({
+        meta: parsed.meta,
+        canvas: parsed.canvas,
+        elements: parsed.elements,
+        revision: 0,
+      });
+    }
+  } catch {
+    // 忽略解析错误
+  }
+}
 
 /** 将当前文档保存到 localStorage */
 function saveToStorage(state: DocumentState): void {
