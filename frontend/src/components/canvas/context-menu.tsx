@@ -21,6 +21,7 @@ interface ContextMenuProps {
 export function ContextMenu({ x, y, elementId, onClose }: ContextMenuProps) {
   const menuRef = useRef<HTMLDivElement>(null);
   const removeElement = useDocumentStore((state) => state.removeElement);
+  const reorderElement = useDocumentStore((state) => state.reorderElement);
   const select = useInteractionStore((state) => state.select);
 
   // Close on click outside. The mousedown listener is added on mount and removed on unmount.
@@ -52,16 +53,41 @@ export function ContextMenu({ x, y, elementId, onClose }: ContextMenuProps) {
     onClose();
   }, [elementId, removeElement, select, onClose]);
 
+  const handleBringToFront = useCallback(() => {
+    reorderElement(elementId, "front");
+    onClose();
+  }, [elementId, reorderElement, onClose]);
+
+  const handleSendToBack = useCallback(() => {
+    reorderElement(elementId, "back");
+    onClose();
+  }, [elementId, reorderElement, onClose]);
+
   return (
     <div
       ref={menuRef}
       data-testid="context-menu"
-      className="absolute z-50 min-w-[120px] rounded-md border border-slate-700 bg-slate-800 py-1 shadow-lg"
+      className="absolute z-50 min-w-[140px] rounded-md border border-slate-700 bg-slate-800 py-1 shadow-lg"
       style={{ left: x, top: y }}
     >
       <button
-        data-testid="context-menu-delete"
+        data-testid="context-menu-bring-to-front"
         className="flex w-full items-center px-3 py-1.5 text-left text-sm text-slate-200 hover:bg-slate-700"
+        onClick={handleBringToFront}
+      >
+        Bring to Front
+      </button>
+      <button
+        data-testid="context-menu-send-to-back"
+        className="flex w-full items-center px-3 py-1.5 text-left text-sm text-slate-200 hover:bg-slate-700"
+        onClick={handleSendToBack}
+      >
+        Send to Back
+      </button>
+      <div className="my-1 border-t border-slate-700" />
+      <button
+        data-testid="context-menu-delete"
+        className="flex w-full items-center px-3 py-1.5 text-left text-sm text-red-400 hover:bg-slate-700"
         onClick={handleDelete}
       >
         Delete
