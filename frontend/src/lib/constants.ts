@@ -87,34 +87,49 @@ export const LAYOUT_ID_PATTERN = /^[a-zA-Z0-9][a-zA-Z0-9._-]{0,63}$/;
 
 /** Swatches offered in the sidebar. A curated short list beats an unpickable color field. */
 export const PALETTE = {
+  /** Default 8 soft colors shown in the collapsed picker. */
   fills: [
-    "#FFFFFF",
-    "#F8FAFC",
-    "#E2E8F0",
-    "#94A3B8",
-    "#475569",
-    "#1E293B",
-    "#0F172A",
-    "#DBEAFE",
-    "#BFDBFE",
-    "#93C5FD",
-    "#3B82F6",
-    "#1D4ED8",
-    "#DCFCE7",
-    "#86EFAC",
-    "#22C55E",
-    "#15803D",
-    "#FEF3C7",
-    "#FCD34D",
-    "#F59E0B",
-    "#B45309",
-    "#FEE2E2",
-    "#FCA5A5",
-    "#EF4444",
-    "#B91C1C",
+    "#FFFFFF", // white
+    "#F1F5F9", // slate-100
+    "#E2E8F0", // slate-200
+    "#CBD5E1", // slate-300
+    "#DBEAFE", // blue-100
+    "#DCFCE7", // green-100
+    "#FEF3C7", // amber-100
+    "#FEE2E2", // red-100 (soft pink, not bright red)
+  ],
+  /** Extended palette shown when the user clicks expand. */
+  fillsExtended: [
+    "#F8FAFC", // slate-50
+    "#F1F5F9", // slate-100
+    "#E2E8F0", // slate-200
+    "#CBD5E1", // slate-300
+    "#94A3B8", // slate-400
+    "#64748B", // slate-500
+    "#475569", // slate-600
+    "#334155", // slate-700
+    "#DBEAFE", // blue-100
+    "#BFDBFE", // blue-200
+    "#93C5FD", // blue-300
+    "#60A5FA", // blue-400
+    "#DCFCE7", // green-100
+    "#BBF7D0", // green-200
+    "#86EFAC", // green-300
+    "#4ADE80", // green-400
+    "#FEF3C7", // amber-100
+    "#FDE68A", // amber-200
+    "#FCD34D", // amber-300
+    "#FBBF24", // amber-400
+    "#FEE2E2", // red-100 (soft pink)
+    "#FECACA", // red-200 (soft red)
+    "#FCA5A5", // red-300
+    "#F87171", // red-400
   ],
   borders: ["#000000", "#0F172A", "#334155", "#64748B", "#94A3B8", "#CBD5E1", "#E2E8F0", "#FFFFFF"],
 } as const;
+
+/** Maximum number of recently used custom colors to remember. */
+export const LRU_COLOR_LIMIT = 8;
 
 /** Backend base URL. Only ever localhost: see docs/architecture.md section 8. */
 export const API_BASE = "/api";
