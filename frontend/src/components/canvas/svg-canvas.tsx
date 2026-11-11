@@ -10,8 +10,9 @@
  * element back, which would fight the nesting grouping.
  */
 
-import { useCallback, useRef } from "react";
+import { useCallback, useRef, useState } from "react";
 
+import { ContextMenu } from "./context-menu";
 import { Rectangle } from "./rectangle";
 import { screenToCanvas } from "@/lib/canvas-coords";
 import { MOUSE_BUTTON } from "@/lib/constants";
@@ -36,6 +37,11 @@ export function SvgCanvas() {
   const setCursor = useInteractionStore((state) => state.setCursor);
   const setGesture = useInteractionStore((state) => state.setGesture);
   const select = useInteractionStore((state) => state.select);
+  const inspect = useInteractionStore((state) => state.inspect);
+  const inspectedId = useInteractionStore((state) => state.inspectedId);
+
+  // Context menu state: position and which element it is for. Null when closed.
+  const [contextMenu, setContextMenu] = useState<{ x: number; y: number; elementId: string } | null>(null);
 
   const zoom = useViewStore((state) => state.zoom);
   const panX = useViewStore((state) => state.panX);
@@ -242,7 +248,31 @@ export function SvgCanvas() {
     [gesture, toCanvasPoint, elements, select, addElement, updateElement, setGesture],
   );
 
+  /**
+   * Right-click: show context menu for the element under the cursor.
+   *
+   * The context menu is independent of selection: right-clicking an element inspects it (opens
+   * the menu for that element) but does not change the selection state. This allows the user to
+   * delete or edit an element without losing their current selection.
+   */
+  const handleContextMenu = useCallback(
+    (event: React.MouseEvent<SVGSVGElement>) => {
+      event.preventDefault();
+      const { x, y } = toCanvasPoint(event.clientX, event.clientY);
+      const hitId = hitTest(elements, x, y);
+      if (hitId !== null) {
+        inspect(hitId);
+        setContextMenu({ x: event.clientX, y: event.clientY, elementId: hitId });
+      } else {
+        inspect(null);
+        setContextMenu(null);
+      }
+    },
+    [toCanvasPoint, elements, inspect],
+  );
+
   return (
+    <>
     <svg
       ref={svgRef}
       data-testid="mogong-canvas"
@@ -254,7 +284,7 @@ export function SvgCanvas() {
       // Blocking the browser default stops Ctrl-wheel page zoom, which would otherwise fire during
       // a zoom gesture and take the user's place in the tab.
       onWheel={(event) => event.preventDefault()}
-      onContextMenu={(event) => event.preventDefault()}
+      onContextMenu={handleContextMenu}
       onMouseDown={handleMouseDown}
       onMouseMove={handleMouseMove}
       onMouseUp={handleMouseUp}
@@ -374,5 +404,19 @@ export function SvgCanvas() {
         )}
       </g>
     </svg>
+
+    {/* Context menu: rendered outside the SVG so it can use HTML positioning. */}
+    {contextMenu !== null && inspectedId !== null && (
+      <ContextMenu
+        x={contextMenu.x}
+        y={contextMenu.y}
+        elementId={contextMenu.elementId}
+        onClose={() => {
+          setContextMenu(null);
+          inspect(null);
+        }}
+      />
+    )}
+  </>
   );
 }
