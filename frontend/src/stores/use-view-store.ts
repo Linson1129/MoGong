@@ -32,6 +32,12 @@ interface ViewActions {
   panByStep: (dx: number, dy: number, coarse: boolean) => void;
   setPanning: (active: boolean) => void;
   resetView: () => void;
+  /**
+   * Fit the canvas within the container, centering it and choosing a zoom that shows the whole
+   * canvas. Called once on mount so the user sees the layout immediately rather than an empty
+   * corner at 100% zoom.
+   */
+  fitToView: (containerWidth: number, containerHeight: number, canvasWidth: number, canvasHeight: number) => void;
 }
 
 export type ViewStore = ViewState & ViewActions;
@@ -97,4 +103,17 @@ export const useViewStore = create<ViewStore>((set) => ({
   setPanning: (active) => set(() => ({ isPanning: active })),
 
   resetView: () => set(() => ({ zoom: 1, panX: 0, panY: 0 })),
+
+  fitToView: (containerWidth, containerHeight, canvasWidth, canvasHeight) =>
+    set(() => {
+      // Choose a zoom that fits the entire canvas within the container, with a small margin.
+      const margin = 40;
+      const availableWidth = containerWidth - margin * 2;
+      const availableHeight = containerHeight - margin * 2;
+      const zoom = clampZoom(Math.min(availableWidth / canvasWidth, availableHeight / canvasHeight));
+      // Center the canvas within the container.
+      const panX = (containerWidth - canvasWidth * zoom) / 2;
+      const panY = (containerHeight - canvasHeight * zoom) / 2;
+      return { zoom, panX, panY };
+    }),
 }));

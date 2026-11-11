@@ -48,19 +48,6 @@ export function SvgCanvas() {
   // Context menu state: position and which element it is for. Null when closed.
   const [contextMenu, setContextMenu] = useState<{ x: number; y: number; elementId: string } | null>(null);
 
-  // Canvas bounding rect for positioning the note editor. Updated on mount and resize.
-  const [canvasRect, setCanvasRect] = useState<DOMRect | null>(null);
-  useEffect(() => {
-    const updateRect = () => {
-      if (svgRef.current) {
-        setCanvasRect(svgRef.current.getBoundingClientRect());
-      }
-    };
-    updateRect();
-    window.addEventListener("resize", updateRect);
-    return () => window.removeEventListener("resize", updateRect);
-  }, []);
-
   const zoom = useViewStore((state) => state.zoom);
   const panX = useViewStore((state) => state.panX);
   const panY = useViewStore((state) => state.panY);
@@ -68,6 +55,24 @@ export function SvgCanvas() {
   const zoomAt = useViewStore((state) => state.zoomAt);
   const panBy = useViewStore((state) => state.panBy);
   const setPanning = useViewStore((state) => state.setPanning);
+  const fitToView = useViewStore((state) => state.fitToView);
+
+  // Canvas bounding rect for positioning the note editor. Updated on mount and resize.
+  // Also calls fitToView on mount so the canvas is centered and scaled to fit the container.
+  const [canvasRect, setCanvasRect] = useState<DOMRect | null>(null);
+  useEffect(() => {
+    const updateRect = () => {
+      if (svgRef.current) {
+        const rect = svgRef.current.getBoundingClientRect();
+        setCanvasRect(rect);
+        // Fit to view on mount: center the canvas and choose a zoom that shows the whole thing.
+        fitToView(rect.width, rect.height, canvas.width, canvas.height);
+      }
+    };
+    updateRect();
+    window.addEventListener("resize", updateRect);
+    return () => window.removeEventListener("resize", updateRect);
+  }, [canvas.width, canvas.height, fitToView]);
 
   /**
    * Screen coordinates to canvas coordinates, through the one shared implementation.
