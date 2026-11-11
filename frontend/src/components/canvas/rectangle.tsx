@@ -70,6 +70,8 @@ export const Rectangle = memo(function Rectangle({
         }}
         onDoubleClick={onDoubleClick}
       >
+        {/* Tooltip: show name or note on hover. */}
+        <title>{element.name || element.note || `Element ${element.id}`}</title>
         <circle
           cx={cx}
           cy={cy}
@@ -147,6 +149,8 @@ export const Rectangle = memo(function Rectangle({
       }}
       onDoubleClick={onDoubleClick}
     >
+      {/* Tooltip: show name or note on hover. */}
+      <title>{element.name || element.note || `Element ${element.id}`}</title>
       <rect
         x={element.x}
         y={element.y}
