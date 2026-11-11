@@ -8,35 +8,49 @@ describe("classifyPendingGesture", () => {
     const startedAt = 1000;
     const now = startedAt + GESTURE.longPressMs / 2;
     const distance = GESTURE.moveThresholdPx / 2;
-    expect(classifyPendingGesture(startedAt, now, distance).kind).toBe("still-pending");
+    expect(classifyPendingGesture(startedAt, now, distance, false).kind).toBe("still-pending");
   });
 
   it("commits to draw when elapsed time exceeds long-press threshold", () => {
     const startedAt = 1000;
     const now = startedAt + GESTURE.longPressMs + 10;
     const distance = 0;
-    expect(classifyPendingGesture(startedAt, now, distance).kind).toBe("commit-to-draw");
+    expect(classifyPendingGesture(startedAt, now, distance, false).kind).toBe("commit-to-draw");
   });
 
-  it("cancels to click when distance exceeds threshold before time", () => {
+  it("cancels to click when distance exceeds threshold over empty space", () => {
     const startedAt = 1000;
     const now = startedAt + GESTURE.longPressMs / 2;
     const distance = GESTURE.moveThresholdPx + 1;
-    expect(classifyPendingGesture(startedAt, now, distance).kind).toBe("cancel-to-click");
+    expect(classifyPendingGesture(startedAt, now, distance, false).kind).toBe("cancel-to-click");
+  });
+
+  it("starts moving when distance exceeds threshold over a selected element", () => {
+    const startedAt = 1000;
+    const now = startedAt + GESTURE.longPressMs / 2;
+    const distance = GESTURE.moveThresholdPx + 1;
+    expect(classifyPendingGesture(startedAt, now, distance, true).kind).toBe("start-moving");
   });
 
   it("commits to draw at exact threshold with no motion", () => {
     const startedAt = 1000;
     const now = startedAt + GESTURE.longPressMs;
     const distance = 0;
-    expect(classifyPendingGesture(startedAt, now, distance).kind).toBe("commit-to-draw");
+    expect(classifyPendingGesture(startedAt, now, distance, false).kind).toBe("commit-to-draw");
   });
 
-  it("cancels at exact motion threshold even if time has passed", () => {
+  it("cancels at exact motion threshold over empty space even if time has passed", () => {
     const startedAt = 1000;
     const now = startedAt + GESTURE.longPressMs * 2;
     const distance = GESTURE.moveThresholdPx + 0.1;
-    expect(classifyPendingGesture(startedAt, now, distance).kind).toBe("cancel-to-click");
+    expect(classifyPendingGesture(startedAt, now, distance, false).kind).toBe("cancel-to-click");
+  });
+
+  it("starts moving at exact motion threshold over selection even if time has passed", () => {
+    const startedAt = 1000;
+    const now = startedAt + GESTURE.longPressMs * 2;
+    const distance = GESTURE.moveThresholdPx + 0.1;
+    expect(classifyPendingGesture(startedAt, now, distance, true).kind).toBe("start-moving");
   });
 });
 

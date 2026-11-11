@@ -27,6 +27,7 @@ export function SvgCanvas() {
   const elements = useDocumentStore((state) => state.elements);
   const canvas = useDocumentStore((state) => state.canvas);
   const addElement = useDocumentStore((state) => state.addElement);
+  const updateElement = useDocumentStore((state) => state.updateElement);
 
   const selectedId = useInteractionStore((state) => state.selectedId);
   const hoveredId = useInteractionStore((state) => state.hoveredId);
@@ -74,11 +75,12 @@ export function SvgCanvas() {
   );
 
   /**
-   * Mouse move: classify pending gesture and update drawing preview.
+   * Mouse move: classify pending gesture and update drawing preview or moving offset.
    *
    * While the gesture is pending, every move checks whether the long-press threshold has been
    * crossed. Once it has, the gesture commits to drawing and the preview rect tracks the cursor.
-   * If the pointer moves too far before the threshold, the pending state is cancelled.
+   * If the pointer moves over a selected element before the threshold, the gesture becomes a move.
+   * If the pointer moves over empty space before the threshold, the pending state is cancelled.
    */
   const handleMouseMove = useCallback(
     (event: React.MouseEvent<SVGSVGElement>) => {
@@ -87,28 +89,49 @@ export function SvgCanvas() {
 
       if (gesture.kind === "pending") {
         const distance = Math.hypot(x - gesture.originX, y - gesture.originY);
-        const classification = classifyPendingGesture(gesture.startedAt, Date.now(), distance);
+        // Check if the cursor is over the currently selected element to decide between move and cancel.
+        const isOverSelection = selectedId !== null && hitTest(elements, x, y) === selectedId;
+        const classification = classifyPendingGesture(gesture.startedAt, Date.now(), distance, isOverSelection);
         if (classification.kind === "commit-to-draw") {
           const preview = drawPreview(gesture.originX, gesture.originY, x, y);
           setGesture({ kind: "drawing", originX: gesture.originX, originY: gesture.originY, current: preview });
+        } else if (classification.kind === "start-moving" && selectedId !== null) {
+          // Find the element being moved to capture its starting position.
+          const element = elements.find((el) => el.id === selectedId);
+          if (element) {
+            setGesture({
+              kind: "moving",
+              id: selectedId,
+              startX: gesture.originX,
+              startY: gesture.originY,
+              offset: { dx: 0, dy: 0 },
+            });
+          }
         } else if (classification.kind === "cancel-to-click") {
           setGesture({ kind: "idle" });
         }
       } else if (gesture.kind === "drawing") {
         const preview = drawPreview(gesture.originX, gesture.originY, x, y);
         setGesture({ kind: "drawing", originX: gesture.originX, originY: gesture.originY, current: preview });
+      } else if (gesture.kind === "moving") {
+        // Update the offset for the moving element. The actual position is computed from the
+        // element's original position plus this offset, and committed on mouse up.
+        const dx = x - gesture.startX;
+        const dy = y - gesture.startY;
+        setGesture({ ...gesture, offset: { dx, dy } });
       }
     },
-    [toCanvasPoint, setCursor, gesture, setGesture],
+    [toCanvasPoint, setCursor, gesture, setGesture, selectedId, elements],
   );
 
   /**
-   * Left button up: commit the gesture to either a click or a new element.
+   * Left button up: commit the gesture to either a click, a new element, or a moved element.
    *
    * If the gesture was still pending (quick release without motion), this is a click. Hit testing
    * determines which element (if any) was under the cursor and selects it. If the gesture was
-   * drawing, the preview rectangle becomes a new element. If the gesture was cancelled (too much
-   * motion before threshold), it is treated as a click with no selection change.
+   * drawing, the preview rectangle becomes a new element. If the gesture was moving, the offset
+   * is committed to the element's position. If the gesture was cancelled (too much motion before
+   * threshold over empty space), it is treated as a click with no selection change.
    */
   const handleMouseUp = useCallback(
     (event: React.MouseEvent<SVGSVGElement>) => {
@@ -141,13 +164,23 @@ export function SvgCanvas() {
           // Select the newly created element so the user can immediately edit it.
           select(id);
         }
+      } else if (gesture.kind === "moving") {
+        // Commit the moved position. The element's live position during the drag was computed
+        // from its original position plus the gesture offset; now we write it to the store.
+        const element = elements.find((el) => el.id === gesture.id);
+        if (element) {
+          updateElement(gesture.id, {
+            x: element.x + gesture.offset.dx,
+            y: element.y + gesture.offset.dy,
+          });
+        }
       }
-      // For cancelled gestures (motion before threshold), do nothing: the click is consumed by
-      // the gesture arbitration and the selection state is unchanged.
+      // For cancelled gestures (motion before threshold over empty space), do nothing: the click
+      // is consumed by the gesture arbitration and the selection state is unchanged.
 
       setGesture({ kind: "idle" });
     },
-    [gesture, toCanvasPoint, elements, select, addElement, setGesture],
+    [gesture, toCanvasPoint, elements, select, addElement, updateElement, setGesture],
   );
 
   return (
@@ -224,15 +257,23 @@ export function SvgCanvas() {
           pointerEvents="none"
         />
 
-        {elements.map((element) => (
-          <Rectangle
-            key={element.id}
-            element={element}
-            selected={element.id === selectedId}
-            hovered={element.id === hoveredId}
-            zoom={zoom}
-          />
-        ))}
+        {elements.map((element) => {
+          // During a move gesture, render the moving element at its live position (original + offset).
+          // The offset is not committed to the store until mouse up, so the store position is stale.
+          const liveElement =
+            gesture.kind === "moving" && gesture.id === element.id
+              ? { ...element, x: element.x + gesture.offset.dx, y: element.y + gesture.offset.dy }
+              : element;
+          return (
+            <Rectangle
+              key={element.id}
+              element={liveElement}
+              selected={element.id === selectedId}
+              hovered={element.id === hoveredId}
+              zoom={zoom}
+            />
+          );
+        })}
 
         {/* Drawing preview: dashed outline that tracks the cursor during a long-press draw. */}
         {gesture.kind === "drawing" && (
