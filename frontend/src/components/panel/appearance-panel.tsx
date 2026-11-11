@@ -15,6 +15,7 @@ export function AppearancePanel() {
   const element = useDocumentStore(selectElementById(selectedId));
   const updateFill = useDocumentStore((state) => state.updateFill);
   const updateBorder = useDocumentStore((state) => state.updateBorder);
+  const updateElement = useDocumentStore((state) => state.updateElement);
 
   if (!selectedId || !element) {
     return (
@@ -98,6 +99,32 @@ export function AppearancePanel() {
             <option value="none">None</option>
           </select>
         </div>
+      </div>
+
+      {/* Layer section */}
+      <div className="flex gap-2">
+        <button
+          type="button"
+          onClick={() => updateElement(selectedId, { locked: !element.locked })}
+          className={`flex-1 rounded border px-2 py-1.5 text-[11px] transition-colors ${
+            element.locked
+              ? "border-red-500/50 bg-red-500/10 text-red-300 hover:bg-red-500/20"
+              : "border-slate-700 bg-slate-800 text-slate-300 hover:bg-slate-700"
+          }`}
+        >
+          {element.locked ? "Locked" : "Lock"}
+        </button>
+        <button
+          type="button"
+          onClick={() => updateElement(selectedId, { visible: !element.visible })}
+          className={`flex-1 rounded border px-2 py-1.5 text-[11px] transition-colors ${
+            !element.visible
+              ? "border-slate-600 bg-slate-700 text-slate-400 hover:bg-slate-600"
+              : "border-slate-700 bg-slate-800 text-slate-300 hover:bg-slate-700"
+          }`}
+        >
+          {element.visible ? "Visible" : "Hidden"}
+        </button>
       </div>
     </div>
   );
