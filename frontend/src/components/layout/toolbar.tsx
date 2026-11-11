@@ -12,6 +12,7 @@
 
 import { useCallback, useRef, useState } from "react";
 
+import { HelpDialog } from "./help-dialog";
 import { exportLayout, copyLayoutToClipboard, clearAll, importFromJson, type ExportResult } from "@/lib/export";
 import { ZOOM } from "@/lib/constants";
 import { useDocumentStore } from "@/stores/use-document-store";
@@ -31,6 +32,9 @@ export function Toolbar() {
   const zoom = useViewStore((state) => state.zoom);
   const setZoom = useViewStore((state) => state.setZoom);
   const resetView = useViewStore((state) => state.resetView);
+
+  // 帮助弹窗状态
+  const [showHelp, setShowHelp] = useState(false);
 
   // 自定义缩放输入框状态
   const [showZoomInput, setShowZoomInput] = useState(false);
@@ -146,11 +150,12 @@ export function Toolbar() {
     <header className="flex h-12 shrink-0 items-center gap-4 border-b border-slate-200 bg-white px-4 dark:border-slate-700 dark:bg-slate-900">
       <div className="flex items-baseline gap-2">
         <span className="text-sm font-semibold tracking-tight">墨工</span>
-        {/* 教程占位符：未来将打开帮助面板 */}
+        {/* 教程按钮 */}
         <button
           type="button"
+          onClick={() => setShowHelp(true)}
           className="flex h-5 w-5 items-center justify-center rounded-full border border-slate-300 text-[10px] text-slate-500 hover:border-slate-400 hover:text-slate-700 dark:border-slate-600 dark:text-slate-400 dark:hover:border-slate-500 dark:hover:text-slate-200"
-          title="墨工使用教程（即将推出）"
+          title="墨工使用教程"
           aria-label="帮助"
         >
           ?
@@ -289,6 +294,9 @@ export function Toolbar() {
         className="hidden"
         aria-hidden
       />
+
+      {/* 帮助弹窗 */}
+      {showHelp && <HelpDialog onClose={() => setShowHelp(false)} />}
     </header>
   );
 }

@@ -1,0 +1,66 @@
+{
+  "format": "mogong.layout",
+  "version": "1.0",
+  "meta": {
+    "name": "untitled",
+    "source": "MoGong",
+    "generatedAt": "2026-11-11T15:17:20.769466+00:00"
+  },
+  "canvas": {
+    "width": 1440.0,
+    "height": 900.0,
+    "background": "#FFFFFF",
+    "platform": "web-desktop"
+  },
+  "root": {
+    "id": "root",
+    "name": "Page",
+    "role": "region",
+    "box": {
+      "x": 0.0,
+      "y": 0.0,
+      "width": 100.0,
+      "height": 100.0,
+      "unit": "%"
+    },
+    "layout": "column",
+    "style": {
+      "fill": "#FFFFFF",
+      "fillOpacity": 1.0,
+      "border": null
+    },
+    "note": null,
+    "spacing": null,
+    "align": null,
+    "children": [
+      {
+        "id": "el-mwc9ixhr",
+        "name": "",
+        "role": "block",
+        "box": {
+          "x": 48.79,
+          "y": 18.21,
+          "width": 29.29,
+          "height": 36.27,
+          "unit": "%"
+        },
+        "layout": "none",
+        "style": {
+          "fill": "#E2E8F0",
+          "fillOpacity": 1.0,
+          "border": {
+            "width": 1.0,
+            "style": "solid",
+            "color": "#64748B",
+            "radius": 0.0
+          }
+        },
+        "note": null,
+        "spacing": null,
+        "align": null,
+        "children": []
+      }
+    ]
+  },
+  "warnings": []
+}
