@@ -1,15 +1,18 @@
 /**
- * 顶部工具栏：标识、画布尺寸、缩放、连接状态。
+ * 顶部工具栏：标识、画布尺寸、缩放、导出、连接状态。
  *
  * 缩放控制以按钮形式提供，而非仅依赖滚轮手势，便于无鼠标操作。
  *
  * 缩放百分比按钮支持：
  * - 单击：重置为 100% 缩放
  * - 双击：打开自定义缩放输入框（50-150%）
+ *
+ * 导出按钮：编译当前画布为 layout JSON 并下载。
  */
 
 import { useCallback, useState } from "react";
 
+import { exportLayout, copyLayoutToClipboard, type ExportResult } from "@/lib/export";
 import { ZOOM } from "@/lib/constants";
 import { useDocumentStore } from "@/stores/use-document-store";
 import { useViewStore } from "@/stores/use-view-store";
@@ -29,6 +32,11 @@ export function Toolbar() {
   // 自定义缩放输入框状态
   const [showZoomInput, setShowZoomInput] = useState(false);
   const [zoomInputValue, setZoomInputValue] = useState("");
+
+  // 导出状态
+  const [exporting, setExporting] = useState(false);
+  const [exportResult, setExportResult] = useState<ExportResult | null>(null);
+  const [showCopyButton, setShowCopyButton] = useState(false);
 
   const step = (direction: 1 | -1) =>
     setZoom(clamp(direction > 0 ? zoom * ZOOM.stepFactor : zoom / ZOOM.stepFactor));
@@ -58,6 +66,37 @@ export function Toolbar() {
   const handleZoomCancel = useCallback(() => {
     setShowZoomInput(false);
   }, []);
+
+  // 导出处理
+  const handleExport = useCallback(async () => {
+    if (elementCount === 0) {
+      setExportResult({ success: false, error: "画布为空，无法导出" });
+      return;
+    }
+    setExporting(true);
+    setExportResult(null);
+    setShowCopyButton(false);
+
+    const result = await exportLayout();
+    setExportResult(result);
+    setExporting(false);
+
+    if (result.success) {
+      setShowCopyButton(true);
+      // 3 秒后隐藏复制按钮
+      setTimeout(() => setShowCopyButton(false), 5000);
+    }
+  }, [elementCount]);
+
+  // 复制到剪贴板
+  const handleCopy = useCallback(async () => {
+    if (exportResult?.layout) {
+      const ok = await copyLayoutToClipboard(exportResult.layout);
+      if (ok) {
+        setExportResult({ ...exportResult, writtenTo: "已复制到剪贴板" });
+      }
+    }
+  }, [exportResult]);
 
   return (
     <header className="flex h-12 shrink-0 items-center gap-4 border-b border-slate-800 bg-slate-900 px-4">
@@ -119,7 +158,49 @@ export function Toolbar() {
         <ToolbarButton label="放大" onClick={() => step(1)}>
           +
         </ToolbarButton>
+
+        {/* 导出按钮 */}
+        <div className="mx-2 h-5 w-px bg-slate-800" />
+
+        <button
+          type="button"
+          onClick={handleExport}
+          disabled={exporting || elementCount === 0}
+          className={`rounded px-3 py-1 text-xs transition-colors ${
+            exporting || elementCount === 0
+              ? "cursor-not-allowed text-slate-500"
+              : "text-emerald-400 hover:bg-emerald-900/30"
+          }`}
+          title={elementCount === 0 ? "请先绘制区域" : "编译并导出 layout.json"}
+        >
+          {exporting ? "编译中..." : "导出"}
+        </button>
+
+        {/* 导出成功后显示复制按钮 */}
+        {showCopyButton && (
+          <button
+            type="button"
+            onClick={handleCopy}
+            className="rounded px-2 py-1 text-xs text-slate-400 hover:bg-slate-800"
+            title="复制 JSON 到剪贴板"
+          >
+            复制
+          </button>
+        )}
       </div>
+
+      {/* 导出状态提示 */}
+      {exportResult && (
+        <span
+          className={`text-xs ${
+            exportResult.success ? "text-emerald-400" : "text-red-400"
+          }`}
+        >
+          {exportResult.success
+            ? `✓ ${exportResult.writtenTo || "已导出"}`
+            : exportResult.error}
+        </span>
+      )}
     </header>
   );
 }

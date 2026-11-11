@@ -1,8 +1,7 @@
 """Compile and validation endpoints.
 
 ``/api/compile`` is the product's reason to exist: a drawing goes in, agent-readable layout
-description comes out. It is wired here in M1 so the frontend can integrate against a real route
-while the inference rules are still unwritten.
+description comes out. Implemented in M4 with the full inference pipeline.
 """
 
 from __future__ import annotations
@@ -16,7 +15,7 @@ from app.core.deps import get_compiled_dir, get_repository
 from app.schemas.base import CamelModel
 from app.schemas.document import MoGongDocument
 from app.schemas.layout import LayoutDocument
-from app.services.compiler import CompileNotImplemented, compile_document
+from app.services.compiler import CompileError, compile_document
 from app.services.storage import LayoutRepository
 from app.services.validate import Problem, ProblemLevel, check_document
 
@@ -84,16 +83,16 @@ def compile_layout(
 ) -> CompileResponse:
     """Compile a document into the agent-facing layout JSON.
 
-    Returns 501 until milestone M4 delivers the inference rules. A stub that returned an empty or
-    partially inferred tree would be worse than no endpoint at all: it would look like success and
-    send the user to Cursor with confident-sounding nonsense.
+    Runs the full inference pipeline: nesting tree, layout modes, roles, spacing,
+    relative coordinates. Returns warnings for ambiguous drawings rather than
+    guessing silently.
     """
     try:
         layout = compile_document(document)
-    except CompileNotImplemented as exc:
+    except CompileError as exc:
         raise HTTPException(
-            status_code=status.HTTP_501_NOT_IMPLEMENTED,
-            detail={"message": str(exc), "milestone": "M4"},
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail={"message": f"Compilation failed: {exc}"},
         ) from exc
 
     path = repository.save_compiled(document.meta.id, layout.model_dump(mode="json"), compiled_dir)

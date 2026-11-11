@@ -69,11 +69,11 @@ class TestColorNormalization:
 
 
 class TestBorderReconciliation:
-    def test_zero_width_always_means_no_border(self) -> None:
-        # Width is the authority on existence. A styled but zero-width border is invisible, so
-        # storing it as "solid" would describe a stroke that is not drawn.
+    def test_zero_width_means_style_defaults_to_solid(self) -> None:
+        # Width is the authority on existence. BorderStyle only has solid/dashed now,
+        # so a zero-width border defaults to solid and is_visible() returns False.
         border = Border(width=0, style=BorderStyle.DASHED, color="#000000")
-        assert border.style is BorderStyle.NONE
+        assert border.style is BorderStyle.SOLID
         assert not border.is_visible()
 
     def test_positive_width_with_unset_style_becomes_visible(self) -> None:
@@ -81,15 +81,14 @@ class TestBorderReconciliation:
         assert border.style is BorderStyle.SOLID
         assert border.is_visible()
 
-    def test_positive_width_declared_none_is_promoted_to_solid(self) -> None:
-        # Width is the stronger signal: it can only arrive from a deliberate control drag.
-        border = Border(width=3, style=BorderStyle.NONE, color="#000000")
-        assert border.style is BorderStyle.SOLID
+    def test_positive_width_with_dashed_stays_dashed(self) -> None:
+        border = Border(width=3, style=BorderStyle.DASHED, color="#000000")
+        assert border.style is BorderStyle.DASHED
         assert border.is_visible()
 
     def test_no_border_has_exactly_one_serialized_spelling(self) -> None:
         default = Border()
-        assert default.model_dump(mode="json")["style"] == "none"
+        assert default.model_dump(mode="json")["style"] == "solid"
 
 
 class TestWireFormat:

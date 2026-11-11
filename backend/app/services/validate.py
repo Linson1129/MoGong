@@ -5,8 +5,7 @@ Two distinct jobs share this module's name and should not be confused:
 * :func:`check_document` validates what the user drew. It runs live in the editor as a pre-flight
   check and is available in M1.
 * The tree-versus-document invariant -- every drawn element must surface in the compiled output,
-  either in the tree or in a warning -- cannot exist before the compiler does. It arrives in M4
-  as :func:`assert_no_elements_dropped`.
+  either in the tree or in a warning -- arrives in M4 as :func:`assert_no_element_dropped`.
 
 Keeping them apart matters because the first is advisory feedback and the second is a hard
 correctness gate that must fail a build, not a drawing.
@@ -16,9 +15,13 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from enum import Enum
+from typing import TYPE_CHECKING
 
 from app.models.geometry import EPSILON, Rect
 from app.schemas.document import Element, MoGongDocument
+
+if TYPE_CHECKING:
+    from app.schemas.layout import LayoutDocument, LayoutWarning
 
 
 class ProblemLevel(Enum):
@@ -161,3 +164,46 @@ def overlaps_partially(document: MoGongDocument) -> list[tuple[str, str]]:
 def is_degenerate(width: float, height: float) -> bool:
     """True when an extent carries no area. Mirrors the Element schema check, for live previews."""
     return width <= EPSILON or height <= EPSILON
+
+
+def assert_no_element_dropped(
+    document: MoGongDocument,
+    layout: "LayoutDocument",
+) -> list["LayoutWarning"]:
+    """Core invariant: every document element must appear in the compiled tree.
+
+    This is the check that turns a whole class of compiler bug into a test failure instead of
+    a user discovering that a rectangle they drew vanished from the JSON. It is cheap to assert
+    and it is the first test written for the compiler, not the last.
+
+    Args:
+        document: The source document with all drawn elements.
+        layout: The compiled layout output.
+
+    Returns:
+        List of ELEMENT_DROPPED warnings for any elements that vanished.
+        Empty list means the compilation preserved all elements.
+    """
+    from app.schemas.layout import LayoutWarning, LayoutWarningCode
+
+    document_ids = {element.id for element in document.elements}
+    layout_ids = layout.element_ids()  # Excludes the synthetic root
+
+    dropped = document_ids - layout_ids
+
+    warnings: list[LayoutWarning] = []
+    for element_id in sorted(dropped):
+        element = document.get_element(element_id)
+        name = element.name if element and element.name else element_id
+        warnings.append(
+            LayoutWarning(
+                code=LayoutWarningCode.ELEMENT_DROPPED,
+                elements=[element_id],
+                message=(
+                    f"Element '{name}' ({element_id}) was in the document but did not "
+                    f"surface in the compiled tree. This indicates a compiler bug."
+                ),
+            )
+        )
+
+    return warnings

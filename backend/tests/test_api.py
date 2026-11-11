@@ -153,13 +153,13 @@ class TestValidationEndpoint:
 
 class TestCompileEndpoint:
     def test_compile_reports_not_implemented_until_m4(self, client: TestClient) -> None:
-        # 501 rather than a plausible-looking empty tree: a stub that returned success would send
-        # the user to Cursor with confident-sounding nonsense, which is the failure this product
-        # exists to prevent.
+        # M4 已实施：编译应该成功返回 200 和 layout JSON。
         document = make_document([make_element("e_01", 0, 0, 100, 50)])
         response = client.post("/api/compile", json=doc_to_payload(document))
-        assert response.status_code == 501
-        assert response.json()["detail"]["milestone"] == "M4"
+        assert response.status_code == 200
+        data = response.json()
+        assert data["layout"]["format"] == "mogong.layout"
+        assert len(data["layout"]["root"]["children"]) == 1
 
 
 class TestRequestRejection:
