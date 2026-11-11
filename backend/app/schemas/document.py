@@ -100,11 +100,14 @@ class Border(CamelModel):
 
 
 class Element(CamelModel):
-    """One drawn rectangle.
+    """One drawn rectangle or icon stamp.
 
     Position is the top-left corner in canvas pixels. ``width`` and ``height`` are always
     non-negative: a reverse drag is normalized on write so no downstream consumer has to reason
     about inverted rectangles. See docs/dev-guide.md section 4, Geometry Rules.
+
+    When ``stamp`` is true, the element represents an icon rather than a rectangular region.
+    It is rendered as a circle and the note is displayed as a label.
     """
 
     model_config = ConfigDict(extra="forbid")
@@ -120,6 +123,7 @@ class Element(CamelModel):
     note: str | None = None
     locked: bool = False
     visible: bool = True
+    stamp: bool = False
 
     @model_validator(mode="before")
     @classmethod

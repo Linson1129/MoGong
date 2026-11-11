@@ -299,6 +299,7 @@ describe("toDocument", () => {
       "locked",
       "name",
       "note",
+      "stamp",
       "visible",
       "width",
       "x",

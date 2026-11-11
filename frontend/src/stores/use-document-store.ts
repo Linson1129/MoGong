@@ -81,6 +81,7 @@ export function createElementDefaults(
     note: null,
     locked: false,
     visible: true,
+    stamp: false,
   };
 }
 

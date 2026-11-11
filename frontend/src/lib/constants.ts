@@ -61,6 +61,17 @@ export const MOUSE_BUTTON = {
 export const HISTORY_LIMIT = 100;
 
 /**
+ * Threshold for converting a drawn rectangle into an icon stamp.
+ *
+ * When both width and height are below these values, the element is treated as an icon rather than
+ * a region. The stamp is rendered as a circle with the note as a label.
+ */
+export const STAMP_THRESHOLD = {
+  width: 32,
+  height: 32,
+} as const;
+
+/**
  * Percent values are rounded to this many decimals in compiled output.
  *
  * Sub-pixel precision in a hand-drawn rectangle is jitter rather than intent, and exposing it

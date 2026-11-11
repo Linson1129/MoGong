@@ -1,10 +1,13 @@
 /**
- * One drawn rectangle.
+ * One drawn rectangle or icon stamp.
  *
  * Rendering an element as a real SVG node rather than painting it into a bitmap is the reason the
  * SVG choice in docs/architecture.md section 2 pays off: pointer events, hover and focus come from
  * the browser, and the nesting relation can be expressed as grouping instead of being tracked
  * beside the pixels.
+ *
+ * When `element.stamp` is true, the element is rendered as a circle with the note displayed as a
+ * label. The circle diameter is the smaller of width and height, centered in the bounding box.
  */
 
 import { memo } from "react";
@@ -51,6 +54,90 @@ export const Rectangle = memo(function Rectangle({
   const { border } = element;
   const outlineWidth = 1 / zoom;
 
+  // Stamp rendering: circle with note label.
+  if (element.stamp) {
+    const diameter = Math.min(element.width, element.height);
+    const cx = element.x + element.width / 2;
+    const cy = element.y + element.height / 2;
+    const r = diameter / 2;
+
+    return (
+      <g
+        data-element-id={element.id}
+        style={{
+          opacity: element.fill.opacity,
+          cursor: element.locked ? "not-allowed" : "move",
+        }}
+        onDoubleClick={onDoubleClick}
+      >
+        <circle
+          cx={cx}
+          cy={cy}
+          r={r}
+          fill={element.fill.color}
+          stroke={border.width > 0 && border.style !== "none" ? border.color : undefined}
+          strokeWidth={border.width > 0 ? border.width : undefined}
+          strokeDasharray={dashPattern(border.style, border.width)}
+        />
+
+        {/* Note label: rendered below the circle if present. */}
+        {element.note && (
+          <text
+            x={cx}
+            y={cy + r + 14 / zoom}
+            textAnchor="middle"
+            fill="#1E293B"
+            fontSize={12 / zoom}
+            pointerEvents="none"
+          >
+            {element.note}
+          </text>
+        )}
+
+        {hovered && !selected && (
+          <circle
+            cx={cx}
+            cy={cy}
+            r={r + outlineWidth}
+            fill="none"
+            stroke={HOVER_COLOR}
+            strokeWidth={outlineWidth}
+            pointerEvents="none"
+          />
+        )}
+
+        {selected && (
+          <>
+            <circle
+              cx={cx}
+              cy={cy}
+              r={r + outlineWidth * 1.5}
+              fill="none"
+              stroke={SELECTION_COLOR}
+              strokeWidth={outlineWidth * 1.5}
+              pointerEvents="none"
+            />
+            {/* Corner markers for stamps: same as rectangles, based on bounding box. */}
+            {CORNER_OFFSETS.map((offset) => (
+              <rect
+                key={offset.key}
+                data-handle={offset.key}
+                x={element.x + element.width * offset.fx - GESTURE.handleSizePx / zoom / 2}
+                y={element.y + element.height * offset.fy - GESTURE.handleSizePx / zoom / 2}
+                width={GESTURE.handleSizePx / zoom}
+                height={GESTURE.handleSizePx / zoom}
+                fill="#FFFFFF"
+                stroke={SELECTION_COLOR}
+                strokeWidth={outlineWidth}
+              />
+            ))}
+          </>
+        )}
+      </g>
+    );
+  }
+
+  // Regular rectangle rendering.
   return (
     <g
       data-element-id={element.id}
@@ -74,6 +161,19 @@ export const Rectangle = memo(function Rectangle({
         rx={border.radius > 0 ? border.radius : undefined}
         ry={border.radius > 0 ? border.radius : undefined}
       />
+
+      {/* Note label for rectangles: rendered inside the top-left if present. */}
+      {element.note && (
+        <text
+          x={element.x + 6 / zoom}
+          y={element.y + 14 / zoom}
+          fill="#475569"
+          fontSize={11 / zoom}
+          pointerEvents="none"
+        >
+          {element.note}
+        </text>
+      )}
 
       {hovered && !selected && (
         <rect

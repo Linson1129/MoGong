@@ -17,6 +17,7 @@ function makeElement(id: string, x: number, y: number): LayoutElement {
     note: null,
     locked: false,
     visible: true,
+    stamp: false,
   };
 }
 

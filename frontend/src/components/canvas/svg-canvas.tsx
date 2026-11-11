@@ -16,7 +16,7 @@ import { ContextMenu } from "./context-menu";
 import { NoteEditor } from "./note-editor";
 import { Rectangle } from "./rectangle";
 import { screenToCanvas } from "@/lib/canvas-coords";
-import { MOUSE_BUTTON } from "@/lib/constants";
+import { MOUSE_BUTTON, STAMP_THRESHOLD } from "@/lib/constants";
 import { classifyPendingGesture, drawPreview } from "@/lib/gestures";
 import { applyResize, findHandleAt } from "@/lib/handles";
 import { hitTest } from "@/lib/hit-test";
@@ -225,6 +225,8 @@ export function SvgCanvas() {
         // zero-size rect that would be rejected by the backend anyway.
         if (current.width > 0 && current.height > 0) {
           const id = `el-${Date.now().toString(36)}`;
+          // If the drawn rectangle is smaller than the stamp threshold, treat it as an icon.
+          const isStamp = current.width < STAMP_THRESHOLD.width && current.height < STAMP_THRESHOLD.height;
           addElement({
             id,
             name: "",
@@ -237,6 +239,7 @@ export function SvgCanvas() {
             note: null,
             locked: false,
             visible: true,
+            stamp: isStamp,
           });
           // Select the newly created element so the user can immediately edit it.
           select(id);

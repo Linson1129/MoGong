@@ -16,6 +16,7 @@ function makeElement(id: string, x: number, y: number, width: number, height: nu
     note: null,
     locked: false,
     visible: true,
+    stamp: false,
   };
 }
 

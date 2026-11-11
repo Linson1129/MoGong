@@ -31,6 +31,10 @@ export interface Border {
  *
  * `width` and `height` are always non-negative. A reverse drag is normalized before it is stored,
  * so nothing reading an element has to consider an inverted box.
+ *
+ * When `stamp` is true, the element represents an icon rather than a region. It is rendered as a
+ * circle and the note is displayed as a label. Stamps are created automatically when a drawn
+ * rectangle is smaller than the threshold defined in constants.ts.
  */
 export interface LayoutElement {
   id: string;
@@ -44,6 +48,8 @@ export interface LayoutElement {
   note: string | null;
   locked: boolean;
   visible: boolean;
+  /** True when this element represents an icon stamp rather than a rectangular region. */
+  stamp: boolean;
 }
 
 export interface CanvasConfig {
