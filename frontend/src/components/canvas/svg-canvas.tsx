@@ -16,6 +16,7 @@ import { Rectangle } from "./rectangle";
 import { screenToCanvas } from "@/lib/canvas-coords";
 import { MOUSE_BUTTON } from "@/lib/constants";
 import { classifyPendingGesture, drawPreview } from "@/lib/gestures";
+import { applyResize, findHandleAt } from "@/lib/handles";
 import { hitTest } from "@/lib/hit-test";
 import { useDocumentStore } from "@/stores/use-document-store";
 import { useInteractionStore } from "@/stores/use-interaction-store";
@@ -59,28 +60,51 @@ export function SvgCanvas() {
   const gridSize = canvas.gridSize;
 
   /**
-   * Left button down: start a pending gesture that may become a click or a draw.
+   * Left button down: start a pending gesture that may become a click, draw, move, or resize.
    *
    * The gesture is "pending" because we do not yet know whether the user means to select an
-   * existing element or to draw a new one. The decision is deferred until either the long-press
-   * threshold elapses (commit to draw) or the button is released (commit to click).
+   * existing element, draw a new one, move, or resize. The decision is deferred until either the
+   * long-press threshold elapses (commit to draw), motion is detected (move or resize), or the
+   * button is released (click). Resize is detected immediately if the cursor is on a handle.
    */
   const handleMouseDown = useCallback(
     (event: React.MouseEvent<SVGSVGElement>) => {
       if (event.button !== MOUSE_BUTTON.left) return;
       const { x, y } = toCanvasPoint(event.clientX, event.clientY);
+
+      // Check if the press is on a resize handle of the selected element. If so, start resizing
+      // immediately without going through the pending state. This is the one gesture that does
+      // not need arbitration: the handle is an unambiguous target.
+      if (selectedId !== null) {
+        const selectedElement = elements.find((el) => el.id === selectedId);
+        if (selectedElement) {
+          const handle = findHandleAt(selectedElement, x, y, zoom);
+          if (handle !== null) {
+            setGesture({
+              kind: "resizing",
+              id: selectedId,
+              handle,
+              original: { x: selectedElement.x, y: selectedElement.y, width: selectedElement.width, height: selectedElement.height },
+              current: { x: selectedElement.x, y: selectedElement.y, width: selectedElement.width, height: selectedElement.height },
+            });
+            return;
+          }
+        }
+      }
+
       setGesture({ kind: "pending", originX: x, originY: y, startedAt: Date.now() });
     },
-    [toCanvasPoint, setGesture],
+    [toCanvasPoint, setGesture, selectedId, elements, zoom],
   );
 
   /**
-   * Mouse move: classify pending gesture and update drawing preview or moving offset.
+   * Mouse move: classify pending gesture and update drawing preview, moving offset, or resize.
    *
    * While the gesture is pending, every move checks whether the long-press threshold has been
    * crossed. Once it has, the gesture commits to drawing and the preview rect tracks the cursor.
    * If the pointer moves over a selected element before the threshold, the gesture becomes a move.
    * If the pointer moves over empty space before the threshold, the pending state is cancelled.
+   * During a resize gesture, the element's dimensions are updated live based on cursor position.
    */
   const handleMouseMove = useCallback(
     (event: React.MouseEvent<SVGSVGElement>) => {
@@ -91,10 +115,29 @@ export function SvgCanvas() {
         const distance = Math.hypot(x - gesture.originX, y - gesture.originY);
         // Check if the cursor is over the currently selected element to decide between move and cancel.
         const isOverSelection = selectedId !== null && hitTest(elements, x, y) === selectedId;
-        const classification = classifyPendingGesture(gesture.startedAt, Date.now(), distance, isOverSelection);
+        // Check if the cursor is on a resize handle of the selected element.
+        let handleUnderCursor: ReturnType<typeof findHandleAt> = null;
+        if (selectedId !== null) {
+          const selectedElement = elements.find((el) => el.id === selectedId);
+          if (selectedElement) {
+            handleUnderCursor = findHandleAt(selectedElement, x, y, zoom);
+          }
+        }
+        const classification = classifyPendingGesture(gesture.startedAt, Date.now(), distance, isOverSelection, handleUnderCursor);
         if (classification.kind === "commit-to-draw") {
           const preview = drawPreview(gesture.originX, gesture.originY, x, y);
           setGesture({ kind: "drawing", originX: gesture.originX, originY: gesture.originY, current: preview });
+        } else if (classification.kind === "start-resizing" && selectedId !== null) {
+          const element = elements.find((el) => el.id === selectedId);
+          if (element) {
+            setGesture({
+              kind: "resizing",
+              id: selectedId,
+              handle: classification.handle,
+              original: { x: element.x, y: element.y, width: element.width, height: element.height },
+              current: { x: element.x, y: element.y, width: element.width, height: element.height },
+            });
+          }
         } else if (classification.kind === "start-moving" && selectedId !== null) {
           // Find the element being moved to capture its starting position.
           const element = elements.find((el) => el.id === selectedId);
@@ -119,19 +162,26 @@ export function SvgCanvas() {
         const dx = x - gesture.startX;
         const dy = y - gesture.startY;
         setGesture({ ...gesture, offset: { dx, dy } });
+      } else if (gesture.kind === "resizing") {
+        // Update the resize preview. The actual dimensions are computed from the original rect
+        // plus the pointer position, and committed on mouse up.
+        const current = applyResize(gesture.original, gesture.handle, x, y);
+        setGesture({ ...gesture, current });
       }
     },
-    [toCanvasPoint, setCursor, gesture, setGesture, selectedId, elements],
+    [toCanvasPoint, setCursor, gesture, setGesture, selectedId, elements, zoom],
   );
 
   /**
-   * Left button up: commit the gesture to either a click, a new element, or a moved element.
+   * Left button up: commit the gesture to either a click, a new element, a moved element, or a
+   * resized element.
    *
    * If the gesture was still pending (quick release without motion), this is a click. Hit testing
    * determines which element (if any) was under the cursor and selects it. If the gesture was
    * drawing, the preview rectangle becomes a new element. If the gesture was moving, the offset
-   * is committed to the element's position. If the gesture was cancelled (too much motion before
-   * threshold over empty space), it is treated as a click with no selection change.
+   * is committed to the element's position. If the gesture was resizing, the new dimensions are
+   * committed. If the gesture was cancelled (too much motion before threshold over empty space),
+   * it is treated as a click with no selection change.
    */
   const handleMouseUp = useCallback(
     (event: React.MouseEvent<SVGSVGElement>) => {
@@ -174,6 +224,15 @@ export function SvgCanvas() {
             y: element.y + gesture.offset.dy,
           });
         }
+      } else if (gesture.kind === "resizing") {
+        // Commit the resized dimensions. The element's live size during the drag was computed
+        // from the original rect plus the cursor position; now we write it to the store.
+        updateElement(gesture.id, {
+          x: gesture.current.x,
+          y: gesture.current.y,
+          width: gesture.current.width,
+          height: gesture.current.height,
+        });
       }
       // For cancelled gestures (motion before threshold over empty space), do nothing: the click
       // is consumed by the gesture arbitration and the selection state is unchanged.
@@ -259,11 +318,21 @@ export function SvgCanvas() {
 
         {elements.map((element) => {
           // During a move gesture, render the moving element at its live position (original + offset).
-          // The offset is not committed to the store until mouse up, so the store position is stale.
-          const liveElement =
-            gesture.kind === "moving" && gesture.id === element.id
-              ? { ...element, x: element.x + gesture.offset.dx, y: element.y + gesture.offset.dy }
-              : element;
+          // During a resize gesture, render the resizing element at its live dimensions.
+          // The offset/dimensions are not committed to the store until mouse up, so the store
+          // position is stale during the gesture.
+          let liveElement = element;
+          if (gesture.kind === "moving" && gesture.id === element.id) {
+            liveElement = { ...element, x: element.x + gesture.offset.dx, y: element.y + gesture.offset.dy };
+          } else if (gesture.kind === "resizing" && gesture.id === element.id) {
+            liveElement = {
+              ...element,
+              x: gesture.current.x,
+              y: gesture.current.y,
+              width: gesture.current.width,
+              height: gesture.current.height,
+            };
+          }
           return (
             <Rectangle
               key={element.id}

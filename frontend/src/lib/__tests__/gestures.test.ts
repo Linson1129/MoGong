@@ -8,49 +8,70 @@ describe("classifyPendingGesture", () => {
     const startedAt = 1000;
     const now = startedAt + GESTURE.longPressMs / 2;
     const distance = GESTURE.moveThresholdPx / 2;
-    expect(classifyPendingGesture(startedAt, now, distance, false).kind).toBe("still-pending");
+    expect(classifyPendingGesture(startedAt, now, distance, false, null).kind).toBe("still-pending");
   });
 
   it("commits to draw when elapsed time exceeds long-press threshold", () => {
     const startedAt = 1000;
     const now = startedAt + GESTURE.longPressMs + 10;
     const distance = 0;
-    expect(classifyPendingGesture(startedAt, now, distance, false).kind).toBe("commit-to-draw");
+    expect(classifyPendingGesture(startedAt, now, distance, false, null).kind).toBe("commit-to-draw");
   });
 
   it("cancels to click when distance exceeds threshold over empty space", () => {
     const startedAt = 1000;
     const now = startedAt + GESTURE.longPressMs / 2;
     const distance = GESTURE.moveThresholdPx + 1;
-    expect(classifyPendingGesture(startedAt, now, distance, false).kind).toBe("cancel-to-click");
+    expect(classifyPendingGesture(startedAt, now, distance, false, null).kind).toBe("cancel-to-click");
   });
 
   it("starts moving when distance exceeds threshold over a selected element", () => {
     const startedAt = 1000;
     const now = startedAt + GESTURE.longPressMs / 2;
     const distance = GESTURE.moveThresholdPx + 1;
-    expect(classifyPendingGesture(startedAt, now, distance, true).kind).toBe("start-moving");
+    expect(classifyPendingGesture(startedAt, now, distance, true, null).kind).toBe("start-moving");
+  });
+
+  it("starts resizing when cursor is on a resize handle", () => {
+    const startedAt = 1000;
+    const now = startedAt + GESTURE.longPressMs / 2;
+    const distance = 0;
+    expect(classifyPendingGesture(startedAt, now, distance, true, "se").kind).toBe("start-resizing");
+  });
+
+  it("prioritizes resize over move when handle is under cursor", () => {
+    const startedAt = 1000;
+    const now = startedAt + GESTURE.longPressMs / 2;
+    const distance = GESTURE.moveThresholdPx + 10;
+    expect(classifyPendingGesture(startedAt, now, distance, true, "nw").kind).toBe("start-resizing");
+  });
+
+  it("prioritizes resize over draw when handle is under cursor", () => {
+    const startedAt = 1000;
+    const now = startedAt + GESTURE.longPressMs + 100;
+    const distance = 0;
+    expect(classifyPendingGesture(startedAt, now, distance, true, "ne").kind).toBe("start-resizing");
   });
 
   it("commits to draw at exact threshold with no motion", () => {
     const startedAt = 1000;
     const now = startedAt + GESTURE.longPressMs;
     const distance = 0;
-    expect(classifyPendingGesture(startedAt, now, distance, false).kind).toBe("commit-to-draw");
+    expect(classifyPendingGesture(startedAt, now, distance, false, null).kind).toBe("commit-to-draw");
   });
 
   it("cancels at exact motion threshold over empty space even if time has passed", () => {
     const startedAt = 1000;
     const now = startedAt + GESTURE.longPressMs * 2;
     const distance = GESTURE.moveThresholdPx + 0.1;
-    expect(classifyPendingGesture(startedAt, now, distance, false).kind).toBe("cancel-to-click");
+    expect(classifyPendingGesture(startedAt, now, distance, false, null).kind).toBe("cancel-to-click");
   });
 
   it("starts moving at exact motion threshold over selection even if time has passed", () => {
     const startedAt = 1000;
     const now = startedAt + GESTURE.longPressMs * 2;
     const distance = GESTURE.moveThresholdPx + 0.1;
-    expect(classifyPendingGesture(startedAt, now, distance, true).kind).toBe("start-moving");
+    expect(classifyPendingGesture(startedAt, now, distance, true, null).kind).toBe("start-moving");
   });
 });
 

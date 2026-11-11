@@ -7,6 +7,7 @@
  */
 
 import type { Rect } from "./geometry";
+import { GESTURE } from "./constants";
 
 /** Named by the corner or edge each one sits on, reading like a compass. */
 export type ResizeHandle = "nw" | "n" | "ne" | "e" | "se" | "s" | "sw" | "w";
@@ -113,4 +114,51 @@ export function applyResize(
   }
 
   return { x, y, width, height };
+}
+
+/**
+ * Hit test a resize handle.
+ *
+ * Handles are rendered as squares of `GESTURE.handleSizePx` screen pixels, so the hit region
+ * matches what the user sees. The handle position is its centre; we expand by half the size on
+ * each side to build the hit box.
+ */
+export function hitTestHandle(
+  rect: Rect,
+  handle: ResizeHandle,
+  pointerX: number,
+  pointerY: number,
+  zoom: number,
+): boolean {
+  const pos = handlePosition(rect, handle);
+  const halfSize = GESTURE.handleSizePx / zoom / 2;
+  return (
+    pointerX >= pos.x - halfSize &&
+    pointerX <= pos.x + halfSize &&
+    pointerY >= pos.y - halfSize &&
+    pointerY <= pos.y + halfSize
+  );
+}
+
+/**
+ * Find which resize handle (if any) is under the cursor.
+ *
+ * Returns null when no handle is hit. Corner handles are tested before edge handles so that the
+ * overlap region at a corner belongs to the corner, not the edge.
+ */
+export function findHandleAt(
+  rect: Rect,
+  pointerX: number,
+  pointerY: number,
+  zoom: number,
+): ResizeHandle | null {
+  // Test corners first: they are the most commonly grabbed and the overlap with edges would
+  // otherwise give the edge priority when the cursor sits exactly on the corner.
+  for (const handle of CORNER_HANDLES) {
+    if (hitTestHandle(rect, handle, pointerX, pointerY, zoom)) return handle;
+  }
+  for (const handle of EDGE_HANDLES) {
+    if (hitTestHandle(rect, handle, pointerX, pointerY, zoom)) return handle;
+  }
+  return null;
 }
