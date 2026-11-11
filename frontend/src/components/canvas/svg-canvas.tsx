@@ -16,6 +16,7 @@ import { Rectangle } from "./rectangle";
 import { screenToCanvas } from "@/lib/canvas-coords";
 import { MOUSE_BUTTON } from "@/lib/constants";
 import { classifyPendingGesture, drawPreview } from "@/lib/gestures";
+import { hitTest } from "@/lib/hit-test";
 import { useDocumentStore } from "@/stores/use-document-store";
 import { useInteractionStore } from "@/stores/use-interaction-store";
 import { useViewStore } from "@/stores/use-view-store";
@@ -32,6 +33,7 @@ export function SvgCanvas() {
   const gesture = useInteractionStore((state) => state.gesture);
   const setCursor = useInteractionStore((state) => state.setCursor);
   const setGesture = useInteractionStore((state) => state.setGesture);
+  const select = useInteractionStore((state) => state.select);
 
   const zoom = useViewStore((state) => state.zoom);
   const panX = useViewStore((state) => state.panX);
@@ -103,15 +105,21 @@ export function SvgCanvas() {
   /**
    * Left button up: commit the gesture to either a click or a new element.
    *
-   * If the gesture was still pending or drawing, this is a draw. The preview rectangle becomes
-   * the committed element. If the gesture was cancelled (too much motion before threshold), this
-   * is a click and selection logic will handle it elsewhere.
+   * If the gesture was still pending (quick release without motion), this is a click. Hit testing
+   * determines which element (if any) was under the cursor and selects it. If the gesture was
+   * drawing, the preview rectangle becomes a new element. If the gesture was cancelled (too much
+   * motion before threshold), it is treated as a click with no selection change.
    */
   const handleMouseUp = useCallback(
     (event: React.MouseEvent<SVGSVGElement>) => {
       if (event.button !== MOUSE_BUTTON.left) return;
 
-      if (gesture.kind === "drawing") {
+      if (gesture.kind === "pending") {
+        // Quick release without motion or long-press: a click. Hit test to find what was clicked.
+        const { x, y } = toCanvasPoint(event.clientX, event.clientY);
+        const hitId = hitTest(elements, x, y);
+        select(hitId);
+      } else if (gesture.kind === "drawing") {
         const { current } = gesture;
         // Only commit if the rectangle has non-zero area; a click without motion produces a
         // zero-size rect that would be rejected by the backend anyway.
@@ -130,12 +138,16 @@ export function SvgCanvas() {
             locked: false,
             visible: true,
           });
+          // Select the newly created element so the user can immediately edit it.
+          select(id);
         }
       }
+      // For cancelled gestures (motion before threshold), do nothing: the click is consumed by
+      // the gesture arbitration and the selection state is unchanged.
 
       setGesture({ kind: "idle" });
     },
-    [gesture, addElement, setGesture],
+    [gesture, toCanvasPoint, elements, select, addElement, setGesture],
   );
 
   return (
