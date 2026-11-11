@@ -35,8 +35,10 @@ function documentWith(elements: LayoutElement[]): MoGongDocument {
 }
 
 beforeEach(() => {
-  // The store is a module singleton, so each test has to empty it rather than assume it started
-  // empty -- otherwise the suites silently depend on the order Vitest happens to run them in.
+  // 清除 localStorage 以避免测试之间的状态污染
+  localStorage.clear();
+  // 存储是模块单例，每个测试必须清空它，而不是假设它以空状态开始——
+  // 否则测试套件会默默地依赖 Vitest 运行它们的顺序。
   store().resetDocument();
 });
 

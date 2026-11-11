@@ -23,11 +23,13 @@ function makeElement(id: string, x: number, y: number): LayoutElement {
 
 describe("useHistoryStore", () => {
   beforeEach(() => {
+    localStorage.clear();
     useDocumentStore.getState().resetDocument();
     useHistoryStore.getState().clear();
   });
 
   afterEach(() => {
+    localStorage.clear();
     useDocumentStore.getState().resetDocument();
     useHistoryStore.getState().clear();
   });

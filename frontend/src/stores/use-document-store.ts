@@ -1,14 +1,13 @@
 /**
- * Document store: the editable source of truth, held in client memory.
+ * 文档存储：可编辑的真实来源，保存在客户端内存中。
  *
- * Every mutation goes through `applyEdit`. That single funnel exists so milestone M2 can attach an
- * undo stack here without touching a single call site -- history becomes "keep the previous state
- * that passed through this function" rather than a patch on every action.
+ * 每次修改都通过 `applyEdit`。这个单一漏斗存在的原因是 M2 可以在其上附加撤销栈——
+ * 历史记录变成“保留通过此函数的上一个状态”而不是在每个动作上打补丁。
  *
- * Live drag geometry does NOT live here. During a pointer move the working rectangle belongs to
- * the interaction store, and this store is written once, on pointer up. Without that split, every
- * frame of a drag would push an entry onto the history stack and one rectangle would take sixty
- * undos to remove. See docs/architecture.md section 3.
+ * 实时拖拽几何信息不存储在这里。拖拽时工作矩形属于交互存储，只在指针抬起时写入此存储。
+ * 如果没有这个分离，拖拽的每一帧都会推送一个历史记录条目，一个矩形需要六十次撤销才能移除。
+ *
+ * 文档自动保存到 localStorage，刷新页面时自动恢复。
  */
 
 import { create } from "zustand";
@@ -22,6 +21,9 @@ import type {
   LayoutElement,
   MoGongDocument,
 } from "@/types/document";
+
+/** localStorage 存储键名 */
+const STORAGE_KEY = "mogong-document";
 
 /** A change to the document, expressed as a function rather than a patch. */
 export type Edit = (state: DocumentState) => Partial<DocumentState>;
@@ -109,12 +111,48 @@ function editElement(id: string, change: (element: LayoutElement) => LayoutEleme
   };
 }
 
-const initialState = (): DocumentState => ({
-  meta: newMeta(`layout-${Date.now().toString(36)}`),
-  canvas: { ...DEFAULT_CANVAS },
-  elements: [],
-  revision: 0,
-});
+const initialState = (): DocumentState => {
+  // 尝试从 localStorage 加载已保存的文档
+  if (typeof window !== "undefined") {
+    try {
+      const stored = localStorage.getItem(STORAGE_KEY);
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (parsed && parsed.elements && parsed.canvas && parsed.meta) {
+          return {
+            meta: parsed.meta,
+            canvas: parsed.canvas,
+            elements: parsed.elements,
+            revision: 0,
+          };
+        }
+      }
+    } catch {
+      // 忽略解析错误，使用初始状态
+    }
+  }
+  return {
+    meta: newMeta(`layout-${Date.now().toString(36)}`),
+    canvas: { ...DEFAULT_CANVAS },
+    elements: [],
+    revision: 0,
+  };
+};
+
+/** 将当前文档保存到 localStorage */
+function saveToStorage(state: DocumentState): void {
+  if (typeof window === "undefined") return;
+  try {
+    const toSave = {
+      meta: state.meta,
+      canvas: state.canvas,
+      elements: state.elements,
+    };
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(toSave));
+  } catch {
+    // 忽略存储错误
+  }
+}
 
 export const useDocumentStore = create<DocumentStore>((set, get) => ({
   ...initialState(),
@@ -122,10 +160,13 @@ export const useDocumentStore = create<DocumentStore>((set, get) => ({
   applyEdit: (edit) => {
     set((state) => {
       const patch = edit(state);
-      // A no-op edit must not bump the revision: M2 layers undo on top of this function by
-      // snapshotting on each revision change, and empty edits would fill the stack.
+      // 无操作的编辑不应增加 revision：撤销栈基于 revision 变化快照，
+      // 空编辑会填充撤销栈。
       if (Object.keys(patch).length === 0) return state;
-      return { ...patch, revision: state.revision + 1 };
+      const newState = { ...patch, revision: state.revision + 1 };
+      // 自动保存到 localStorage
+      saveToStorage({ ...state, ...newState });
+      return newState;
     });
   },
 
@@ -180,19 +221,23 @@ export const useDocumentStore = create<DocumentStore>((set, get) => ({
   setCanvas: (patch) =>
     get().applyEdit((state) => ({ canvas: { ...state.canvas, ...patch } })),
 
-  loadDocument: (document) =>
-    set(() => ({
+  loadDocument: (document) => {
+    const newState = {
       meta: document.meta,
       canvas: document.canvas,
       elements: document.elements,
       revision: 0,
-    })),
+    };
+    set(newState);
+    saveToStorage(newState);
+  },
 
-  resetDocument: (meta) =>
-    set(() => {
-      const fresh = initialState();
-      return { ...fresh, meta: { ...fresh.meta, ...meta } };
-    }),
+  resetDocument: (meta) => {
+    const fresh = initialState();
+    const newState = { ...fresh, meta: { ...fresh.meta, ...meta } };
+    set(newState);
+    saveToStorage(newState);
+  },
 
   toDocument: (viewport) => {
     const { meta, canvas, elements } = get();
