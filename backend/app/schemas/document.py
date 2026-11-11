@@ -124,6 +124,7 @@ class Element(CamelModel):
     locked: bool = False
     visible: bool = True
     stamp: bool = False
+    layer_id: str | None = None
 
     @model_validator(mode="before")
     @classmethod
@@ -167,6 +168,21 @@ class Element(CamelModel):
     @property
     def area(self) -> float:
         return self.width * self.height
+
+
+class Layer(CamelModel):
+    """A layer groups elements for collective visibility, locking, and naming.
+
+    Layers are an organizational tool, not a rendering primitive. The compiler flattens them when
+    exporting, but the editor uses them to let the user hide or lock related regions together.
+    """
+
+    model_config = ConfigDict(extra="forbid")
+
+    id: str = Field(min_length=1)
+    name: str = ""
+    visible: bool = True
+    locked: bool = False
 
 
 class CanvasConfig(CamelModel):
@@ -218,6 +234,7 @@ class MoGongDocument(CamelModel):
     meta: DocumentMeta
     canvas: CanvasConfig = Field(default_factory=CanvasConfig)
     elements: list[Element] = Field(default_factory=list)
+    layers: list[Layer] = Field(default_factory=list)
     viewport: Viewport = Field(default_factory=Viewport)
 
     @model_validator(mode="after")

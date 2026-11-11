@@ -18,6 +18,7 @@ function makeElement(id: string, x: number, y: number): LayoutElement {
     locked: false,
     visible: true,
     stamp: false,
+    layerId: null,
   };
 }
 

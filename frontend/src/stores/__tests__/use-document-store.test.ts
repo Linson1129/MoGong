@@ -30,6 +30,7 @@ function documentWith(elements: LayoutElement[]): MoGongDocument {
     meta: { id: "layout-test", name: "test", createdAt: null, updatedAt: null },
     canvas: { ...DEFAULT_CANVAS },
     elements,
+    layers: [],
     viewport: { zoom: 1, panX: 0, panY: 0 },
   };
 }
@@ -296,6 +297,7 @@ describe("toDocument", () => {
       "fill",
       "height",
       "id",
+      "layerId",
       "locked",
       "name",
       "note",

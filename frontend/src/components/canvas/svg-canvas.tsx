@@ -252,6 +252,7 @@ export function SvgCanvas() {
             locked: false,
             visible: true,
             stamp: isStamp,
+            layerId: null,
           });
           // Select the newly created element so the user can immediately edit it.
           select(id);

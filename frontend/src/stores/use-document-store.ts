@@ -19,6 +19,7 @@ import type {
   CanvasConfig,
   DocumentMeta,
   Fill,
+  Layer,
   LayoutElement,
   MoGongDocument,
 } from "@/types/document";
@@ -31,12 +32,14 @@ export interface HistorySnapshot {
   elements: LayoutElement[];
   canvas: CanvasConfig;
   meta: DocumentMeta;
+  layers: Layer[];
 }
 
 interface DocumentState {
   meta: DocumentMeta;
   canvas: CanvasConfig;
   elements: LayoutElement[];
+  layers: Layer[];
   /** Bumped on every committed edit so subscribers can react without diffing arrays. */
   revision: number;
 }
@@ -51,6 +54,9 @@ interface DocumentActions {
   removeElement: (id: string) => void;
   reorderElement: (id: string, direction: "front" | "back") => void;
   setCanvas: (patch: Partial<CanvasConfig>) => void;
+  addLayer: (layer: Layer) => void;
+  updateLayer: (id: string, patch: Partial<Omit<Layer, "id">>) => void;
+  removeLayer: (id: string) => void;
   loadDocument: (document: MoGongDocument) => void;
   resetDocument: (meta?: Partial<DocumentMeta>) => void;
   toDocument: (viewport: { zoom: number; panX: number; panY: number }) => MoGongDocument;
@@ -82,6 +88,7 @@ export function createElementDefaults(
     locked: false,
     visible: true,
     stamp: false,
+    layerId: null,
   };
 }
 
@@ -113,6 +120,7 @@ const initialState = (): DocumentState => ({
   meta: newMeta(`layout-${Date.now().toString(36)}`),
   canvas: { ...DEFAULT_CANVAS },
   elements: [],
+  layers: [],
   revision: 0,
 });
 
@@ -182,11 +190,42 @@ export const useDocumentStore = create<DocumentStore>((set, get) => ({
   setCanvas: (patch) =>
     get().applyEdit((state) => ({ canvas: { ...state.canvas, ...patch } })),
 
+  addLayer: (layer) =>
+    get().applyEdit((state) => {
+      if (state.layers.some((existing) => existing.id === layer.id)) {
+        return {};
+      }
+      return { layers: [...state.layers, layer] };
+    }),
+
+  updateLayer: (id, patch) =>
+    get().applyEdit((state) => {
+      if (!state.layers.some((existing) => existing.id === id)) return {};
+      return {
+        layers: state.layers.map((existing) =>
+          existing.id === id ? { ...existing, ...patch } : existing,
+        ),
+      };
+    }),
+
+  removeLayer: (id) =>
+    get().applyEdit((state) => {
+      if (!state.layers.some((existing) => existing.id === id)) return {};
+      // Unassign any elements on this layer before removing it.
+      return {
+        layers: state.layers.filter((existing) => existing.id !== id),
+        elements: state.elements.map((el) =>
+          el.layerId === id ? { ...el, layerId: null } : el,
+        ),
+      };
+    }),
+
   loadDocument: (document) =>
     set(() => ({
       meta: document.meta,
       canvas: document.canvas,
       elements: document.elements,
+      layers: document.layers ?? [],
       revision: 0,
     })),
 
@@ -197,22 +236,23 @@ export const useDocumentStore = create<DocumentStore>((set, get) => ({
     }),
 
   toDocument: (viewport) => {
-    const { meta, canvas, elements } = get();
+    const { meta, canvas, elements, layers } = get();
     return {
       format: "mogong.document" as const,
       version: "1.0",
       meta: { ...meta, updatedAt: new Date().toISOString() },
       canvas,
       elements,
+      layers,
       viewport,
     };
   },
 
   getSnapshot: () => {
-    const { elements, canvas, meta } = get();
+    const { elements, canvas, meta, layers } = get();
     // Structured copy, because a snapshot that shares element objects with the live store would
     // undo into a state that has since been mutated.
-    return structuredClone({ elements, canvas, meta });
+    return structuredClone({ elements, canvas, meta, layers });
   },
 
   restoreSnapshot: (snapshot) =>
@@ -220,6 +260,7 @@ export const useDocumentStore = create<DocumentStore>((set, get) => ({
       elements: structuredClone(snapshot.elements),
       canvas: structuredClone(snapshot.canvas),
       meta: structuredClone(snapshot.meta),
+      layers: structuredClone(snapshot.layers),
       revision: state.revision + 1,
     })),
 }));

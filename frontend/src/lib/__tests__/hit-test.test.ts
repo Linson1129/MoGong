@@ -17,6 +17,7 @@ function makeElement(id: string, x: number, y: number, width: number, height: nu
     locked: false,
     visible: true,
     stamp: false,
+    layerId: null,
   };
 }
 

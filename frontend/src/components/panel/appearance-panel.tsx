@@ -16,6 +16,7 @@ export function AppearancePanel() {
   const updateFill = useDocumentStore((state) => state.updateFill);
   const updateBorder = useDocumentStore((state) => state.updateBorder);
   const updateElement = useDocumentStore((state) => state.updateElement);
+  const layers = useDocumentStore((state) => state.layers);
 
   if (!selectedId || !element) {
     return (
@@ -84,7 +85,28 @@ export function AppearancePanel() {
         </select>
       </div>
 
-      {/* Layer section */}
+      {/* Layer assignment */}
+      {layers.length > 0 && (
+        <div>
+          <label className="mb-1.5 block text-[11px] font-medium uppercase tracking-wider text-slate-400">
+            Layer
+          </label>
+          <select
+            value={element.layerId ?? ""}
+            onChange={(e) => updateElement(selectedId, { layerId: e.target.value || null })}
+            className="w-full rounded border border-slate-700 bg-slate-800 px-2 py-1 text-xs text-slate-200"
+          >
+            <option value="">Unassigned</option>
+            {layers.map((layer) => (
+              <option key={layer.id} value={layer.id}>
+                {layer.name}
+              </option>
+            ))}
+          </select>
+        </div>
+      )}
+
+      {/* Lock/Hide toggles */}
       <div className="flex gap-2">
         <button
           type="button"
