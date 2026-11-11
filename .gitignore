@@ -1,0 +1,37 @@
+# MoGong repository ignores.
+#
+# One file at the root rather than one per project, because the two halves share `fixtures/`,
+# `data/`, and the build artefacts below. The per-project `.gitignore` files are still honoured
+# for their own artefacts.
+
+# Build output
+frontend/.next/
+frontend/out/
+backend/dist/
+backend/build/
+
+# Dependencies
+frontend/node_modules/
+backend/.venv/
+backend/.mypy_cache/
+
+# Test artefacts
+frontend/coverage/
+backend/.pytest_cache/
+backend/.coverage
+backend/.ruff_cache/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+.DS_Store
+
+# Python
+__pycache__/
+*.pyc
+backend/mogong_backend.egg-info/
+
+# Environment
+.env
+.env.local
