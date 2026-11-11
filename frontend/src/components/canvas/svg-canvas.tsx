@@ -101,6 +101,12 @@ export function SvgCanvas() {
    */
   const handleMouseDown = useCallback(
     (event: React.MouseEvent<SVGSVGElement>) => {
+      // Close the context menu if it is open, regardless of which button was pressed.
+      if (contextMenu !== null) {
+        setContextMenu(null);
+        inspect(null);
+      }
+
       if (event.button !== MOUSE_BUTTON.left) return;
       const { x, y } = toCanvasPoint(event.clientX, event.clientY);
 
@@ -126,7 +132,7 @@ export function SvgCanvas() {
 
       setGesture({ kind: "pending", originX: x, originY: y, startedAt: Date.now() });
     },
-    [toCanvasPoint, setGesture, selectedId, elements, zoom],
+    [toCanvasPoint, setGesture, selectedId, elements, zoom, contextMenu, inspect],
   );
 
   /**

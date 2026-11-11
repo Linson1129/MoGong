@@ -32,16 +32,20 @@ export function useArrowKeyPanning() {
 
       switch (event.key) {
         case "ArrowUp":
-          panByStep(0, -1, coarse);
-          break;
-        case "ArrowDown":
+          // Pressing ArrowUp moves the content up (viewport moves down), so panY increases.
           panByStep(0, 1, coarse);
           break;
+        case "ArrowDown":
+          // Pressing ArrowDown moves the content down (viewport moves up), so panY decreases.
+          panByStep(0, -1, coarse);
+          break;
         case "ArrowLeft":
-          panByStep(-1, 0, coarse);
+          // Pressing ArrowLeft moves the content left (viewport moves right), so panX increases.
+          panByStep(1, 0, coarse);
           break;
         case "ArrowRight":
-          panByStep(1, 0, coarse);
+          // Pressing ArrowRight moves the content right (viewport moves left), so panX decreases.
+          panByStep(-1, 0, coarse);
           break;
       }
     };
