@@ -27,6 +27,20 @@ export function AppearancePanel() {
 
   return (
     <div className="space-y-4 px-4 pb-4">
+      {/* Name section */}
+      <div>
+        <label className="mb-1.5 block text-[11px] font-medium uppercase tracking-wider text-slate-400">
+          Name
+        </label>
+        <input
+          type="text"
+          value={element.name}
+          onChange={(e) => updateElement(selectedId, { name: e.target.value })}
+          placeholder="Region name..."
+          className="w-full rounded border border-slate-700 bg-slate-800 px-2 py-1 text-xs text-slate-200 outline-none focus:border-blue-500"
+        />
+      </div>
+
       {/* Fill section */}
       <div>
         <label className="mb-1.5 block text-[11px] font-medium uppercase tracking-wider text-slate-400">

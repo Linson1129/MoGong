@@ -12,7 +12,7 @@
 
 import { memo } from "react";
 
-import { GESTURE } from "@/lib/constants";
+import { GESTURE, STAMP_THRESHOLD } from "@/lib/constants";
 import type { LayoutElement } from "@/types/document";
 
 interface RectangleProps {
@@ -54,9 +54,11 @@ export const Rectangle = memo(function Rectangle({
   const { border } = element;
   const outlineWidth = 1 / zoom;
 
-  // Stamp rendering: circle with note label.
+  // Stamp rendering: fixed-size circle with note label.
+  // The diameter is fixed regardless of the element's actual width/height, so small draws
+  // produce a consistent icon size.
   if (element.stamp) {
-    const diameter = Math.min(element.width, element.height);
+    const diameter = STAMP_THRESHOLD.width; // Use the threshold as the fixed stamp size.
     const cx = element.x + element.width / 2;
     const cy = element.y + element.height / 2;
     const r = diameter / 2;
