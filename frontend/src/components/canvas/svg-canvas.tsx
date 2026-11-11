@@ -14,6 +14,8 @@ import { useCallback, useRef } from "react";
 
 import { Rectangle } from "./rectangle";
 import { screenToCanvas } from "@/lib/canvas-coords";
+import { MOUSE_BUTTON } from "@/lib/constants";
+import { classifyPendingGesture, drawPreview } from "@/lib/gestures";
 import { useDocumentStore } from "@/stores/use-document-store";
 import { useInteractionStore } from "@/stores/use-interaction-store";
 import { useViewStore } from "@/stores/use-view-store";
@@ -23,10 +25,13 @@ export function SvgCanvas() {
 
   const elements = useDocumentStore((state) => state.elements);
   const canvas = useDocumentStore((state) => state.canvas);
+  const addElement = useDocumentStore((state) => state.addElement);
 
   const selectedId = useInteractionStore((state) => state.selectedId);
   const hoveredId = useInteractionStore((state) => state.hoveredId);
+  const gesture = useInteractionStore((state) => state.gesture);
   const setCursor = useInteractionStore((state) => state.setCursor);
+  const setGesture = useInteractionStore((state) => state.setGesture);
 
   const zoom = useViewStore((state) => state.zoom);
   const panX = useViewStore((state) => state.panX);
@@ -50,6 +55,89 @@ export function SvgCanvas() {
 
   const gridSize = canvas.gridSize;
 
+  /**
+   * Left button down: start a pending gesture that may become a click or a draw.
+   *
+   * The gesture is "pending" because we do not yet know whether the user means to select an
+   * existing element or to draw a new one. The decision is deferred until either the long-press
+   * threshold elapses (commit to draw) or the button is released (commit to click).
+   */
+  const handleMouseDown = useCallback(
+    (event: React.MouseEvent<SVGSVGElement>) => {
+      if (event.button !== MOUSE_BUTTON.left) return;
+      const { x, y } = toCanvasPoint(event.clientX, event.clientY);
+      setGesture({ kind: "pending", originX: x, originY: y, startedAt: Date.now() });
+    },
+    [toCanvasPoint, setGesture],
+  );
+
+  /**
+   * Mouse move: classify pending gesture and update drawing preview.
+   *
+   * While the gesture is pending, every move checks whether the long-press threshold has been
+   * crossed. Once it has, the gesture commits to drawing and the preview rect tracks the cursor.
+   * If the pointer moves too far before the threshold, the pending state is cancelled.
+   */
+  const handleMouseMove = useCallback(
+    (event: React.MouseEvent<SVGSVGElement>) => {
+      const { x, y } = toCanvasPoint(event.clientX, event.clientY);
+      setCursor({ x, y });
+
+      if (gesture.kind === "pending") {
+        const distance = Math.hypot(x - gesture.originX, y - gesture.originY);
+        const classification = classifyPendingGesture(gesture.startedAt, Date.now(), distance);
+        if (classification.kind === "commit-to-draw") {
+          const preview = drawPreview(gesture.originX, gesture.originY, x, y);
+          setGesture({ kind: "drawing", originX: gesture.originX, originY: gesture.originY, current: preview });
+        } else if (classification.kind === "cancel-to-click") {
+          setGesture({ kind: "idle" });
+        }
+      } else if (gesture.kind === "drawing") {
+        const preview = drawPreview(gesture.originX, gesture.originY, x, y);
+        setGesture({ kind: "drawing", originX: gesture.originX, originY: gesture.originY, current: preview });
+      }
+    },
+    [toCanvasPoint, setCursor, gesture, setGesture],
+  );
+
+  /**
+   * Left button up: commit the gesture to either a click or a new element.
+   *
+   * If the gesture was still pending or drawing, this is a draw. The preview rectangle becomes
+   * the committed element. If the gesture was cancelled (too much motion before threshold), this
+   * is a click and selection logic will handle it elsewhere.
+   */
+  const handleMouseUp = useCallback(
+    (event: React.MouseEvent<SVGSVGElement>) => {
+      if (event.button !== MOUSE_BUTTON.left) return;
+
+      if (gesture.kind === "drawing") {
+        const { current } = gesture;
+        // Only commit if the rectangle has non-zero area; a click without motion produces a
+        // zero-size rect that would be rejected by the backend anyway.
+        if (current.width > 0 && current.height > 0) {
+          const id = `el-${Date.now().toString(36)}`;
+          addElement({
+            id,
+            name: "",
+            x: current.x,
+            y: current.y,
+            width: current.width,
+            height: current.height,
+            fill: { color: "#E2E8F0", opacity: 1 },
+            border: { width: 1, style: "solid", color: "#64748B", radius: 0 },
+            note: null,
+            locked: false,
+            visible: true,
+          });
+        }
+      }
+
+      setGesture({ kind: "idle" });
+    },
+    [gesture, addElement, setGesture],
+  );
+
   return (
     <svg
       ref={svgRef}
@@ -63,8 +151,13 @@ export function SvgCanvas() {
       // a zoom gesture and take the user's place in the tab.
       onWheel={(event) => event.preventDefault()}
       onContextMenu={(event) => event.preventDefault()}
-      onMouseMove={(event) => setCursor(toCanvasPoint(event.clientX, event.clientY))}
-      onMouseLeave={() => setCursor(null)}
+      onMouseDown={handleMouseDown}
+      onMouseMove={handleMouseMove}
+      onMouseUp={handleMouseUp}
+      onMouseLeave={() => {
+        setCursor(null);
+        if (gesture.kind !== "idle") setGesture({ kind: "idle" });
+      }}
     >
       <defs>
         <pattern
@@ -129,7 +222,23 @@ export function SvgCanvas() {
           />
         ))}
 
-        {elements.length === 0 && (
+        {/* Drawing preview: dashed outline that tracks the cursor during a long-press draw. */}
+        {gesture.kind === "drawing" && (
+          <rect
+            data-testid="drawing-preview"
+            x={gesture.current.x}
+            y={gesture.current.y}
+            width={gesture.current.width}
+            height={gesture.current.height}
+            fill="none"
+            stroke="#3B82F6"
+            strokeWidth={2 / zoom}
+            strokeDasharray={`${4 / zoom} ${4 / zoom}`}
+            pointerEvents="none"
+          />
+        )}
+
+        {elements.length === 0 && gesture.kind !== "drawing" && (
           <text
             x={canvas.width / 2}
             y={canvas.height / 2}
