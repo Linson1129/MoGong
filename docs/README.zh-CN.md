@@ -13,15 +13,12 @@
 
 ## 效果
 
-同一份布局 JSON，交给 Agent 后可以落地成完全不同的设计方向：
+同一份布局 JSON，交给 Agent 会生成相同的前端布局：
 
-深色方向：
 
-![深色示例](images/example-dark.png)
+![展开示例](images/example-dark.png)
 
-浅色方向：
-
-![浅色示例](images/example-light.png)
+![折叠示例](images/example-light.png)
 
 ## 怎么用
 
