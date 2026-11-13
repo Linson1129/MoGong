@@ -1,0 +1,46 @@
+# One command to see MoGong: `docker compose up --build`, then http://localhost:3000.
+#
+# This runs the server pairing (Next.js + FastAPI), not the static build: a server has something
+# to proxy /api to, and the compiler stays in one implementation. The Pyodide bundle staged into
+# frontend/public/wasm belongs to the static host and is deliberately kept out of this image.
+
+services:
+  backend:
+    build: ./backend
+    environment:
+      MOGONG_LAYOUTS_DIR: /data/layouts
+      MOGONG_COMPILED_DIR: /data/compiled
+    volumes:
+      # Drawings outlive the container. Deleting this volume deletes saved layouts, so it is
+      # named rather than anonymous.
+      - mogong-data:/data
+    ports:
+      - "8100:8100"
+    healthcheck:
+      # python is the only HTTP client guaranteed to exist in the slim image.
+      test:
+        - CMD
+        - python
+        - -c
+        - "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8100/api/health')"
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 5s
+
+  frontend:
+    build:
+      # Repo root, not ./frontend: the image also stages the skill package from .qoder/skills.
+      context: .
+      dockerfile: frontend/Dockerfile
+      args:
+        # Baked into the build: Next writes rewrites into its routes manifest.
+        MOGONG_BACKEND_ORIGIN: http://backend:8100
+    ports:
+      - "3000:3000"
+    depends_on:
+      backend:
+        condition: service_healthy
+
+volumes:
+  mogong-data:
