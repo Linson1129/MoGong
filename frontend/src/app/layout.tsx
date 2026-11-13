@@ -20,8 +20,10 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
+    // zh-CN, not en: the interface copy is Chinese (docs/spec.md section 9), and the document
+    // language is what tells the text engine how to segment and hyphenate CJK runs.
     <html
-      lang="en"
+      lang="zh-CN"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       {/* Overflow hidden is deliberate: the editor owns the whole window, and a stray scroll bar

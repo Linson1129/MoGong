@@ -5,7 +5,7 @@ and the consuming agent all derive their expectations from these models, so a fi
 is a breaking change everywhere.
 
 Documents store absolute pixels in a flat element list. The nesting tree exists only in the
-compiled output -- see the rationale on ElementList below.
+compiled output -- see the note on ``MoGongDocument.elements`` below.
 """
 
 from __future__ import annotations
@@ -24,6 +24,13 @@ HEX_COLOR_PATTERN = re.compile(r"^#[0-9A-F]{6}$")
 # Geometry epsilon. Repeated here rather than imported from the geometry module so that schema
 # validation stays dependency-free and usable from tests without pulling in compiler internals.
 AREA_EPSILON = 1e-9
+
+# Hard ceiling on how many regions one document may carry, enforced where every inbound request is
+# already parsed. Nesting compares regions against each other, so a compile costs roughly the square
+# of this number: a hand-drawn wireframe runs to a few dozen regions, 1000 is orders of magnitude
+# past anything a person draws by hand, and it bounds a malicious body to about a million
+# comparisons instead of letting a 100k-element POST occupy a worker until it is killed.
+MAX_ELEMENTS = 1000
 
 
 def _normalize_hex_color(value: str) -> str:
@@ -213,7 +220,7 @@ class MoGongDocument(CamelModel):
     version: str = "1.0"
     meta: DocumentMeta
     canvas: CanvasConfig = Field(default_factory=CanvasConfig)
-    elements: list[Element] = Field(default_factory=list)
+    elements: list[Element] = Field(default_factory=list, max_length=MAX_ELEMENTS)
     viewport: Viewport = Field(default_factory=Viewport)
 
     @model_validator(mode="after")

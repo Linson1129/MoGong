@@ -4,6 +4,14 @@
  * The menu appears at the cursor position when the user right-clicks on an element. It offers
  * operations that apply to the inspected element, independent of whether it is selected. The
  * menu closes on any click outside it, on Escape, or after an action is performed.
+ *
+ * It is glass, which is allowed here and nowhere over the canvas: the sheet must always show the
+ * user the true colour of the region they filled, and anything that blurs or tints that reading is
+ * a lie about the drawing. A menu that floats above the drawing has no such obligation, because it
+ * covers a region the user is not currently judging.
+ *
+ * `fixed` because `x`/`y` come from `event.clientY`, which is viewport space, while this component
+ * renders inside a `relative` main that begins below the toolbar.
  */
 
 import { useCallback, useEffect, useRef } from "react";
@@ -67,30 +75,30 @@ export function ContextMenu({ x, y, elementId, onClose }: ContextMenuProps) {
     <div
       ref={menuRef}
       data-testid="context-menu"
-      className="absolute z-50 min-w-[140px] rounded-md border border-slate-200 bg-white py-1 shadow-lg dark:border-slate-700 dark:bg-slate-800"
+      className="fixed z-50 min-w-[140px] rounded-overlay border border-glass-rim bg-glass-tint py-1 text-sm shadow-overlay backdrop-blur-glass backdrop-saturate-(--glass-saturate)"
       style={{ left: x, top: y }}
     >
       <button
         data-testid="context-menu-bring-to-front"
-        className="flex w-full items-center px-3 py-1.5 text-left text-sm text-slate-700 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-700"
+        className="flex w-full items-center px-3 py-1.5 text-left text-sm text-ink-secondary hover:bg-ink/10 hover:text-ink"
         onClick={handleBringToFront}
       >
-        Bring to Front
+        置于顶层
       </button>
       <button
         data-testid="context-menu-send-to-back"
-        className="flex w-full items-center px-3 py-1.5 text-left text-sm text-slate-700 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-700"
+        className="flex w-full items-center px-3 py-1.5 text-left text-sm text-ink-secondary hover:bg-ink/10 hover:text-ink"
         onClick={handleSendToBack}
       >
-        Send to Back
+        置于底层
       </button>
-      <div className="my-1 border-t border-slate-200 dark:border-slate-700" />
+      <div className="my-1 border-t border-glass-rim" />
       <button
         data-testid="context-menu-delete"
-        className="flex w-full items-center px-3 py-1.5 text-left text-sm text-red-600 hover:bg-slate-100 dark:text-red-400 dark:hover:bg-slate-700"
+        className="flex w-full items-center px-3 py-1.5 text-left text-sm text-danger hover:bg-danger-wash"
         onClick={handleDelete}
       >
-        Delete
+        删除
       </button>
     </div>
   );

@@ -29,7 +29,7 @@ echo "--- Starting backend on :$BACKEND_PORT ---"
 (
     cd "$ROOT/backend"
     source .venv/bin/activate
-    exec uvicorn app.main:run --port "$BACKEND_PORT"
+    exec uvicorn app.main:app --port "$BACKEND_PORT"
 ) &
 BACKEND_PID=$!
 

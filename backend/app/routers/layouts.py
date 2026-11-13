@@ -6,6 +6,8 @@ local tool, and inventing an account system for one would be cost with no benefi
 
 from __future__ import annotations
 
+import logging
+
 from fastapi import APIRouter, Depends, Response, status
 from pydantic import ConfigDict
 
@@ -14,11 +16,14 @@ from app.schemas.base import CamelModel
 from app.schemas.document import MoGongDocument
 from app.services.storage import (
     InvalidLayoutIdError,
+    LayoutNotFoundError,
     LayoutRepository,
     StorageError,
 )
 
 router = APIRouter(prefix="/api/layouts", tags=["layouts"])
+
+LOGGER = logging.getLogger(__name__)
 
 
 class LayoutSummary(CamelModel):
@@ -58,7 +63,11 @@ def list_layouts(repository: LayoutRepository = Depends(get_repository)) -> Layo
         # layout reachable, and the user can find the broken one by its absence.
         try:
             items.append(_summarize(repository.load(layout_id)))
-        except Exception:
+        except (LayoutNotFoundError, InvalidLayoutIdError, StorageError) as exc:
+            # Named on purpose rather than bare. `except Exception` was swallowing TypeError and
+            # AttributeError here too, so a bug in this handler looked exactly like a corrupt file:
+            # a list that is quietly shorter than the directory, with nothing written down.
+            LOGGER.warning("skipping unreadable layout %s: %s", layout_id, exc)
             continue
     return LayoutListResponse(items=items, total=len(items))
 

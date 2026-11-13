@@ -24,8 +24,6 @@ export interface Rect {
 export const rectRight = (r: Rect): number => r.x + r.width;
 export const rectBottom = (r: Rect): number => r.y + r.height;
 export const rectArea = (r: Rect): number => r.width * r.height;
-export const rectCenterX = (r: Rect): number => r.x + r.width / 2;
-export const rectCenterY = (r: Rect): number => r.y + r.height / 2;
 
 /**
  * True when `child` lies entirely within `parent`, boundaries included.

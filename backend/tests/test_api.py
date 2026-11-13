@@ -11,6 +11,7 @@ import re
 
 from fastapi.testclient import TestClient
 
+from app.schemas.document import MAX_ELEMENTS
 from tests.helpers import doc_to_payload, make_document, make_element
 
 SNAKE_CASE = re.compile(r"^[a-z0-9]+(_[a-z0-9]+)+$")
@@ -167,6 +168,29 @@ class TestRequestRejection:
         payload = doc_to_payload(make_document([make_element("e_01", 0, 0, 100, 50)]))
         payload["elements"][0]["margin"] = 10
         assert client.post("/api/layouts", json=payload).status_code == 422
+
+    def test_a_rejected_request_names_the_field_and_the_rule(self, client: TestClient) -> None:
+        # FastAPI's default body puts the message inside a list, which the frontend's error reader
+        # cannot locate: it looks for a string detail or a detail.message, and a list is neither, so
+        # every refused request arrived as "Request failed with status 422". The flattening is the
+        # behaviour under test, not the status code the case above already covers.
+        payload = doc_to_payload(make_document([make_element("e_01", 0, 0, 100, 50)]))
+        payload["elements"][0]["margin"] = 10
+        message = client.post("/api/layouts", json=payload).json()["detail"]["message"]
+        assert "elements.0.margin" in message
+
+    def test_a_document_over_the_element_ceiling_is_refused(self, client: TestClient) -> None:
+        # Building a MoGongDocument with too many regions would raise in Python and prove nothing
+        # about the wire, so the oversized body is assembled as raw JSON. What matters is that the
+        # boundary refuses it before the compiler, which compares regions pairwise, is entered.
+        payload = doc_to_payload(make_document([]))
+        payload["elements"] = [
+            make_element(f"e{index:05d}", index, index, 40, 40).model_dump(mode="json")
+            for index in range(MAX_ELEMENTS + 1)
+        ]
+        response = client.post("/api/compile", json=payload)
+        assert response.status_code == 422
+        assert "at most" in response.json()["detail"]["message"]
 
     def test_a_negative_stored_width_is_normalized_not_rejected(self, client: TestClient) -> None:
         # The pointer layer can produce a reverse drag, and the schema folds it. By the time it

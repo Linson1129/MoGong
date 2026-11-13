@@ -4,10 +4,26 @@ import type { NextConfig } from "next";
 // collision with something else already running locally does not require editing source.
 const BACKEND_ORIGIN = process.env.MOGONG_BACKEND_ORIGIN ?? "http://127.0.0.1:8100";
 
+/**
+ * `sites` builds the publishable static bundle; anything else builds the development server.
+ *
+ * The two differ in one respect with consequences everywhere else: a static host has nothing to
+ * proxy to. Hence `output: "export"` and no rewrites together -- leaving the rewrite in an exported
+ * build is how you ship a 导出 button that quietly 404s, since rewrites are a server feature and the
+ * export is a folder of files. The published build reaches the compiler through the browser-side
+ * CPython instead; see `src/lib/compile-engine.ts`.
+ */
+const TARGET = process.env.NEXT_PUBLIC_MOGONG_TARGET === "sites" ? "sites" : "local";
+const STATIC_EXPORT = TARGET === "sites";
+
 const nextConfig: NextConfig = {
   /* config options here */
-  cacheComponents: true,
-  partialPrefetching: true,
+  ...(STATIC_EXPORT ? { output: "export" } : {}),
+  // Both of these are streaming-server features, and an export is a folder of files. Cache
+  // Components turns partial prefetching on, which is why both flip together: Next fails the build
+  // outright on "PPR cannot be enabled in export mode" rather than quietly dropping one of them.
+  cacheComponents: !STATIC_EXPORT,
+  partialPrefetching: !STATIC_EXPORT,
   turbopack: {
     rules: {
       "*.css": {
@@ -23,9 +39,13 @@ const nextConfig: NextConfig = {
    * no preflight latency on every save. It also means the frontend can be pointed at a different
    * backend by changing one environment variable.
    */
-  async rewrites() {
-    return [{ source: "/api/:path*", destination: `${BACKEND_ORIGIN}/api/:path*` }];
-  },
+  ...(STATIC_EXPORT
+    ? {}
+    : {
+        async rewrites() {
+          return [{ source: "/api/:path*", destination: `${BACKEND_ORIGIN}/api/:path*` }];
+        },
+      }),
 };
 
 export default nextConfig;

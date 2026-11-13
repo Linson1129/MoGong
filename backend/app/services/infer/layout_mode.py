@@ -1,8 +1,8 @@
 """Layout mode inference: determines how children of a container are arranged.
 
 The layout mode (row / column / stack / free) is the highest-value inference the compiler makes.
-It is the structural decision that the user could previously only wish for in their prompt to
-Cursor. By reading it from the geometry, MoGong removes that guesswork.
+It is the structural decision that the user could previously only wish for in the prompt they handed
+to an agent. By reading it from the geometry, MoGong removes that guesswork.
 
 See docs/json-schema.md section 4.2 for the rule table this module implements.
 """

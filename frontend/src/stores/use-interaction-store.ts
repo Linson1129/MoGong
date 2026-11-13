@@ -17,20 +17,25 @@ import type { ResizeHandle } from "@/lib/handles";
  *
  * One explicit union rather than a pile of booleans, because these states are mutually exclusive
  * and a `isDragging && isPanning` combination is a bug the type system should refuse to express.
- * The arbitration itself lives in lib/gestures.ts; this is only its result.
+ * The arbitration itself lives in lib/gestures.ts; this is only its result. Panning is deliberately
+ * absent: it is viewport state and lives in `useViewStore.isPanning`, not here.
  */
 export type ActiveGesture =
   | { kind: "idle" }
-  /** Button is down, threshold not yet crossed. Still undecided between click and draw. */
-  | { kind: "pending"; originX: number; originY: number; startedAt: number }
+  /**
+   * Button is down, motion threshold not yet crossed. Still undecided between click and drag.
+   *
+   * `overSheet` is captured at press time rather than looked up per move, because what the press
+   * started on is what the user meant: dragging off the paper must stay a pan even once the cursor
+   * leaves it, or the same gesture would change identity halfway through.
+   */
+  | { kind: "pending"; originX: number; originY: number; overSheet: boolean }
   | { kind: "drawing"; originX: number; originY: number; current: Rect }
   | { kind: "moving"; id: string; startX: number; startY: number; offset: { dx: number; dy: number } }
-  | { kind: "resizing"; id: string; handle: ResizeHandle; original: Rect; current: Rect }
-  | { kind: "panning"; lastX: number; lastY: number };
+  | { kind: "resizing"; id: string; handle: ResizeHandle; original: Rect; current: Rect };
 
 interface InteractionState {
   selectedId: string | null;
-  hoveredId: string | null;
   /** Element whose property panel the right-click menu opened. Independent of selection. */
   inspectedId: string | null;
   gesture: ActiveGesture;
@@ -48,41 +53,26 @@ interface InteractionState {
 
 interface InteractionActions {
   select: (id: string | null) => void;
-  setHovered: (id: string | null) => void;
   inspect: (id: string | null) => void;
   setGesture: (gesture: ActiveGesture) => void;
   beginNoteEditing: (id: string) => void;
   endNoteEditing: () => void;
   setCursor: (position: { x: number; y: number } | null) => void;
-  /** Called on pointer up and on Escape. Restores the canvas to a neutral state. */
-  clearTransient: () => void;
 }
 
 export type InteractionStore = InteractionState & InteractionActions;
 
 export const useInteractionStore = create<InteractionStore>((set) => ({
   selectedId: null,
-  hoveredId: null,
   inspectedId: null,
   gesture: { kind: "idle" },
   noteEditingId: null,
   cursor: null,
 
   select: (id) => set(() => ({ selectedId: id })),
-  setHovered: (id) => set(() => ({ hoveredId: id })),
   inspect: (id) => set(() => ({ inspectedId: id })),
   setGesture: (gesture) => set(() => ({ gesture })),
   beginNoteEditing: (id) => set(() => ({ noteEditingId: id, selectedId: id })),
   endNoteEditing: () => set(() => ({ noteEditingId: null })),
   setCursor: (position) => set(() => ({ cursor: position })),
-  clearTransient: () =>
-    set(() => ({ gesture: { kind: "idle" }, inspectedId: null, noteEditingId: null })),
 }));
-
-/** True when a pointer event should reach an element rather than the canvas background. */
-export const selectIsGesturing = (state: InteractionStore): boolean =>
-  state.gesture.kind !== "idle";
-
-/** Typing in a note must not be interrupted by canvas keyboard shortcuts. */
-export const selectIsEditingNote = (state: InteractionStore): boolean =>
-  state.noteEditingId !== null;

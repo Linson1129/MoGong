@@ -65,15 +65,6 @@ export function canvasToScreen(
   };
 }
 
-/**
- * How many canvas units a single screen pixel represents.
- *
- * Anything that must keep a constant size on screen -- selection strokes, handles, a status readout
- * -- is multiplied by this. Hard-coding those sizes in canvas units instead makes the chrome
- * disappear at low zoom and dominate at high zoom.
- */
-export const screenPixelInCanvasUnits = (zoom: number): number => 1 / zoom;
-
 /** A rect expressed in screen pixels, for overlay positioning. */
 export function rectToScreen(
   rect: Rect,

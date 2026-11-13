@@ -17,25 +17,13 @@ export const DEFAULT_CANVAS = {
 
 export const GESTURE = {
   /**
-   * Milliseconds the left button must be held before a drag becomes a draw rather than a click.
+   * Screen pixels the pointer must travel before a press counts as motion at all.
    *
-   * This is the most important number in the product. Click-to-select and hold-to-draw share one
-   * physical input, so this threshold is the only thing separating them. Too low and selecting an
-   * element starts an accidental drag; too high and drawing feels sluggish. Tuned by hand, not
-   * by argument.
-   */
-  longPressMs: 180,
-
-  /**
-   * Pixels the pointer must travel before a press counts as motion at all.
-   *
-   * Without this, a hand tremor of one pixel during a click would register as a drag and select
-   * the wrong thing.
+   * Without this, a hand tremor of one pixel during a click would register as a drag and select the
+   * wrong thing. It is a screen-space number on purpose: the caller converts the canvas-unit travel by
+   * multiplying by the zoom, so a drag needs the same physical effort at 15% as at 400%.
    */
   moveThresholdPx: 3,
-
-  /** Double-click window, left over from the platform convention. */
-  doubleClickMs: 300,
 
   /** Size of a resize handle, in screen pixels. Kept constant under zoom so it stays grabbable. */
   handleSizePx: 8,
@@ -71,19 +59,8 @@ export const STAMP_THRESHOLD = {
   height: 32,
 } as const;
 
-/**
- * Percent values are rounded to this many decimals in compiled output.
- *
- * Sub-pixel precision in a hand-drawn rectangle is jitter rather than intent, and exposing it
- * invites the agent into false exactness. Must match PERCENT_PRECISION in the Python schema.
- */
-export const PERCENT_PRECISION = 2;
-
 /** Floating point comparison tolerance. Mirrors EPSILON in backend/app/models/geometry.py. */
 export const GEOMETRY_EPSILON = 1e-9;
-
-/** Element ids are also filenames, so they carry the same restriction the backend enforces. */
-export const LAYOUT_ID_PATTERN = /^[a-zA-Z0-9][a-zA-Z0-9._-]{0,63}$/;
 
 /** 侧边栏提供的色板。精选 8 种高对比度颜色，避免相似色混淆。 */
 export const PALETTE = {
@@ -139,3 +116,13 @@ export const LRU_COLOR_LIMIT = 8;
 
 /** Backend base URL. Only ever localhost: see docs/architecture.md section 8. */
 export const API_BASE = "/api";
+
+/**
+ * The mogong-layout Skill, zipped at build time by `scripts/stage_skill.py` into `public/skill/`.
+ *
+ * The compiled JSON is half of a contract whose other half is the instruction sheet that tells an
+ * agent to read it as a mould rather than copy it pixel for pixel. 导出 hands over the first half;
+ * this file is the second, and it carries no drawing data, so it can be fetched at any time --
+ * including before anything has been drawn.
+ */
+export const SKILL_PACKAGE_URL = "/skill/mogong-layout-skill.zip";

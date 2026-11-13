@@ -20,18 +20,10 @@ if TYPE_CHECKING:
 # Threshold for "full width": 95% or more of parent/canvas width.
 FULL_WIDTH_THRESHOLD = 0.95
 
-# Threshold for "full height" in a column context.
-FULL_HEIGHT_THRESHOLD = 0.95
-
 
 def _is_full_width(node: TreeNode, parent_width: float) -> bool:
     """True when node spans nearly the full width of its parent."""
     return node.rect.width / parent_width >= FULL_WIDTH_THRESHOLD
-
-
-def _is_full_height(node: TreeNode, parent_height: float) -> bool:
-    """True when node spans nearly the full height of its parent."""
-    return node.rect.height / parent_height >= FULL_HEIGHT_THRESHOLD
 
 
 def _height_percent_of_canvas(node: TreeNode, canvas: CanvasConfig) -> float:
@@ -73,7 +65,6 @@ def infer_role(node: TreeNode, canvas: CanvasConfig) -> ElementRole:
     Returns:
         ElementRole: The inferred role.
     """
-    element = node.element  # noqa: F841 - kept for readability when extending rules
     parent = node.parent
     has_children = bool(node.children)
 

@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
+import { DEFAULT_CANVAS } from "@/lib/constants";
 import { useDocumentStore } from "@/stores/use-document-store";
 import { useHistoryStore, initHistorySubscription } from "@/stores/use-history-store";
 import type { LayoutElement } from "@/types/document";
@@ -176,5 +177,32 @@ describe("initHistorySubscription", () => {
     // setCanvas bumps revision, so this will capture.
     useDocumentStore.getState().setCanvas({ gridSize: 16 });
     expect(useHistoryStore.getState().past.length).toBe(initialPastLength + 1);
+  });
+
+  it("a document swap re-baselines instead of pushing the outgoing drawing", () => {
+    unsubscribe = initHistorySubscription();
+
+    useDocumentStore.getState().addElement(makeElement("a", 0, 0));
+    expect(useHistoryStore.getState().past.length).toBe(1);
+
+    // Importing another document. This resets the revision, which without a generation guard is
+    // indistinguishable from an edit.
+    useDocumentStore.getState().loadDocument({
+      format: "mogong.document",
+      version: "1.0",
+      meta: { id: "imported", name: "imported", createdAt: "now", updatedAt: "now" },
+      canvas: { ...DEFAULT_CANVAS },
+      elements: [makeElement("z", 0, 0)],
+      viewport: { zoom: 1, panX: 0, panY: 0 },
+    });
+
+    expect(useHistoryStore.getState().past).toEqual([]);
+    expect(useHistoryStore.getState().future).toEqual([]);
+
+    // Undo after the swap can only reach back inside the imported document, never into the old one.
+    useDocumentStore.getState().addElement(makeElement("b", 100, 100));
+    useHistoryStore.getState().undo();
+    expect(useDocumentStore.getState().elements.map((item) => item.id)).toEqual(["z"]);
+    expect(useDocumentStore.getState().meta.id).toBe("imported");
   });
 });

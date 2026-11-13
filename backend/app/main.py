@@ -12,11 +12,13 @@ from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, Request
+from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 
 from app.core.config import get_settings
 from app.routers import compile as compile_router
 from app.routers import layouts as layouts_router
+from app.services.errors import format_validation_error
 from app.services.storage import (
     InvalidLayoutIdError,
     LayoutNotFoundError,
@@ -46,6 +48,28 @@ app = FastAPI(
 # Exception mapping lives at the app level rather than inside each router handler. Routers raise
 # domain errors and stay free of response-shaping, which keeps the compiler and storage layer
 # usable from a CLI or a test without an HTTP context.
+@app.exception_handler(RequestValidationError)
+async def _handle_invalid_request(request: Request, exc: RequestValidationError) -> JSONResponse:
+    """Flatten pydantic's per-field error list into one sentence the client can actually show.
+
+    FastAPI's default body is a list of objects, and ``frontend/src/lib/api.ts`` reads ``detail``
+    when it is a string or ``detail.message`` when it is an object -- a list matches neither, so
+    every rejected request reached the user as "Request failed with status 422", naming neither the
+    field nor the rule. The status is unchanged; only the shape is, because the information was
+    already here and simply not in a form anything downstream could read.
+
+    The wording belongs to ``app.services.errors``, because the browser-side build produces the same
+    sentence without ever passing through this handler.
+    """
+    return JSONResponse(
+        # 422 spelled out instead of `status.HTTP_422_UNPROCESSABLE_ENTITY`: starlette 1.x renamed
+        # the constant and deprecates the old name, while pyproject still allows the release that
+        # predates it. Importing either one breaks half the supported range; the number is stable.
+        status_code=422,
+        content={"detail": {"message": format_validation_error(exc.errors())}},
+    )
+
+
 @app.exception_handler(LayoutNotFoundError)
 async def _handle_not_found(request: Request, exc: LayoutNotFoundError) -> JSONResponse:
     return JSONResponse(status_code=404, content={"detail": f"layout {exc.args[0]!r} not found"})

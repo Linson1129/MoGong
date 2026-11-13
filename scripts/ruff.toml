@@ -12,3 +12,9 @@ src = ["../backend"]
 [lint]
 select = ["E", "F", "I", "UP", "B", "SIM", "RUF"]
 ignore = ["UP042"]
+
+[lint.per-file-ignores]
+# The README written into the skill archive is Chinese prose for Chinese readers, and the
+# confusable-character check misfires on legitimate CJK punctuation exactly as it does for the
+# backend's Chinese test fixtures -- same exemption, same reasoning (see backend/pyproject.toml).
+"stage_skill.py" = ["RUF001", "RUF002", "RUF003"]

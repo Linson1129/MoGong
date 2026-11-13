@@ -92,12 +92,12 @@ export function Sidebar() {
   }, [contextMenu, reorderElement]);
 
   return (
-    <aside className="flex w-72 shrink-0 flex-col border-l border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-900">
+    <aside className="flex w-72 shrink-0 flex-col border-l border-hairline bg-surface">
       <SectionTitle>区域</SectionTitle>
 
       <div className="min-h-0 flex-1 overflow-y-auto px-2 pb-3">
         {elements.length === 0 ? (
-          <p className="px-2 py-3 text-xs leading-relaxed text-slate-400 dark:text-slate-500">
+          <p className="px-2 py-3 text-xs leading-relaxed text-ink-faint">
             还没有区域。你绘制的每个矩形都会成为编译后 JSON 中的一个元素。
           </p>
         ) : (
@@ -109,20 +109,20 @@ export function Sidebar() {
                   onClick={() => select(element.id)}
                   onContextMenu={(e) => handleContextMenu(e, element.id)}
                   aria-current={element.id === selectedId}
-                  className={`flex w-full items-center gap-2 rounded px-2 py-1.5 text-left text-xs ${
+                  className={`flex w-full items-center gap-2 rounded-control px-2 py-1.5 text-left text-xs ${
                     element.id === selectedId
-                      ? "bg-blue-100 text-blue-900 dark:bg-blue-900/40 dark:text-blue-200"
-                      : "text-slate-700 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800"
+                      ? "bg-accent/12 text-ink"
+                      : "text-ink-secondary hover:bg-ink/10"
                   }`}
                 >
                   <span
-                    className="h-3 w-3 shrink-0 rounded-sm border border-slate-300 dark:border-slate-600"
+                    className="h-3 w-3 shrink-0 border border-hairline-strong"
                     style={{ background: element.fill.color }}
                     aria-hidden
                   />
                   <span className="truncate">{element.name || `区域 ${index + 1}`}</span>
                   {element.stamp && (
-                    <span className="shrink-0 rounded bg-slate-200 px-1 text-[9px] text-slate-500 dark:bg-slate-700 dark:text-slate-400">
+                    <span className="shrink-0 rounded-control bg-ink/15 px-1.5 text-[9px] text-ink-secondary">
                       图标
                     </span>
                   )}
@@ -133,7 +133,7 @@ export function Sidebar() {
         )}
       </div>
 
-      <div className="border-t border-slate-200 dark:border-slate-700">
+      <div className="border-t border-hairline">
         <SectionTitle>外观</SectionTitle>
         <AppearancePanel />
       </div>
@@ -142,27 +142,27 @@ export function Sidebar() {
       {contextMenu && (
         <div
           ref={menuRef}
-          className="fixed z-50 min-w-[140px] rounded-md border border-slate-200 bg-white py-1 shadow-lg dark:border-slate-700 dark:bg-slate-800"
+          className="fixed z-50 min-w-[140px] rounded-overlay border border-glass-rim bg-glass-tint py-1 text-sm shadow-overlay backdrop-blur-glass backdrop-saturate-(--glass-saturate)"
           style={{ left: contextMenu.x, top: contextMenu.y }}
         >
           <button
             type="button"
-            className="flex w-full items-center px-3 py-1.5 text-left text-sm text-slate-700 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-700"
+            className="flex w-full items-center px-3 py-1.5 text-left text-sm text-ink-secondary hover:bg-ink/10 hover:text-ink"
             onClick={handleBringToFront}
           >
             置于顶层
           </button>
           <button
             type="button"
-            className="flex w-full items-center px-3 py-1.5 text-left text-sm text-slate-700 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-700"
+            className="flex w-full items-center px-3 py-1.5 text-left text-sm text-ink-secondary hover:bg-ink/10 hover:text-ink"
             onClick={handleSendToBack}
           >
             置于底层
           </button>
-          <div className="my-1 border-t border-slate-200 dark:border-slate-700" />
+          <div className="my-1 border-t border-glass-rim" />
           <button
             type="button"
-            className="flex w-full items-center px-3 py-1.5 text-left text-sm text-red-500 hover:bg-slate-100 dark:text-red-400 dark:hover:bg-slate-700"
+            className="flex w-full items-center px-3 py-1.5 text-left text-sm text-danger hover:bg-danger-wash"
             onClick={handleDelete}
           >
             删除
@@ -173,9 +173,13 @@ export function Sidebar() {
   );
 }
 
+/**
+ * Section heading. Letter-spacing rather than uppercase: the labels are Chinese, so capitalising
+ * them does nothing, while tracking gives the two rail sections the quiet rhythm a readout needs.
+ */
 function SectionTitle({ children }: { children: React.ReactNode }) {
   return (
-    <h2 className="px-4 pb-2 pt-3 text-[11px] font-medium uppercase tracking-wider text-slate-400 dark:text-slate-500">
+    <h2 className="px-4 pb-2 pt-3 text-[11px] font-medium tracking-[0.18em] text-ink-faint">
       {children}
     </h2>
   );

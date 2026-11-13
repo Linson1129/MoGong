@@ -8,6 +8,11 @@
  * Live drag geometry does NOT create history entries. The interaction store holds the working
  * position during a move or resize, and the document store is written once on pointer up. That
  * single write bumps the revision exactly once, so one drag is one undo step.
+ *
+ * Replacing the document is not an edit either. Importing a file or clearing the canvas goes
+ * through the same revision counter, so the guard in processRevisionChange uses the document store's
+ * `generation` to tell the two apart: no undo step may reach across a document boundary, in either
+ * direction.
  */
 
 import { create } from "zustand";
@@ -23,6 +28,8 @@ interface HistoryState {
   future: HistorySnapshot[];
   /** The revision number we last processed. Used to detect new edits. */
   lastProcessedRevision: number;
+  /** The document generation we last processed. A different one means the document was replaced. */
+  lastProcessedGeneration: number;
   /** The snapshot at the last processed revision. Used to push to past when revision changes. */
   lastSnapshot: HistorySnapshot | null;
 }
@@ -34,7 +41,7 @@ interface HistoryActions {
   undo: () => void;
   /** Redo the last undone edit by restoring the next snapshot. */
   redo: () => void;
-  /** Clear all history. Called when loading a new document. */
+  /** Clear the stacks and re-baseline. Used by tests; a document swap is handled by the guard. */
   clear: () => void;
   /** Initialize with the current state. Called once at startup. */
   init: () => void;
@@ -46,19 +53,36 @@ export const useHistoryStore = create<HistoryStore>((set, get) => ({
   past: [],
   future: [],
   lastProcessedRevision: 0,
+  lastProcessedGeneration: 0,
   lastSnapshot: null,
 
   init: () => {
-    const { revision, getSnapshot } = useDocumentStore.getState();
+    const { revision, generation, getSnapshot } = useDocumentStore.getState();
     set({
       lastProcessedRevision: revision,
+      lastProcessedGeneration: generation,
       lastSnapshot: getSnapshot(),
     });
   },
 
   processRevisionChange: () => {
-    const { past, lastProcessedRevision, lastSnapshot } = get();
-    const { revision, getSnapshot } = useDocumentStore.getState();
+    const { past, lastProcessedRevision, lastProcessedGeneration, lastSnapshot } = get();
+    const { revision, generation, getSnapshot } = useDocumentStore.getState();
+
+    // A replaced document is not an edit, and the difference is not cosmetic. Importing resets the
+    // revision to 0, which otherwise looks exactly like a new edit, so the outgoing drawing would be
+    // pushed onto `past` and one Cmd+Z would pull last week's layout into the canvas the user has
+    // already switched to. Re-baseline instead: an empty stack whose snapshot is the new document.
+    if (generation !== lastProcessedGeneration) {
+      set({
+        past: [],
+        future: [],
+        lastProcessedRevision: revision,
+        lastProcessedGeneration: generation,
+        lastSnapshot: getSnapshot(),
+      });
+      return;
+    }
 
     // Only process if the revision has changed since the last processing.
     if (revision === lastProcessedRevision) return;
@@ -123,11 +147,12 @@ export const useHistoryStore = create<HistoryStore>((set, get) => ({
   },
 
   clear: () => {
-    const { revision, getSnapshot } = useDocumentStore.getState();
+    const { revision, generation, getSnapshot } = useDocumentStore.getState();
     set({
       past: [],
       future: [],
       lastProcessedRevision: revision,
+      lastProcessedGeneration: generation,
       lastSnapshot: getSnapshot(),
     });
   },

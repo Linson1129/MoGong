@@ -12,6 +12,8 @@
 
 # testing
 /coverage
+/test-results/
+/playwright-report/
 
 # next.js
 /.next/
@@ -19,6 +21,17 @@
 
 # production
 /build
+
+# Staged browser CPython, produced by `scripts/stage_wasm.py` (or `make sites`).
+#
+# ~15 MiB of interpreter, wheels and zipped backend source. Regenerable from two inputs the
+# repository does track -- the pyodide devDependency and backend/app -- and tracking it would put a
+# second copy of every backend module in git history while making every clone download an interpreter.
+/public/wasm/
+
+# The Skill download package, produced by `scripts/stage_skill.py`. Same argument as above: it is a
+# copy of files this repository already tracks, rebuilt on every `make sites`.
+/public/skill/
 
 # misc
 .DS_Store

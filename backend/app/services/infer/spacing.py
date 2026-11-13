@@ -14,6 +14,7 @@ from typing import TYPE_CHECKING
 from app.schemas.layout import AlignInfo, LayoutMode, SpacingInfo
 
 if TYPE_CHECKING:
+    from app.models.geometry import Rect
     from app.services.nesting import TreeNode
 
 # Tolerance for alignment detection, in pixels. A shared edge within this margin counts.
@@ -95,7 +96,7 @@ def _measure_column_gaps(children: list[TreeNode], parent_height: float) -> GapM
 def measure_spacing(
     children: list[TreeNode],
     layout_mode: LayoutMode,
-    parent_rect: TreeNode.rect,
+    parent_rect: Rect,
 ) -> tuple[SpacingInfo | None, str | None]:
     """Measure gap between adjacent siblings.
 

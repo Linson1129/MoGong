@@ -1,209 +1,225 @@
 ---
 name: mogong-layout
-description: Convert MoGong compiled layout JSON (*.layout.json with format "mogong.layout") into React + Tailwind CSS code. Use when the user attaches or pastes a MoGong layout JSON, mentions "墨工输出", "layout.json", or asks to generate frontend code from a visual layout specification.
+description: 以前端设计师的身份，把 MoGong 编译产物（*.layout.json，format "mogong.layout"）+ 用户 prompt 实现成前端网站。技术栈不固定：按目标项目已有的栈落地（React + Next.js、Vue 3 + Vite、Svelte、原生 HTML/CSS 均可），栈特定写法见同目录 react.md / vue.md / vanilla.md。JSON 是防止随意创作布局的「模具」——约束区域关系，而非逐格复刻的成品规格；每个节点要按 role/name/note 识别成真实组件并实现 note 描述的功能。当用户附上或粘贴 MoGong layout JSON、提到「墨工输出 / layout.json / 模具」、要求按视觉草图生成前端代码时使用。
 ---
 
 # MoGong Layout Consumer
 
-Turn MoGong's compiled `*.layout.json` into a working React + Tailwind component. The JSON is a
-**structured intent**, not a pixel-perfect spec — treat percentages as ratios, roles as tag
-suggestions, and notes as the user's own words about what they meant.
+把 MoGong 的 `*.layout.json` 变成**能用的网站**。JSON 里只有区域、比例和用户的口语批注；
+文字、组件、交互、配色都不在里面 —— 它们是你要补的东西，不是可以省略的部分。
 
-## When to use this Skill
+## 角色与契约
 
-Activate when the user:
-- Attaches or pastes a file starting with `"format": "mogong.layout"`
-- Says "根据墨工的输出/JSON 生成代码"
-- References `layout-*.layout.json` in a project
+> 你是一名优秀的前端设计师。我会给你一段 prompt 和一个 json 文件，仅根据 json 文件的输出做一个
+> 网站，技术栈按我的项目现状走。特别要注意一点：**这份 json 文件是为了防止你随意创作前端布局
+> 做出的约束条件，而非最终成品，你可以把它理解成模具。**
 
-Do **not** use for `mogong.document` format — that is the raw editor state with absolute pixels.
-Convert to `mogong.layout` first via MoGong's export button.
+模具这个词只约束一件事：**关系**。它不约束你用什么框架、什么 DOM、什么组件、什么颜色、什么文字，
+也不约束你用不用 Tailwind —— 契约里没有出现任何框架名，栈由「栈适配」一节判定。
 
-## Reading Protocol
+| 模具约束的（不可谈判） | 模具沉默的（必须你设计） |
+|---|---|
+| 谁包含谁、谁在谁前面、各占多大比例、谁和谁对齐 | 这块区域**是什么东西**、里面有什么内容、有什么行为 |
+| `children` 顺序 = DOM 顺序 | 用什么组件、什么标签、拆几个文件 |
+| 兄弟之间的比例（容差内） | 配色、字阶、间距基线、圆角、阴影、断点 |
 
-Follow strictly, in this order:
+## 失败模式（本 Skill 曾经就是这样，别再犯）
 
-1. **Check `format`** — must be `"mogong.layout"`. If different, stop and tell the user.
-2. **Check `version`** — currently `1.0`. If higher than you were trained on, refuse to guess and
-   ask the user to consult the schema doc.
-3. **Read `canvas`** — the reference frame: `{width, height, platform}`. Use it to pick a
-   responsive breakpoint strategy (`web-desktop` → `md:` and up, `mobile` → base).
-4. **Walk the `root` tree recursively** — every node has: `id`, `name`, `role`, `box`,
-   `layout`, `style`, `note`, `spacing`, `align`, `children`.
-5. **Surface `warnings`** — if non-empty, tell the user before generating code. Warnings mean the
-   drawing was ambiguous; do not silently resolve them.
+**把 JSON 逐节点转成「一个块 = 一个容器元素 + 源文件色号 + 虚线描边 + 只有注释没有内容」= 复刻矩形 = 失败。**
 
-## Field Semantics
+原因写在 MoGong 的代码里，不是猜的：
 
-### `box` — percentages of the parent
-`{x, y, width, height, unit: "%"}` — all values are percentages of the **parent's** box, not the
-canvas. Root's parent is the canvas, so root always sums to 100×100.
+| JSON 里的东西 | 它真实含义 | 逐字搬进产物的后果 |
+|---|---|---|
+| `fill: "#E2E8F0"` | 画布上每个新矩形的**默认底色**（`createElementDefaults`） | 整站灰色盒子 |
+| `fill: "#86EFAC"` 等 8 色 | 编辑器取色盘 `PALETTE`，注释明写「高对比度，**避免相似色混淆**」 | 荧光绿侧栏 |
+| `border: 1px dashed #64748B` | 草图描边，用于区分区域边界 | 到处是虚线框 |
+| `layout: "free"` + absolute | 编译器**没认出排列关系**，不是「请用绝对定位」 | 硬编码四角坐标 |
+| `note: "折叠方向：从左向右"` | 用户写下的**需求** | 变成注释 → 折叠功能消失 |
 
-Convert to Tailwind using one of:
-- Absolute positioning: `left: x%, top: y%, width: w%, height: h%` (inline style or arbitrary
-  values `left-[x%]`, `w-[w%]`)
-- **Preferred when layout allows**: use flex/grid with `basis-*` or `grow`/`shrink`. Only fall back
-  to absolute positioning when `layout` is `stack` or `free`.
+产物里出现 `#E2E8F0`、`#86EFAC`、`#64748B` 这三个色号 —— 无论它们落在类名、`style` 属性、CSS 变量
+还是 `<style>` 块里 —— 或出现来自 `border.style` 的虚线描边、既不含文字也不含图的空容器配一段注释、
+`role: "button"` 却渲染成非按钮标签，任意一条都直接判定为失败，重写。
+各栈的等价失败信号写在对应适配文件里，判定标准不变。
 
-### `layout` — how children arrange
-| Value     | Meaning                                       | Tailwind                                       |
-|-----------|-----------------------------------------------|------------------------------------------------|
-| `row`     | Children side by side, DOM order = left→right | `flex flex-row`                                |
-| `column`  | Children stacked, DOM order = top→bottom      | `flex flex-col`                                |
-| `stack`   | Children overlap (absolute-positioned)         | `relative` parent, `absolute` children         |
-| `free`    | Ambiguous — treat as absolute                  | `relative` parent, `absolute` children         |
-| `none`    | Leaf node, no children                        | (omit)                                         |
+## 双输入分工
 
-`layout` describes the arrangement, not the implementation. You may use `grid` if it produces
-cleaner code — the constraint is only **keep the DOM order**.
+| 输入 | 提供 |
+|---|---|
+| 用户 prompt | 主题、文案、品牌语气、密度、目标用户 —— 网站的血肉 |
+| `box` / `layout` / `spacing` / `align` | 骨架：包含、顺序、比例、对齐 |
+| `role` / `name` / **`note`** | **需求**：这块是什么东西、要有什么行为 → 决定你写什么组件 |
+| `style` | 分组信号（同色 = 同一层/同一族），**不是配色表** |
+| `warnings` | 用户必须知道的歧义，先上报 |
 
-### `role` — semantic tag hint
-| Role        | Suggested tag          |
-|-------------|------------------------|
-| `navigation`| `<nav>`                |
-| `main`      | `<main>`               |
-| `contentinfo` | `<footer>`           |
-| `region`    | `<section>`            |
-| `container` | `<div>`                |
-| `button`    | `<button>`             |
-| `text`      | `<p>` or `<span>`      |
-| `block`     | `<div>`                |
+`note` 是最高价值字段。MoGong 存在的意义就是把「不会写前端的人的口语意图」传给你；
+把它注释掉等于把需求扔掉。
 
-Role is a hint. Override it when the surrounding context clearly warrants it (e.g. a `block`
-that's obviously a card → `<article>`).
+## 读盘协议
 
-### `style` — visual properties
-- `fill` (hex) → `background-color` — use inline style or arbitrary value `bg-[#hex]`
-- `fillOpacity` < 1 → append `/opacity` modifier or use `bg-opacity-XX`
-- `border` object → `border-{width}px border-{style} border-[hex]` + `border-radius` if non-zero
-- `border = null` → no border class
+1. **校验**：`format` 必须是 `"mogong.layout"`；`version` 高于你了解的版本就停下来问，不要猜字段。
+2. **上报 `warnings`**：非空必须在写代码之前告诉用户。
+3. **建「组件意图清单」**（不能跳，先写出来再写代码）。逐节点一行：
 
-### `spacing` — measured gaps
-```json
-{ "axis": "row", "gap": 1.67, "unit": "%", "consistent": true }
-```
-If `consistent: true`, use `gap-[1.67%]` on the flex container.
-If `consistent: false`, prefer individual `mr-*`/`mb-*` per the outliers warning.
+   ```
+   id | 证据（name / note / role / 尺寸） | 判定它是什么组件 | 要实现的行为 | 内容来源
+   ```
+4. **设计**：先定 token（色板、字阶、间距基线、圆角、阴影、断点），用 prompt 的语言。
+5. **落形**：实现组件树，最后用 `box` / `spacing` / `align` 把结构对齐模具。
 
-### `align` — shared edges
-```json
-{ "vertical": "center", "tolerancePx": 2 }
-```
-Map to `items-center`, `justify-center`, etc. Only when present.
+意图清单必须出现在交付说明里（可以是表格或要点），否则你无法证明自己认出了组件。
 
-### `note` — user's intent in their own words
-Never rewrite. Never summarize. Emit as a JSX comment directly above the element:
-```tsx
-{/* 折叠方向：从左向右
-    该栏负责写商品的品类信息
-    折叠后左侧空间自动填充 */}
-```
-If the note describes behavior (hover, animation, responsive), implement it, don't just comment.
+## 组件识别表
 
-## Conversion Algorithm
+| 证据 | 判定 | 要写的东西 |
+|---|---|---|
+| `role: "button"` + 小面积 | 按钮 | 真 `<button>`：文案（note → name → prompt 顺次取）、padding、`hover` / `focus-visible`、按下态 |
+| `role: "text"` 或宽高比 > 3 的叶子 | 文本 | 真实排版：标题/正文层级、行高、颜色；不是空盒 |
+| note 含「滑动 / 自动 / Ns / 循环 / 切换」 | 轮播 | 组件状态 + 定时器（「2s 一张」→ 2000ms，卸载时清理）、指示点、hover 暂停 |
+| note 含「折叠 / 展开 / 方向」 | 可折叠面板 · 抽屉 | 折叠状态 + 宽度过渡 + 触发按钮 + `aria-expanded`，按 note 的方向实现 |
+| note 含「跳转 / 三大类 / 品类 / 菜单」 | 导航组 | 真实链接列表，**条目直接用 note 里的词**（3C数码、服装、食品）+ hover + 当前项 |
+| note 含「法律 / 许可 / 审批 / 备案」 | 页脚链接组 | 分组链接 + 次要文字层级 |
+| `name` 或 note == "Logo" | 品牌位 | 文字或图形 logo，绝不是一块灰矩形 |
+| `role: "navigation"`（顶部薄片） | 顶栏 | logo + 导航 + CTA，note 说「保持可见」就 `sticky` |
+| `role: "contentinfo"`（底部薄片） | 页脚 | 链接组 + 版权 |
+| `role: "container"` 多子 | 布局容器 | `section` / grid，本身不加视觉 |
+| 同色兄弟成簇 | 重复项族 | 卡片列表，用循环渲染出来（不是手写 N 份），抽出数据形状 |
+| `layout: "free"` + 兄弟重叠 | 层叠语义 | 遮罩、悬浮卡、角标、标签浮层 —— **不是**四个 absolute 灰块 |
+| 大叶子 + 无 note | 图 / 封面 | 真实 `<img>` 或纹理占位，并标明是占位 |
+| `style.border.radius > 0` | 卡片 · 按钮 | radius 是「要圆角」的信号，尺寸你定 |
+| `fillOpacity < 1` | 遮罩 / 叠加层 | 半透明叠加，不是随便调 opacity |
+| `stamp: true` 或小块 + note 含「图标 / logo」 | 图标 | 真实图形或标注过的占位；`role: "image"` 是预留值，编译器目前不会输出它 |
 
-```
-function build(node, depth = 0):
-  tag       = roleToTag(node.role, node.name)
-  classes   = []
-  styles    = {}
+补全规则：**note 描述的行为必须实现**；没有 note 但 `role` 明确，按该组件的业界常识补齐
+（按钮要有文案和 hover，导航要有链接）。没有 note、没有 role、prompt 也没说 —— 才允许留占位，
+并写进「占位清单」。
 
-  if node.layout in ("row", "column"):
-    classes.push("flex", "flex-" + node.layout)
-    if node.spacing?.consistent: classes.push(`gap-[${node.spacing.gap}%]`)
-    if node.align?.vertical:     classes.push(mapAlign(node.align.vertical))
+## 模具的边界：四条关系不变式
 
-  if node.layout in ("stack", "free"):
-    classes.push("relative")
+不是节点数相同 —— 是这四条：
 
-  # Box → Tailwind (position-based when layout is stack/free; flex-basis otherwise)
-  if depth == 0:
-    classes.push("w-full", "min-h-screen")   # root fills viewport
-  else if node.layout in ("stack", "free"):
-    styles = { position: "absolute",
-               left: `${node.box.x}%`, top: `${node.box.y}%`,
-               width: `${node.box.width}%`, height: `${node.box.height}%` }
-  else if node.layout == "row":
-    classes.push(`basis-[${node.box.width}%]`, "self-stretch")
-  else if node.layout == "column":
-    classes.push(`basis-[${node.box.height}%]`, "w-full")
+1. **包含**：JSON 里 A 的孩子，在渲染结果里仍必须落在 A 的区域内。
+2. **顺序**：同容器 `children` 顺序 = DOM 顺序（排序键 `(y, x)`：上→下，再左→右；错位的 row
+   可能以上下为先，此时以数组顺序为准，不要自己重排）。
+3. **比例**：兄弟间及相对父级的占比保持（±2 个百分点内；内容确实需要超出时，用
+   `min-w` / `max-w` 表达并在总结里说明偏离）。
+4. **相邻与对齐**：`spacing.gap` 是真实间距（同族一致），`align` 是共享边。
 
-  # Style
-  if node.style.fill:         classes.push(`bg-[${node.style.fill}]`)
-  if node.style.border:       classes.push(borderClasses(node.style.border))
+**允许**（这些是设计师的正常动作，不算违约）：
 
-  children = node.children.map(c => build(c, depth + 1))
-  return <tag className={classes} style={styles}>{/* note */}{children}</tag>
-```
+- 合并单子包装容器（single-child wrapper 在 `mogong.document` 里只是画框习惯）
+- 一个节点内部拆成任意 DOM（`<button>` 里有 icon + span）
+- 把同族兄弟渲染成循环出来的重复项（数量与顺序保持）
+- 用 grid 替代嵌套 flex、用统一间距（gap）替代逐块 margin
+- 抽出子组件、加语义标签、加无障碍属性
 
-## Handling Special Cases
+**禁止**：换序、把块搬到别的容器、增删**区域级**块、把 `box` 比例改成「更好看」的值。
 
-### Circular overlaps (rare, from `free` layout)
-Use `position: absolute` for all siblings; do not attempt flex gymnastics. Preserve z-order by
-DOM order matching `children` array order.
+组件内部的原语不算区域 —— 所以「按钮里有个图标」不是新增块。
 
-### `layout: "free"` with a warning
-Do **not** guess an arrangement. Fall back to absolute positioning AND emit a comment:
-```tsx
-{/* MoGong warning: layout ambiguous between [e_05, e_06]; using absolute positioning */}
-```
+## style 字段的正确用法
 
-### Element has `locked: true` or `visible: false` in the source
-These do not appear in `mogong.layout` output (compiler already filters). Ignore.
+`style` 只回答「这几块是不是同一族」，不回答「网站该是什么颜色」。
 
-### Root's role is always `region` or `main`
-Wrap the entire component in whatever role suggests. If the canvas has explicit `background`,
-apply it to the outermost element.
+| 读法 | 用法 |
+|---|---|
+| 同色兄弟 | 同一视觉层 → 同一 token、同一组件类型 |
+| 有 `fill` vs `fill: null` | 实底卡 vs 透明区 → 决定层级，不决定色号（编辑器产物永远有 hex，`null` 只可能出现在手写文件里） |
+| `radius > 0` | 需要圆角的元素（卡、按钮、输入框） |
+| `fillOpacity < 1` | 遮罩 / 叠加语义 |
+| `border.style: "dashed"` | 草图边界，**默认丢弃**；只有 prompt 要虚线才保留 |
+| `border: null` | 无边框 —— 真实 absence，不要补 border |
 
-## Output Conventions
+最终配色来自 prompt；prompt 没给就用与你判断的品类相符的保守色板，并在总结里说明选择理由。
+**绝不**把 `PALETTE` 的 8 色当成品牌色，也绝不输出编辑器的 `#E2E8F0` / `#64748B`。
 
-- **File**: Single default-export React component named after `meta.name` in PascalCase.
-- **Framework**: Next.js-compatible (client component if any interactivity; `"use client"` at top
-  only when needed).
-- **Styling**: Tailwind utility classes. Arbitrary values (`w-[25%]`, `bg-[#86EFAC]`) are fine.
-- **Comments**: One JSX comment block per node that has a `note`; preserve the raw text verbatim.
-- **Do not** invent interactivity. If the drawing is a static layout, ship a static component.
-  If the user's notes describe behavior (hover, click), implement it and call it out.
+## note 字段的正确用法
+
+- note 是用户的原话，是**需求输入**，不是输出物。
+- 实现它说的每件事：行为、方向、数量、条目名、时序（「2s 一张」就是 2000ms）。
+- note 里的专有名词直接当内容用，不要替换成 "Item 1 / 内容区块"。
+- 代码里只留一行溯源注释（React 写 `{/* el-mwbr04bh · 折叠方向：从左向右 */}`，Vue 与原生 HTML 写
+  `<!-- el-mwbr04bh · 折叠方向：从左向右 -->`）—— 注释是引用，不是交付。
+- note 与你的设计习惯冲突时，note 赢。
+
+## warnings
+
+非空必须先告诉用户，不许静默修正（这是 MoGong 的立身之本）。
+`AMBIGUOUS_LAYOUT` / `layout: "free"` 的含义是「编译器没把握」，不是「请用绝对定位」：
+优先用层叠/网格语义表达你从 `name` + `note` 读出的意图，读不出就问。
+
+## 内容从哪来（防止空盒子）
+
+优先级：prompt 明确给的 > note 给的 > `name` 推断（"Logo" → 品牌位）> 与品类相符的合理文案 >
+标注为占位并列出清单。
+
+禁止 `Lorem ipsum`、`Content`、`区块一`。禁止先画空盒子再用文字 absolute 定位进去。
+
+## 交付约定（与栈无关）
+
+- **类型**：目标项目用 TypeScript 就开 `strict`，无 `any`、无 `@ts-ignore`；纯 JS 项目跟随现状，
+  不要为了这份产物引入一套构建工具。
+- **数据与文案**：走类型化的 props / 数据模块；几何比例来自模具，不塞进 props 让调用方能改。
+- **组织**：按意图清单拆组件，允许多文件，目录跟随目标项目已有约定。
+- **样式**：跟随目标项目已有的样式方案（Tailwind、UnoCSS、CSS Modules、原生 CSS 变量都可以），
+  配色/字阶/间距基线用你自己定的 token，不引入第二套色源。只有模具强制的比例值才允许出现字面百分比。
+- **不做**：不发明 note 与 prompt 都没提的交互（轮播有需求才做，别加 parallax）；不因为本 Skill
+  的示例是某个栈就换掉目标项目的栈。
+- **交付内容**：① 组件意图清单 ② 代码 ③ 一段说明：认出了哪些组件、每个行为来自哪条 note
+  ④ 占位内容清单 ⑤ warnings 原文。
+
+## 栈适配
+
+先判定栈，再写代码 —— 判定顺序：
+
+1. 用户 prompt 明确指定 → 用它。
+2. 目标项目已有 `package.json` → 按 dependencies 里的框架与实际在用的样式方案落地。
+3. 没有项目、只让出一个静态页 → 原生 HTML + CSS。
+4. 判不出来（monorepo 里多栈并存）→ 问，不要猜。
+
+| 目标栈 | 读这一份 | 覆盖内容 |
+|---|---|---|
+| React 18/19 + Next.js / Vite React | [react.md](react.md) | 组件与 hooks 写法、`"use client"` 边界、props 类型、Tailwind 落地、完整示例、失败信号 |
+| Vue 3 + Vite（SFC / `<script setup>`） | [vue.md](vue.md) | 组合式 API 等价写法、`defineProps`、`v-for`、`<transition>`、`vue-tsc`、完整示例、失败信号 |
+| 无框架（静态 HTML + CSS + 少量 JS） | [vanilla.md](vanilla.md) | 语义标签、CSS 变量 token、原生定时器与折叠实现、完整示例、失败信号 |
+| 其他框架（Svelte / Astro / Solid 等） | 先读 [vanilla.md](vanilla.md) | 没有专门适配文件时以它的「意图到写法」为映射起点，按该栈惯用法落地，不要套 React / Vue 的写法 |
+
+适配文件只写「同一意图在该栈里长什么样」，不重复规则；规则冲突时以本文件为准。里面的代码形态
+是**示范判断过程**，不是可以照搬的模板 —— 换栈就换写法，尤其不要把示例的语言搬进 Vue 或静态项目。
+
+## 自检
+
+任一条不满足就重来：
+
+1. 每个 `role: "button"` 都是真 `<button>` 且有文案与 hover/focus 态？
+2. 每条非空 note 描述的**行为**都实现了（折叠、轮播、跳转、数量、时序）？
+3. 产物里出现过 `#E2E8F0` / `#86EFAC` / `#64748B`，或虚线描边来自 `border.style` 而不是 prompt 要求？有 → 失败。
+4. 有没有既不含文字也不含图的空 `<div>`？
+5. 四条关系不变式（包含 / 顺序 / 比例 / 对齐）守住了？
+6. 把结果给一个不懂前端的人看，他会说「这就是我画的那个页面的成品」还是「这就是我画的那张草图」？
+7. 界面里的专有名词全部来自 note / prompt，还是我编的？
+8. 交互全部有 note 或 prompt 依据，没有自己加的动画？
+9. 目标栈的类型检查通过，且没有 `any`、`as unknown`、`@ts-ignore` 之类的绕过？
+   （React 用 `tsc --strict`，Vue 用 `vue-tsc --noEmit`，原生栈无构建则跳过但 JS 需过 lint。）
+10. 产物落在目标项目已有的栈与目录约定里，没有混进第二种框架的写法、也没有新增一个框架依赖？
+
+## 意图清单示例（栈无关）
+
+读盘协议第 3 步要求的产物形态，输入是本仓库真实产物 `data/compiled/layout-mwbqxrvp.layout.json` 的节选：
+
+| id | 证据（name / note / role / 尺寸） | 判定它是什么组件 | 要实现的行为 | 内容来源 |
+|---|---|---|---|---|
+| el-mwbr04bh | name「商品品类 （侧栏）」+ note「折叠方向：从左向右 / 折叠后左侧空间自动填充」+ dashed 边框 | 可折叠品类侧栏 | 折叠状态、宽度过渡、触发按钮、`aria-expanded`、折叠后主区补位 | note |
+| el-ad | note「滑动广告栏，自动广告，2s一张，循环切换」 | 自动轮播 | 2000ms 定时器 + 循环 + 指示点 + hover 暂停 | note + prompt |
+| 品类入口 | role `text` + note「上面可以跳转、3C数码、服装、食品三大类」 | 顶部导航组 | 真实链接、hover、当前项 | note 里的专有名词直接用 |
+| Logo | name == "Logo" | 品牌位 | 文字或图形 logo，绝不是一块灰矩形 | name |
+| Footer | role `contentinfo` + note「法律相关、法条、网络许可、审批内容」 | 页脚链接组 | 分组链接 + 次要文字层级 | note |
+
+清单写完再落形。`layout: "free"` 在这一步的正确处理：从 `name` + `note` 认出「侧栏 + 主区 + 广告 + 页脚」
+是电商首页的层叠关系，用该栈的常规布局（flex / grid）实现，而不是把四个块按草图坐标绝对定位。
+各栈的落地代码形态见 react.md / vue.md / vanilla.md。
 
 ## Reference Material
 
-For detailed field-by-field schema and inference rules, see [reference.md](reference.md).
-
-## Example
-
-Input (excerpt):
-```json
-{
-  "root": {
-    "role": "region",
-    "layout": "column",
-    "box": { "x": 0, "y": 0, "width": 100, "height": 100 },
-    "children": [
-      {
-        "name": "Header",
-        "role": "navigation",
-        "layout": "row",
-        "box": { "x": 0, "y": 0, "width": 100, "height": 8 },
-        "spacing": { "axis": "row", "gap": 2.5, "unit": "%", "consistent": true },
-        "style": { "fill": "#1E293B", "fillOpacity": 1, "border": null },
-        "note": "顶部导航栏，滚动态保持可见",
-        "children": [ /* Logo, Nav links, CTA */ ]
-      }
-    ]
-  }
-}
-```
-
-Output:
-```tsx
-export default function Untitled() {
-  return (
-    <section className="flex flex-col w-full min-h-screen bg-white">
-      {/* 顶部导航栏，滚动态保持可见 */}
-      <nav className="flex flex-row basis-[8%] w-full gap-[2.5%] bg-[#1E293B]">
-        {/* children rendered recursively */}
-      </nav>
-    </section>
-  );
-}
-```
+- 字段级定义与推断规则：[reference.md](reference.md)
+- 栈特定写法与完整示例：[react.md](react.md) / [vue.md](vue.md) / [vanilla.md](vanilla.md)

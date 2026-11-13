@@ -41,6 +41,14 @@ interface DocumentState {
   elements: LayoutElement[];
   /** Bumped on every committed edit so subscribers can react without diffing arrays. */
   revision: number;
+  /**
+   * Bumped only when the whole document is replaced -- import, clear, restore from storage.
+   *
+   * `revision` cannot carry this signal because a replaced document resets it to 0, which looks to a
+   * subscriber exactly like an edit. History needs the two apart: an import is not the last edit of
+   * the document before it, and without this the outgoing drawing lands on the undo stack.
+   */
+  generation: number;
 }
 
 interface DocumentActions {
@@ -69,7 +77,7 @@ export type DocumentStore = DocumentState & DocumentActions;
  */
 export function createElementDefaults(
   id: string,
-  rect: { x: number; y: number; width: number; height: number },
+  rect: { x: number; y: number; width: number; height: number; stamp?: boolean },
 ): LayoutElement {
   return {
     id,
@@ -83,7 +91,7 @@ export function createElementDefaults(
     note: null,
     locked: false,
     visible: true,
-    stamp: false,
+    stamp: rect.stamp ?? false,
   };
 }
 
@@ -122,6 +130,7 @@ const initialState = (): DocumentState => {
     canvas: { ...DEFAULT_CANVAS },
     elements: [],
     revision: 0,
+    generation: 0,
   };
 };
 
@@ -141,6 +150,9 @@ export function hydrateFromStorage(): void {
         canvas: parsed.canvas,
         elements: parsed.elements,
         revision: 0,
+        // Restoring a saved drawing replaces the blank one the page mounted with, so it is a
+        // document swap and not an edit. Without this the history stack would treat it as one.
+        generation: useDocumentStore.getState().generation + 1,
       });
     }
   } catch {
@@ -236,6 +248,7 @@ export const useDocumentStore = create<DocumentStore>((set, get) => ({
       canvas: document.canvas,
       elements: document.elements,
       revision: 0,
+      generation: get().generation + 1,
     };
     set(newState);
     saveToStorage(newState);
@@ -243,7 +256,11 @@ export const useDocumentStore = create<DocumentStore>((set, get) => ({
 
   resetDocument: (meta) => {
     const fresh = initialState();
-    const newState = { ...fresh, meta: { ...fresh.meta, ...meta } };
+    const newState = {
+      ...fresh,
+      meta: { ...fresh.meta, ...meta },
+      generation: get().generation + 1,
+    };
     set(newState);
     saveToStorage(newState);
   },
@@ -276,8 +293,7 @@ export const useDocumentStore = create<DocumentStore>((set, get) => ({
     })),
 }));
 
-/** Selectors kept here so components do not each write their own equality check. */
-export const selectElements = (state: DocumentStore): LayoutElement[] => state.elements;
+/** Selector kept here so components do not each write their own equality check. */
 export const selectElementById =
   (id: string | null) =>
   (state: DocumentStore): LayoutElement | undefined =>

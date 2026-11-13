@@ -87,37 +87,10 @@ export interface MoGongDocument {
   viewport: Viewport;
 }
 
-export type ProblemLevel = "info" | "warning" | "error";
-
-export type ProblemCode =
-  | "ELEMENT_OFF_CANVAS"
-  | "ELEMENT_TOO_SMALL"
-  | "DUPLICATE_GEOMETRY"
-  | "EMPTY_DOCUMENT"
-  | "PARTIAL_OVERLAP";
-
-export interface ValidationProblem {
-  code: ProblemCode;
-  level: ProblemLevel;
-  elements: string[];
-  message: string;
-}
-
-export interface ValidationResponse {
-  valid: boolean;
-  elementCount: number;
-  problems: ValidationProblem[];
-}
-
-export interface LayoutSummary {
-  id: string;
-  name: string;
-  elementCount: number;
-  canvasWidth: number;
-  canvasHeight: number;
-}
-
-export interface LayoutListResponse {
-  items: LayoutSummary[];
-  total: number;
-}
+/*
+ * The mirror used to continue here: the response shapes of `/api/compile/validate` and of the
+ * layout CRUD were typed because `lib/api.ts` carried a method for every route. Nothing in the
+ * editor calls either of them, and a type no module imports cannot drift from the server, so they
+ * are deleted rather than kept as a second copy of the contract. docs/json-schema.md is the
+ * contract; types/layout.ts mirrors the one route the editor does call.
+ */

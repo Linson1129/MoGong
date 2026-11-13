@@ -3,39 +3,211 @@
 /* Tailwind v4: class-based dark mode (toggled via .dark on <html>) */
 @custom-variant dark (&:is(.dark *));
 
+/*
+ * Design tokens.
+ *
+ * Three families live here, and each one answers a specific complaint about the old styling:
+ *
+ * 1. Surfaces and ink: the workbench, the glass panes that float over it, and one ink ladder.
+ * 2. Typography: the body rule used to hard-code Arial, which has no CJK glyphs at all, so every
+ *    Chinese label was silently falling back to whatever the OS felt like. The stack now names the
+ *    intent -- a grotesque for prose, a tabular monospace for every measurement.
+ * 3. Radius and elevation scales exported to Tailwind through @theme, so chrome stops inventing its
+ *    own rounding component by component. Six radii became three, and shadows became one: only
+ *    things that actually float are allowed to cast one.
+ *
+ * Nothing here touches what the compiler emits. These are display channels only.
+ */
 :root {
   color-scheme: light;
-  --background: #ffffff;
-  --foreground: #171717;
-  --canvas-bg: #E8EDF4;
-  --canvas-frame: #94A3B8;
-  --canvas-tick: #94A3B8;
-  --canvas-label: #64748B;
-  --note-color: #334155;
-  --hover-dim-color: #64748B;
+
+  /* Workbench neutrals. Four grades, and the distance between two adjacent grades is what the
+     interface is made of: the desk is the darkest of the light tones, the panels sit a clear step
+     above it, and a field is pure white on a panel that is not -- a white field on a white panel is
+     a field whose edges the user has to guess at. One ink ladder and one hairline ladder replace the
+     eleven slate shades the components used to name by hand. */
+  --background: #EDEEF1;
+  --surface: #F0F2F5;
+  --surface-sunken: #E2E5EA;
+  --surface-raised: #FFFFFF;
+
+  /* Ink rungs are set by contrast, not by taste. Every rung the interface puts words with clears
+     4.5:1 against the chrome it actually sits on, which is why --ink-faint is a mid grey rather than
+     the near-white the old slate-400 was: the status bar hint and the sidebar group labels are
+     incidental, but they are still meant to be read. */
+  --ink: #1C1E21;
+  --ink-secondary: #45484E;
+  --ink-muted: #565A61;
+  --ink-faint: #6A6F75;
+
+  --hairline: #CDD1D5;
+  /* The strong hairline is the outline of a control: a field and a colour swatch are separated from
+     their panel by this line and almost nothing else, so it has to reach about 2.5:1 against both.
+     The two whites differ by 1.12:1, which is not a boundary anyone can see. */
+  --hairline-strong: #9EA4AC;
+
+  /* One accent, used for anything the tool is asserting: selection, focus, the active segment. Its
+     hover state is an opacity change rather than a second blue, so there is exactly one blue to
+     learn. `--seal` is a maker's mark and appears once, on the wordmark; anywhere else it would be a
+     second accent competing with the first. */
+  --accent: #0064DC;
+  --accent-ink: #FFFFFF;
+  --accent-wash: rgba(0, 100, 220, 0.10);
+  --seal: #B8442B;
+
+  /* One danger colour, for the two things that destroy work: delete and the failed export. It is not
+     a fourth surface tone, so it gets the same ladder treatment as the accent. */
+  --danger: #C4342B;
+  --danger-wash: rgba(196, 52, 43, 0.10);
+
+  /* Liquid glass, in two grades. A menu or the note panel is transient -- it should read as a pane
+     of glass in front of the drawing, so it stays translucent and saturates what is behind it. A
+     dialog is something the user reads for a minute, so it gets --glass-body: the same material with
+     almost nothing showing through. The rim is neither white nor black by theme: it is whichever
+     polarity contrasts with the surface the pane is lying on, because a rim the colour of the paper
+     under it is not a rim. */
+  --glass-tint: rgba(243, 245, 248, 0.80);
+  --glass-body: rgba(250, 251, 252, 0.95);
+  --glass-rim: rgba(28, 30, 33, 0.30);
+  --glass-saturate: 170%;
+
+  /* Canvas: the desk the sheet rests on, and the sheet's own edge. The desk sits a full step darker
+     than the sheet on purpose -- a drawing that floats on a surface of the same grey is a drawing
+     whose edges the user has to guess at. The frame is darker still, because a border 1.4:1 from the
+     desk it is drawn on is a border describing a sheet nobody can locate. */
+  --canvas-bg: #D9DDE3;
+  --canvas-frame: #8C929B;
+
+  /* Note ink deliberately does NOT have a .dark counterpart. It is written on top of a region's own
+     fill, and fills are document data: the palette is pastel, so those blocks are light in both
+     themes and a light ink on them is 1.0-1.9:1 -- invisible, whatever the theme switch is doing. Black
+     is the only ink that reads on them (9-21:1, worst case #64748B at 4.41), which is why it is declared
+     once here and left out of .dark. */
+  --note-color: #000000;
+
+  /* The dim behind a modal. It is a token because the value is not the same in both themes: over a
+     light desk 42% reads as depth, while over a graphite one it reads as nothing at all. */
+  --scrim: rgba(20, 22, 26, 0.42);
+
+  /* Selection chrome drawn on the sheet. rectangle.tsx and svg-canvas.tsx kept their own hex copies
+     of these, which is how a second palette survived the first token migration. */
+  --select: #0064DC;
+  --handle-fill: #FFFFFF;
+  --sheet-shadow-color: #1C1E21;
+
+  /* Geist carries Latin; the CJK names are what Arial never supplied. */
+  --font-ui: var(--font-geist-sans), ui-sans-serif, -apple-system, "Segoe UI", "PingFang SC",
+    "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans CJK SC", sans-serif;
+  --font-num: var(--font-geist-mono), ui-monospace, SFMono-Regular, Menlo, monospace;
+  /* One serif, one place: the wordmark. A signature belongs to the product the way a maker's mark
+     belongs to a plane -- anywhere else on screen it just looks like a different font broke. */
+  --font-mark: "Songti SC", "STSong", "Noto Serif CJK SC", "Source Han Serif SC", serif;
 }
 
 .dark {
   color-scheme: dark;
-  --background: #0f172a;
-  --foreground: #e2e8f0;
-  --canvas-bg: #1E293B;
-  --canvas-frame: #475569;
-  --canvas-tick: #64748B;
-  --canvas-label: #94A3B8;
-  --note-color: #CBD5E1;
-  --hover-dim-color: #94A3B8;
+
+  /* The dark theme is the same architecture with the lamps on: neutral graphite rather than the
+     blue-black that slate 900 gives, because a workbench tinted blue reads as a screen rather than
+     as a surface. */
+  --background: #1A1B1D;
+  --surface: #232528;
+  --surface-sunken: #17181A;
+  --surface-raised: #2B2E32;
+
+  --ink: #E6E8EB;
+  --ink-secondary: #B9BEC6;
+  --ink-muted: #969CA4;
+  --ink-faint: #8B9199;
+
+  --hairline: #3D4046;
+  --hairline-strong: #565B63;
+
+  --accent: #4DA3FF;
+  --accent-ink: #0B0D10;
+  --accent-wash: rgba(77, 163, 255, 0.16);
+  --seal: #E0674A;
+  --danger: #FF6B5E;
+  --danger-wash: rgba(255, 107, 94, 0.16);
+
+  /* A pane the colour of the desk is a pane nobody can find, and in the dark theme the desk is very
+     nearly black, so the glass has to be lifted a full step above it rather than tinted downwards
+     the way the light theme's is. */
+  --glass-tint: rgba(52, 55, 61, 0.74);
+  --glass-body: rgba(58, 61, 67, 0.95);
+  --glass-rim: rgba(255, 255, 255, 0.22);
+  --glass-saturate: 150%;
+
+  --scrim: rgba(0, 0, 0, 0.60);
+
+  --canvas-bg: #100F0E;
+  --canvas-frame: #4A4E55;
+
+  --select: #4DA3FF;
+  --handle-fill: #232528;
+  --sheet-shadow-color: #000000;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  /* --background and --font-sans are consumed by the body rule and by Tailwind's own default font
+     rather than by a utility, so they have no `bg-`/`font-` class to point at; every other entry here
+     exists because some component names it. */
+  --color-surface: var(--surface);
+  --color-surface-sunken: var(--surface-sunken);
+  --color-surface-raised: var(--surface-raised);
+  --color-ink: var(--ink);
+  --color-ink-secondary: var(--ink-secondary);
+  --color-ink-muted: var(--ink-muted);
+  --color-ink-faint: var(--ink-faint);
+  --color-hairline: var(--hairline);
+  --color-hairline-strong: var(--hairline-strong);
+  --color-accent: var(--accent);
+  --color-accent-ink: var(--accent-ink);
+  --color-accent-wash: var(--accent-wash);
+  --color-seal: var(--seal);
+  --color-danger: var(--danger);
+  --color-danger-wash: var(--danger-wash);
+  --color-glass-tint: var(--glass-tint);
+  --color-glass-body: var(--glass-body);
+  --color-glass-rim: var(--glass-rim);
+  --color-scrim: var(--scrim);
+  --font-sans: var(--font-ui);
+  --font-mono: var(--font-num);
+
+  /* Radii are decided by what the surface is. Controls are capsules -- the rounding is the material
+     rather than a decoration, and every control is one tap wide. A capsule only works on something
+     one line tall, so --radius-field rounds the multi-line note box as a rectangle with soft corners
+     instead: a stadium around three rows of text reads as a lens. Glass panes keep a smaller radius,
+     because a 999px corner on a tall panel reads as a lens instead of as a pane. */
+  --radius-control: 999px;
+  --radius-field: 12px;
+  --radius-overlay: 22px;
+
+  /* Glass has thickness, so the shadow under it is deeper and softer than the flat drop it replaced.
+     Still reserved for things that genuinely float over the drawing -- menus, the note panel, the
+     dialog. Docked chrome is furniture and gets a hairline border instead, because a shadow on
+     something bolted to the window edge is a lie about depth. */
+  --shadow-overlay: 0 24px 60px -20px rgb(12 14 18 / 0.38), 0 2px 10px -4px rgb(12 14 18 / 0.22);
+
+  /* Declared once here rather than in :root: this block is the only place the blur radius is
+     written, and Tailwind turns it into backdrop-blur-glass. The saturation is not a Tailwind theme
+     entry -- it is a filter amount, not a colour -- so panes consume it as backdrop-saturate-(...). */
+  --blur-glass: 22px;
 }
 
 body {
   background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  color: var(--ink);
+  font-family: var(--font-ui);
+}
+
+/*
+ * Every measurement in this product changes while the user drags -- the zoom percentage, the
+ * cursor position, the selected rect's size. Proportional digits make those readouts jitter by a
+ * pixel as numbers roll over, which reads as the tool being unsure of what it measured. Tabular
+ * figures keep the width fixed, so only the value moves.
+ */
+.tabular {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum";
 }

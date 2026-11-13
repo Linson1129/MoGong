@@ -13,7 +13,6 @@ import { describe, expect, it } from "vitest";
 import {
   canvasToScreen,
   rectToScreen,
-  screenPixelInCanvasUnits,
   screenToCanvas,
   type CanvasOrigin,
   type ViewTransform,
@@ -121,15 +120,5 @@ describe("rectToScreen", () => {
       canvasToScreen({ x: rect.x, y: rect.y + rect.height }, origin, view).y,
       6,
     );
-  });
-});
-
-describe("screenPixelInCanvasUnits", () => {
-  it("grows as the view zooms out", () => {
-    // A one pixel hairline at 25% zoom has to become four canvas units, or the selection outline
-    // would disappear into the fill.
-    expect(screenPixelInCanvasUnits(0.25)).toBe(4);
-    expect(screenPixelInCanvasUnits(1)).toBe(1);
-    expect(screenPixelInCanvasUnits(4)).toBe(0.25);
   });
 });

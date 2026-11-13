@@ -51,25 +51,34 @@ All interactions are on the canvas unless stated otherwise.
 
 | Input | Action |
 |-------|--------|
-| Press and hold left button, then drag | Draw a new rectangle |
+| Press and drag anywhere on the sheet | Draw a new rectangle, immediately, with no hold duration |
 | Single left click | Select the element; opens the sidebar for attribute editing |
 | Double left click | Enter note editing for that element |
 | Right click | Open the property panel for the element, including edit and delete |
-| Left drag on a selected element | Move it |
+| Option (Mac) / Alt (Win) + left drag on an element | Move it -- the only way anything moves |
 | Left drag on a resize handle | Resize it |
 | Scroll wheel | Zoom the viewport, anchored at the cursor position |
+| Left drag that began off the sheet | Pan the viewport; nothing can be drawn outside the paper |
 | Hold middle button and drag | Pan the viewport |
 | Arrow keys | Pan the viewport |
 | Delete or Backspace | Delete the selected element |
 | Escape | Deselect |
 
-Long-press threshold: 180 ms of held button before the drag begins counting as a draw. Below
-the threshold the gesture is a click. This threshold is a named constant, not an inline number,
-so it can be retuned during usability testing.
+Motion threshold: `GESTURE.moveThresholdPx` **screen** pixels of travel -- the canvas-unit distance
+multiplied by the zoom. Below it a release is a click; above it the drag commits to whatever the press
+point implies: draw on the sheet, pan off it. It is a named constant, not an inline number, so it can be
+retuned during usability testing.
 
-The hold-to-draw gesture and the click-to-select gesture share the same physical input, so the
-timing boundary between them is the single most important interaction detail in the product.
-Getting it wrong makes the tool feel broken in a way no amount of visual polish fixes.
+The click-to-select and drag-to-draw gestures share the same physical input, so the boundary between
+them is the single most important interaction detail in the product. It used to be a duration (a 180 ms
+hold armed the draw, and a plain drag over a selected element moved it); it is now a distance, because
+moving stopped competing for the plain drag and a press on the sheet has exactly one meaning. Getting
+this boundary wrong makes the tool feel broken in a way no amount of visual polish fixes.
+
+The change is deliberate and costs something: the plain left drag no longer moves a region, so muscle
+memory from other canvas tools does not transfer, and the long-press ink that advertised the old
+threshold is gone with it. What it buys is that a rectangle starts appearing on the first qualifying
+move at every zoom level.
 
 The delete affordance exists twice on purpose: the keyboard shortcut for people who want speed,
 and a button inside the property panel for people who would not think to press a key. Redundant
@@ -100,7 +109,7 @@ loaded into MoGong must reproduce the drawing exactly.
 **Compiled spec** (`*.layout.json`) is the agent-facing artifact. Relative coordinates as a
 percentage of the parent, the nesting tree flattened of editor noise, plus the layout-mode
 inference that tells the agent whether a group of children should be a row, a column, or free
-positioned. This is what Cursor reads.
+positioned. This is what the consuming agent reads, and it reads it together with the Skill.
 
 Geometry is relative in the compiled output because "takes 40 percent of the header width"
 survives implementation, while "is 576 pixels wide" does not. The editor keeps absolute pixels
@@ -119,6 +128,9 @@ Full field-level definition in `docs/json-schema.md`.
 - Canvas interaction as specified in section 4
 - Parse and compile logic producing the agent-facing JSON
 - Nesting detection and the partial-overlap soft warning
+- The Skill that tells an agent how to act on that JSON. It moved from P2 because criterion 9 is now
+  stated about the pair: without it the artifact is a set of measurements with no instruction on what
+  to build from them
 
 ### P1 - Should ship
 
@@ -128,7 +140,6 @@ Full field-level definition in `docs/json-schema.md`.
 ### P2 - Nice to have
 
 - Interaction refinements found during testing
-- Package MoGong as a Skill
 
 ## 8. Acceptance Criteria
 
@@ -143,10 +154,19 @@ Captain's stated acceptance bar, restated as checks:
 7. Middle-drag and arrow keys both pan the viewport.
 8. Compiling a drawing yields JSON whose geometry, nesting, style, and notes match what is on
    screen - no dropped attribute, no invented relation, no coordinate drift.
-9. The same JSON, handed to Cursor, produces a frontend whose layout needs no correction round.
+9. The same JSON, handed to an agent that also has the MoGong Skill installed - the project Skill at
+   `.qoder/skills/mogong-layout/`, or a rules file for agents that offer no Skill mechanism - produces
+   a frontend whose layout needs no correction round.
 
 Criterion 9 is the one that decides whether the product works. Criteria 1 through 8 only prove
 the tool runs.
+
+What criterion 9 tests is the pair rather than the file. The artifact carries the measurements, the
+Skill carries what to do with them, and the compiler deliberately emits no prose to close that gap.
+The boundary is softer than the wording suggests: a Skill is selected by matching its description
+against the request, and that description quotes the artifact's own literals, so an agent handed the
+file tends to load the Skill without being told to. That makes those literals part of the contract -
+renaming `format` or the `*.layout.json` suffix can break discovery while every test still passes.
 
 ## 9. Constraints and Taboos
 
@@ -166,7 +186,7 @@ Tracked here so they are not silently forgotten.
 | Question | Status | Decision |
 |----------|----------|----------|
 | Nesting on partial overlap | Resolved | Soft warning, treated as siblings |
-| Which agent consumes the JSON | Resolved | Cursor first; per-agent skills later |
+| Which agent consumes the JSON | Resolved, then superseded | Was "Cursor first; per-agent skills later". The Skill shipped first and Cursor is still not wired; criterion 9 is now stated about JSON plus Skill |
 | Fixed or infinite canvas | Resolved | Fixed, web only |
 | Default canvas size | Proposed | 1440 x 900, overridable in settings |
 | Note length limit | Open | Proposed: none in editor, 500 chars in compiled output |

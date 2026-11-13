@@ -4,7 +4,7 @@
 # working directory and the right interpreter each time. The targets below are deliberately thin:
 # they change directory, run the command, and leave. Anything more elaborate belongs in a script.
 
-.PHONY: help dev test test-backend test-frontend lint lint-backend lint-frontend fixture smoke
+.PHONY: help dev test test-backend test-frontend lint lint-backend lint-frontend fixture smoke sites protect
 
 help:
 	@echo "Available targets:"
@@ -17,6 +17,8 @@ help:
 	@echo "  lint-frontend  run eslint on frontend/"
 	@echo "  fixture        regenerate fixtures/cases/geometry-truth-table.json"
 	@echo "  smoke          run the smoke test"
+	@echo "  sites          stage browser CPython, then build the static export in frontend/out"
+	@echo "  protect        apply main-branch protection (needs Pro or a public repo)"
 
 dev:
 	@scripts/dev.sh
@@ -43,3 +45,13 @@ fixture:
 
 smoke:
 	@scripts/smoke_test.sh
+
+# Ordering matters: Next copies public/ into out/ as it finds it, so the wasm tree staged here is
+# what ends up in the published bundle.
+sites:
+	@backend/.venv/bin/python scripts/stage_wasm.py
+	@backend/.venv/bin/python scripts/stage_skill.py
+	@cd frontend && NEXT_PUBLIC_MOGONG_TARGET=sites npm run build
+
+protect:
+	@scripts/setup_branch_protection.sh

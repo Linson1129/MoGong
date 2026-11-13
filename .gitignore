@@ -35,3 +35,17 @@ backend/mogong_backend.egg-info/
 # Environment
 .env
 .env.local
+
+# Qoder Sites descriptor.
+#
+# It records this machine's project/site/action bindings for one directory and is rewritten by
+# every publication. It describes a registration, not the project, so it stays local.
+*.qoder.site
+
+# Drawings and compile artefacts.
+#
+# These are the user's data, not the project's source. A layout file records whatever that person
+# happened to draw, including the notes on it, so tracking them would publish private work through
+# a public repository. The directories are recreated on startup by Settings.ensure_directories(),
+# which is why nothing needs a .gitkeep here.
+data/

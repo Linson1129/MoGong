@@ -6,6 +6,11 @@
  * 按回车确认输入法时会意外保存并关闭编辑器。
  *
  * 面板定位在元素旁边，不会遮挡元素，方便用户同时查看备注和元素。
+ *
+ * 定位用 fixed：屏幕坐标来自 getBoundingClientRect（视口空间），而画布所在的 main 是 relative
+ * 且从工具栏下方开始，用 absolute 会整体偏移一个工具栏高度。
+ *
+ * 面板用浮层玻璃：备注是唯一会离开画布、单独书写的需求，它不需要保持区域颜色诚实。
  */
 
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -78,7 +83,7 @@ export function NoteEditor({ element, zoom, panX, panY, canvasRect, onSave, onCa
   return (
     <div
       ref={panelRef}
-      className="absolute z-50 w-64 rounded-lg border border-blue-300 bg-white p-3 shadow-lg dark:border-blue-600 dark:bg-slate-800"
+      className="fixed z-50 w-64 rounded-overlay border border-accent/45 bg-glass-tint p-3 shadow-overlay backdrop-blur-glass backdrop-saturate-(--glass-saturate)"
       style={{ left: screenX, top: screenY }}
       onKeyDown={handleKeyDown}
     >
@@ -86,7 +91,7 @@ export function NoteEditor({ element, zoom, panX, panY, canvasRect, onSave, onCa
         ref={textareaRef}
         value={value}
         onChange={(e) => setValue(e.target.value)}
-        className="w-full resize-none rounded border border-slate-300 bg-slate-50 px-2 py-1 text-sm text-slate-800 outline-none focus:border-blue-400 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-200 dark:focus:border-blue-400"
+        className="w-full resize-none rounded-field border border-hairline-strong bg-surface-raised/70 px-2 py-1 text-sm text-ink outline-none focus:border-accent"
         rows={3}
         placeholder="添加备注..."
       />
@@ -94,19 +99,19 @@ export function NoteEditor({ element, zoom, panX, panY, canvasRect, onSave, onCa
         <button
           type="button"
           onClick={handleSave}
-          className="flex-1 rounded bg-blue-500 px-2 py-1 text-xs font-medium text-white hover:bg-blue-600"
+          className="flex-1 rounded-control bg-accent px-2 py-1 text-xs font-medium text-accent-ink transition-opacity hover:opacity-90"
         >
           保存
         </button>
         <button
           type="button"
           onClick={onCancel}
-          className="flex-1 rounded bg-slate-200 px-2 py-1 text-xs font-medium text-slate-700 hover:bg-slate-300 dark:bg-slate-600 dark:text-slate-200 dark:hover:bg-slate-500"
+          className="flex-1 rounded-control px-2 py-1 text-xs font-medium text-ink-secondary hover:bg-ink/10"
         >
           取消
         </button>
       </div>
-      <p className="mt-1 text-[10px] text-slate-400 dark:text-slate-500">Ctrl+Enter 保存，Esc 取消</p>
+      <p className="mt-1.5 text-[10px] text-ink-muted">Ctrl+Enter 保存，Esc 取消</p>
     </div>
   );
 }

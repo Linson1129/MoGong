@@ -12,6 +12,9 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // The staged browser CPython (scripts/stage_wasm.py). Vendored, minified, regenerated on every
+    // `make sites`, and already gitignored -- 5,400 findings for two files nobody here edits.
+    "public/wasm/**",
   ]),
 ]);
 

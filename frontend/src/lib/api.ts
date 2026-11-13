@@ -6,11 +6,7 @@
  */
 
 import { API_BASE } from "./constants";
-import type {
-  LayoutListResponse,
-  MoGongDocument,
-  ValidationResponse,
-} from "@/types/document";
+import type { MoGongDocument } from "@/types/document";
 import type { LayoutDocument } from "@/types/layout";
 
 export class ApiError extends Error {
@@ -37,9 +33,10 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
       headers: { "Content-Type": "application/json", ...init?.headers },
     });
   } catch (cause) {
-    // A rejected fetch means the backend is not running, which is the single most common failure
-    // during development and deserves a message a reader can act on.
-    throw new ApiError(0, "Cannot reach the MoGong backend. Is it running on port 8100?", cause);
+    // A rejected fetch means the backend is not reachable, which is the single most common failure
+    // during development and deserves a message a reader can act on. The port is deliberately not
+    // named: it is configurable, and quoting one number here is how the message starts lying.
+    throw new ApiError(0, "Cannot reach the MoGong backend. Is the service running?", cause);
   }
 
   if (response.status === 204) return undefined as T;
@@ -81,31 +78,14 @@ function extractDetail(payload: unknown): string | null {
   return null;
 }
 
+/**
+ * The client used to carry one method per backend route -- health, the layout CRUD, validate --
+ * and none of them had a caller. The editor keeps its document in localStorage and downloads the
+ * compiled artifact itself, so the server is reached for exactly one thing, and a client that
+ * advertises routes nobody uses is a client that will be "obviously fine" to wire into something
+ * with no authentication behind it.
+ */
 export const api = {
-  health: () => request<{ status: string; service: string; version: string }>("/health"),
-
-  listLayouts: () => request<LayoutListResponse>("/layouts"),
-
-  getLayout: (id: string) => request<MoGongDocument>(`/layouts/${encodeURIComponent(id)}`),
-
-  createLayout: (document: MoGongDocument) =>
-    request<MoGongDocument>("/layouts", { method: "POST", body: JSON.stringify(document) }),
-
-  saveLayout: (document: MoGongDocument) =>
-    request<MoGongDocument>(
-      `/layouts/${encodeURIComponent(document.meta.id)}`,
-      { method: "PUT", body: JSON.stringify(document) },
-    ),
-
-  deleteLayout: (id: string) =>
-    request<void>(`/layouts/${encodeURIComponent(id)}`, { method: "DELETE" }),
-
-  validate: (document: MoGongDocument) =>
-    request<ValidationResponse>("/compile/validate", {
-      method: "POST",
-      body: JSON.stringify(document),
-    }),
-
   compile: (document: MoGongDocument) =>
     request<{ layout: LayoutDocument; writtenTo: string | null }>("/compile", {
       method: "POST",

@@ -36,22 +36,22 @@ export function HelpDialog({ onClose }: { onClose: () => void }) {
 
   return (
     <div
-      className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 p-4 backdrop-blur-sm"
+      className="fixed inset-0 z-[100] flex items-center justify-center bg-scrim p-4 backdrop-blur-sm"
       onClick={handleOverlayClick}
       role="dialog"
       aria-modal="true"
       aria-label="墨工使用教程"
     >
-      <div className="relative w-full max-w-lg rounded-xl border border-slate-200 bg-white shadow-2xl dark:border-slate-700 dark:bg-slate-900">
+      <div className="relative w-full max-w-lg rounded-overlay border border-glass-rim bg-glass-body shadow-overlay backdrop-blur-glass backdrop-saturate-(--glass-saturate)">
         {/* 标题栏 */}
-        <div className="flex items-center justify-between border-b border-slate-200 px-5 py-3 dark:border-slate-700">
-          <h2 className="text-sm font-semibold text-slate-800 dark:text-slate-100">
+        <div className="flex items-center justify-between border-b border-hairline px-5 py-3">
+          <h2 className="text-sm font-semibold text-ink">
             墨工使用教程
           </h2>
           <button
             type="button"
             onClick={onClose}
-            className="flex h-6 w-6 items-center justify-center rounded-full text-slate-400 hover:bg-slate-100 hover:text-slate-600 dark:hover:bg-slate-800 dark:hover:text-slate-300"
+            className="flex h-6 w-6 items-center justify-center rounded-control text-ink-faint hover:bg-ink/10 hover:text-ink-secondary"
             aria-label="关闭"
           >
             ✕
@@ -59,16 +59,16 @@ export function HelpDialog({ onClose }: { onClose: () => void }) {
         </div>
 
         {/* Tab 切换 */}
-        <div className="flex gap-1 border-b border-slate-200 px-5 pt-2 dark:border-slate-700">
+        <div className="flex gap-1 border-b border-hairline px-5 pb-2 pt-3">
           {TABS.map((t) => (
             <button
               key={t.id}
               type="button"
               onClick={() => setTab(t.id)}
-              className={`rounded-t px-3 py-1.5 text-xs font-medium transition-colors ${
+              className={`rounded-control px-3 py-1 text-xs font-medium transition-colors ${
                 tab === t.id
-                  ? "border border-b-white bg-white text-slate-800 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
-                  : "text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200"
+                  ? "bg-ink/10 text-ink"
+                  : "text-ink-muted hover:bg-ink/5 hover:text-ink-secondary"
               }`}
             >
               {t.label}
@@ -77,18 +77,18 @@ export function HelpDialog({ onClose }: { onClose: () => void }) {
         </div>
 
         {/* 内容区 */}
-        <div className="max-h-[60vh] overflow-y-auto px-5 py-4 text-xs leading-relaxed text-slate-700 dark:text-slate-300">
+        <div className="max-h-[60vh] overflow-y-auto px-5 py-4 text-xs leading-relaxed text-ink-secondary">
           {tab === "draw" && <DrawContent />}
           {tab === "keys" && <KeysContent />}
           {tab === "export" && <ExportContent />}
         </div>
 
         {/* 底部 */}
-        <div className="border-t border-slate-200 px-5 py-2.5 text-right dark:border-slate-700">
+        <div className="border-t border-hairline px-5 py-2.5 text-right">
           <button
             type="button"
             onClick={onClose}
-            className="rounded bg-slate-100 px-3 py-1 text-xs text-slate-600 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
+            className="rounded-control bg-ink/10 px-3 py-1 text-xs text-ink-secondary hover:bg-ink/20"
           >
             知道了
           </button>
@@ -106,11 +106,11 @@ function DrawContent() {
   return (
     <div className="space-y-3">
       <Section title="绘制区域">
-        <Row action="长按左键拖拽" desc="在画布空白处绘制矩形" />
-        <Row action="拖出 < 30×30" desc="自动成为圆形图标 (Stamp)" />
+        <Row action="纸面上拖拽" desc="绘制矩形，无需长按：超过 3 像素就开始出预览" />
+        <Row action="拖出 < 32×32" desc="自动成为圆形图章 (Stamp)" />
         <Row action="单击矩形" desc="选中该区域" />
-        <Row action="Option/Alt + 左键拖拽" desc="直接移动选中元素" />
-        <Row action="拖拽角点" desc="调整大小" />
+        <Row action="Option/Alt + 左键拖拽" desc="移动区域的唯一方式（普通拖拽现在只会画子区域）" />
+        <Row action="拖拽控制点" desc="调整大小（四角 + 四边中点，共 8 个）" />
         <Row action="Alt + 拖角点" desc="从中心对称缩放" />
         <Row action="双击矩形" desc="打开备注编辑器" />
         <Row action="右键矩形" desc="打开上下文菜单（置顶/置底/删除）" />
@@ -118,14 +118,15 @@ function DrawContent() {
 
       <Section title="画布导航">
         <Row action="滚轮" desc="以鼠标为锚点缩放" />
-        <Row action="中键拖拽" desc="平移画布" />
-        <Row action="方向键" desc="平移画布（Shift 加速 3×）" />
+        <Row action="纸面外拖拽" desc="平移画布；在纸上以外的地方画不出区域" />
+        <Row action="中键拖拽" desc="平移画布（在纸面上也有效）" />
+        <Row action="方向键" desc="平移画布一挡 40px（Shift 为 4×，即 160px）" />
         <Row action="单击百分比" desc="重置缩放为 100%" />
         <Row action="双击百分比" desc="输入自定义缩放值 (50-150%)" />
       </Section>
 
       <Section title="外观编辑">
-        <p className="text-slate-500 dark:text-slate-400">
+        <p className="text-ink-muted">
           选中区域后，右侧面板可编辑名称、填充色、边框样式（实线/虚线）、锁定和隐藏状态。
         </p>
       </Section>
@@ -154,7 +155,7 @@ function KeysContent() {
         <Row action="Escape" desc="关闭右键菜单 / 取消编辑" />
       </Section>
 
-      <p className="mt-2 rounded bg-slate-50 p-2 text-slate-500 dark:bg-slate-800 dark:text-slate-400">
+      <p className="mt-2 rounded bg-surface p-2 text-ink-muted">
         提示：所有快捷键在输入框聚焦时自动失效，不会干扰文字输入。
       </p>
     </div>
@@ -178,11 +179,11 @@ function ExportContent() {
       </Section>
 
       <Section title="喂给 Agent 的 Prompt 模板">
-        <blockquote className="rounded border border-slate-200 bg-slate-50 p-3 text-[11px] leading-relaxed dark:border-slate-700 dark:bg-slate-800">
-          <p className="mb-2 text-slate-600 dark:text-slate-300">
+        <blockquote className="rounded border border-hairline bg-surface p-3 text-[11px] leading-relaxed">
+          <p className="mb-2 text-ink-secondary">
             以下是一个可视化布局的编译输出，包含树状结构、百分比坐标、布局方向和语义角色。请根据这个 JSON 生成对应的 React + Tailwind 代码：
           </p>
-          <ul className="list-inside list-disc space-y-0.5 text-slate-500 dark:text-slate-400">
+          <ul className="list-inside list-disc space-y-0.5 text-ink-muted">
             <li>box 字段用百分比定位</li>
             <li>layout 决定 flex 方向 (row / column / stack)</li>
             <li>role 决定标签语义 (nav / main / footer)</li>
@@ -208,7 +209,7 @@ function ExportContent() {
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <div>
-      <h3 className="mb-1.5 text-[11px] font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+      <h3 className="mb-1.5 text-[11px] font-semibold uppercase tracking-wider text-ink-muted">
         {title}
       </h3>
       <div className="space-y-1">{children}</div>
@@ -219,10 +220,10 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 function Row({ action, desc }: { action: string; desc: string }) {
   return (
     <div className="flex gap-3">
-      <span className="shrink-0 rounded bg-slate-100 px-1.5 py-0.5 font-mono text-[10px] text-slate-700 dark:bg-slate-800 dark:text-slate-300">
+      <span className="shrink-0 rounded bg-surface-sunken px-1.5 py-0.5 font-mono text-[10px] text-ink-secondary">
         {action}
       </span>
-      <span className="text-slate-600 dark:text-slate-300">{desc}</span>
+      <span className="text-ink-secondary">{desc}</span>
     </div>
   );
 }
@@ -230,10 +231,10 @@ function Row({ action, desc }: { action: string; desc: string }) {
 function Step({ num, text }: { num: number; text: string }) {
   return (
     <div className="flex gap-2">
-      <span className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-blue-100 text-[9px] font-bold text-blue-700 dark:bg-blue-900/40 dark:text-blue-300">
+      <span className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-accent-wash text-[9px] font-bold text-accent">
         {num}
       </span>
-      <span className="text-slate-600 dark:text-slate-300">{text}</span>
+      <span className="text-ink-secondary">{text}</span>
     </div>
   );
 }

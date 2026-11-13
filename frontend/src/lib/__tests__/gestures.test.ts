@@ -1,77 +1,91 @@
 import { describe, expect, it } from "vitest";
 
 import { GESTURE } from "@/lib/constants";
-import { classifyPendingGesture, drawPreview } from "@/lib/gestures";
+import { classifyPendingGesture, drawPreview, isInsideSheet } from "@/lib/gestures";
 
 describe("classifyPendingGesture", () => {
-  it("returns still-pending when neither threshold has been crossed", () => {
-    const startedAt = 1000;
-    const now = startedAt + GESTURE.longPressMs / 2;
+  it("stays pending while the pointer has not travelled past the threshold", () => {
     const distance = GESTURE.moveThresholdPx / 2;
-    expect(classifyPendingGesture(startedAt, now, distance, false, null).kind).toBe("still-pending");
+    expect(classifyPendingGesture(distance, true, null).kind).toBe("still-pending");
   });
 
-  it("commits to draw when elapsed time exceeds long-press threshold", () => {
-    const startedAt = 1000;
-    const now = startedAt + GESTURE.longPressMs + 10;
-    const distance = 0;
-    expect(classifyPendingGesture(startedAt, now, distance, false, null).kind).toBe("commit-to-draw");
-  });
-
-  it("cancels to click when distance exceeds threshold over empty space", () => {
-    const startedAt = 1000;
-    const now = startedAt + GESTURE.longPressMs / 2;
+  it("commits to draw on the sheet the moment travel crosses the threshold, with no waiting", () => {
+    // The clause that used to gate this was `elapsed >= GESTURE.longPressMs`. Its removal is the whole
+    // point: a drag that began 5ms ago must already be drawing.
     const distance = GESTURE.moveThresholdPx + 1;
-    expect(classifyPendingGesture(startedAt, now, distance, false, null).kind).toBe("cancel-to-click");
+    expect(classifyPendingGesture(distance, true, null).kind).toBe("commit-to-draw");
   });
 
-  it("starts moving when distance exceeds threshold over a selected element", () => {
-    const startedAt = 1000;
-    const now = startedAt + GESTURE.longPressMs / 2;
+  it("never starts a draw from holding still, however long the hold", () => {
+    // A press held for a minute without travelling is still a click candidate, not an armed draw.
+    expect(classifyPendingGesture(0, true, null).kind).toBe("still-pending");
+  });
+
+  it("pans the view instead of drawing when the press started off the sheet", () => {
     const distance = GESTURE.moveThresholdPx + 1;
-    expect(classifyPendingGesture(startedAt, now, distance, true, null).kind).toBe("start-moving");
+    expect(classifyPendingGesture(distance, false, null).kind).toBe("start-panning");
   });
 
-  it("starts resizing when cursor is on a resize handle", () => {
-    const startedAt = 1000;
-    const now = startedAt + GESTURE.longPressMs / 2;
-    const distance = 0;
-    expect(classifyPendingGesture(startedAt, now, distance, true, "se").kind).toBe("start-resizing");
+  it("stays pending off the sheet under the threshold, so a desk click can still deselect", () => {
+    expect(classifyPendingGesture(GESTURE.moveThresholdPx / 2, false, null).kind).toBe("still-pending");
   });
 
-  it("prioritizes resize over move when handle is under cursor", () => {
-    const startedAt = 1000;
-    const now = startedAt + GESTURE.longPressMs / 2;
-    const distance = GESTURE.moveThresholdPx + 10;
-    expect(classifyPendingGesture(startedAt, now, distance, true, "nw").kind).toBe("start-resizing");
+  it("treats the threshold as exclusive: exactly three pixels is not yet motion", () => {
+    expect(classifyPendingGesture(GESTURE.moveThresholdPx, true, null).kind).toBe("still-pending");
+    expect(classifyPendingGesture(GESTURE.moveThresholdPx + 0.001, true, null).kind).toBe("commit-to-draw");
   });
 
-  it("prioritizes resize over draw when handle is under cursor", () => {
-    const startedAt = 1000;
-    const now = startedAt + GESTURE.longPressMs + 100;
-    const distance = 0;
-    expect(classifyPendingGesture(startedAt, now, distance, true, "ne").kind).toBe("start-resizing");
+  it("answers a handle before it answers motion", () => {
+    const onHandleFar = classifyPendingGesture(GESTURE.moveThresholdPx + 10, true, "se");
+    expect(onHandleFar.kind).toBe("start-resizing");
+    if (onHandleFar.kind === "start-resizing") expect(onHandleFar.handle).toBe("se");
+
+    const onHandleStill = classifyPendingGesture(0, false, "nw");
+    expect(onHandleStill.kind).toBe("start-resizing");
+    if (onHandleStill.kind === "start-resizing") expect(onHandleStill.handle).toBe("nw");
   });
 
-  it("commits to draw at exact threshold with no motion", () => {
-    const startedAt = 1000;
-    const now = startedAt + GESTURE.longPressMs;
-    const distance = 0;
-    expect(classifyPendingGesture(startedAt, now, distance, false, null).kind).toBe("commit-to-draw");
+  it("reads its distance as screen pixels, so the same drag decides the same way at any zoom", () => {
+    // The canvas-unit travel is converted to screen pixels by the caller. What the classifier sees is
+    // already physical: 22.5% zoom turns 3 canvas units into 0.675 pixels, and 400% turns one canvas
+    // unit into four. A hand that moves one canvas unit at 22.5% has barely twitched and must not draw;
+    // a hand that moves two canvas units at 400% has travelled eight pixels and must.
+    const twitchAtLowZoom = 3 * 0.225;
+    const dragAtHighZoom = 2 * 4;
+    expect(classifyPendingGesture(twitchAtLowZoom, true, null).kind).toBe("still-pending");
+    expect(classifyPendingGesture(dragAtHighZoom, true, null).kind).toBe("commit-to-draw");
   });
 
-  it("cancels at exact motion threshold over empty space even if time has passed", () => {
-    const startedAt = 1000;
-    const now = startedAt + GESTURE.longPressMs * 2;
-    const distance = GESTURE.moveThresholdPx + 0.1;
-    expect(classifyPendingGesture(startedAt, now, distance, false, null).kind).toBe("cancel-to-click");
+  it("keeps a draw started on the sheet a draw even if the pointer has travelled far", () => {
+    // Long travel used to be re-classified as a cancelled click once the clock ran out; there is no
+    // clock, so the only thing that can stop a draw is where the press began.
+    expect(classifyPendingGesture(4000, true, null).kind).toBe("commit-to-draw");
+  });
+});
+
+describe("isInsideSheet", () => {
+  const sheet = { width: 1440, height: 900 };
+
+  it("accepts the origin corner and interior points", () => {
+    expect(isInsideSheet(0, 0, sheet.width, sheet.height)).toBe(true);
+    expect(isInsideSheet(720, 450, sheet.width, sheet.height)).toBe(true);
   });
 
-  it("starts moving at exact motion threshold over selection even if time has passed", () => {
-    const startedAt = 1000;
-    const now = startedAt + GESTURE.longPressMs * 2;
-    const distance = GESTURE.moveThresholdPx + 0.1;
-    expect(classifyPendingGesture(startedAt, now, distance, true, null).kind).toBe("start-moving");
+  it("accepts the far edge itself, which is still the compiler's frame", () => {
+    expect(isInsideSheet(1440, 900, sheet.width, sheet.height)).toBe(true);
+  });
+
+  it("rejects off-canvas coordinates", () => {
+    expect(isInsideSheet(-1, 400, sheet.width, sheet.height)).toBe(false);
+    expect(isInsideSheet(400, -1, sheet.width, sheet.height)).toBe(false);
+    expect(isInsideSheet(1441, 400, sheet.width, sheet.height)).toBe(false);
+    expect(isInsideSheet(400, 901, sheet.width, sheet.height)).toBe(false);
+  });
+
+  it("rejects a point that is on screen but outside the paper at low zoom", () => {
+    // At 22.5% a viewport 1200 px wide shows 5333 canvas units, so most of what the user sees is desk.
+    const x = 1200 / 0.225;
+    expect(isInsideSheet(x, 100, sheet.width, sheet.height)).toBe(false);
   });
 });
 

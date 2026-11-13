@@ -13,7 +13,6 @@ import { DEFAULT_CANVAS, PALETTE } from "@/lib/constants";
 import {
   createElementDefaults,
   selectElementById,
-  selectElements,
   useDocumentStore,
 } from "@/stores/use-document-store";
 import type { LayoutElement, MoGongDocument } from "@/types/document";
@@ -98,7 +97,7 @@ describe("addElement", () => {
   it("appends in draw order, which is the render order", () => {
     store().addElement(element("a"));
     store().addElement(element("b"));
-    expect(selectElements(store()).map((item) => item.id)).toEqual(["a", "b"]);
+    expect(store().elements.map((item) => item.id)).toEqual(["a", "b"]);
   });
 
   it("refuses a duplicate id without touching the revision", () => {
@@ -186,7 +185,7 @@ describe("removeElement", () => {
     store().addElement(element("a"));
     store().addElement(element("b"));
     store().removeElement("a");
-    expect(selectElements(store()).map((item) => item.id)).toEqual(["b"]);
+    expect(store().elements.map((item) => item.id)).toEqual(["b"]);
   });
 
   it("is a no-op for an unknown id", () => {
@@ -209,12 +208,12 @@ describe("reorderElement", () => {
 
   it("moves to front without changing the relative order of the rest", () => {
     store().reorderElement("a", "front");
-    expect(selectElements(store()).map((item) => item.id)).toEqual(["b", "c", "a"]);
+    expect(store().elements.map((item) => item.id)).toEqual(["b", "c", "a"]);
   });
 
   it("moves to back", () => {
     store().reorderElement("c", "back");
-    expect(selectElements(store()).map((item) => item.id)).toEqual(["c", "a", "b"]);
+    expect(store().elements.map((item) => item.id)).toEqual(["c", "a", "b"]);
   });
 
   it("does not duplicate the element", () => {
@@ -224,7 +223,7 @@ describe("reorderElement", () => {
 
   it("ignores an unknown id", () => {
     store().reorderElement("nope", "front");
-    expect(selectElements(store()).map((item) => item.id)).toEqual(["a", "b", "c"]);
+    expect(store().elements.map((item) => item.id)).toEqual(["a", "b", "c"]);
   });
 });
 
@@ -243,7 +242,7 @@ describe("history snapshots", () => {
     const revision = store().revision;
 
     store().restoreSnapshot(snapshot);
-    expect(selectElements(store()).map((item) => item.id)).toEqual(["keep"]);
+    expect(store().elements.map((item) => item.id)).toEqual(["keep"]);
     expect(store().revision).toBe(revision + 1);
   });
 
@@ -263,7 +262,7 @@ describe("loadDocument", () => {
 
     store().loadDocument(documentWith([element("from-disk")]));
     expect(store().revision).toBe(0);
-    expect(selectElements(store()).map((item) => item.id)).toEqual(["from-disk"]);
+    expect(store().elements.map((item) => item.id)).toEqual(["from-disk"]);
     expect(store().meta.id).toBe("layout-test");
   });
 });

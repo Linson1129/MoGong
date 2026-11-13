@@ -20,11 +20,15 @@ cleanup() {
 }
 trap cleanup EXIT INT TERM
 
+# The 下载 Skill 包 button points at a file Next serves out of public/, so it has to exist before the
+# frontend does, in development as much as in `make sites`. Staging is deterministic and cheap.
+"$ROOT/backend/.venv/bin/python" "$ROOT/scripts/stage_skill.py"
+
 echo "Starting backend on :8100"
 (
     cd "$ROOT/backend"
     source .venv/bin/activate
-    exec uvicorn app.main:run --port 8100 --reload
+    exec uvicorn app.main:app --port 8100 --reload
 ) &
 BACKEND_PID=$!
 

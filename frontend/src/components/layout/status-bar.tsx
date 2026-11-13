@@ -16,22 +16,22 @@ export function StatusBar() {
   const selected = elements.find((element) => element.id === selectedId);
 
   return (
-    <footer className="flex h-8 shrink-0 items-center gap-4 border-t border-slate-200 bg-white px-4 text-xs text-slate-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-400">
-      <span className="font-mono" data-testid="cursor-readout">
+    <footer className="flex h-8 shrink-0 items-center gap-4 border-t border-hairline bg-surface px-4 text-xs text-ink-muted">
+      <span className="tabular font-mono" data-testid="cursor-readout">
         {cursor ? `x ${Math.round(cursor.x)}  y ${Math.round(cursor.y)}` : "x --  y --"}
       </span>
 
       {selected && (
-        <span className="font-mono text-slate-700 dark:text-slate-300">
+        <span className="tabular font-mono text-ink-secondary">
           {selected.name || selected.id}: {Math.round(selected.width)} ×{" "}
           {Math.round(selected.height)} at ({Math.round(selected.x)}, {Math.round(selected.y)})
         </span>
       )}
 
-      <span className="ml-auto text-slate-400 dark:text-slate-500">
+      <span className="ml-auto text-ink-faint">
         {selected
-          ? "拖拽角点调整大小 · 按住 Alt 拖拽从中心缩放"
-          : "长按左键绘制区域 · 双击编辑备注 · Delete 删除"}
+          ? "拖拽角点调整大小 · Alt 拖角点从中心缩放 · Alt 拖拽移动区域"
+          : "纸面上拖拽绘制 · 纸面外拖拽平移视角 · 双击编辑备注 · Delete 删除"}
       </span>
     </footer>
   );

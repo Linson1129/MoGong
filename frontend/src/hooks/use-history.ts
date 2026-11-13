@@ -9,6 +9,7 @@
 import { useEffect } from "react";
 
 import { useHistoryStore, initHistorySubscription } from "@/stores/use-history-store";
+import { useInteractionStore } from "@/stores/use-interaction-store";
 
 export function useHistory() {
   useEffect(() => {
@@ -47,6 +48,3 @@ export function useHistory() {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, []);
 }
-
-// Import the interaction store to check note editing state.
-import { useInteractionStore } from "@/stores/use-interaction-store";

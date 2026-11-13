@@ -45,6 +45,7 @@ class CompileResponse(CamelModel):
     model_config = ConfigDict(extra="forbid")
 
     layout: LayoutDocument
+    # Filename under the server's configured compiled directory, not a path. See compile_layout.
     written_to: str | None = None
 
 
@@ -61,8 +62,13 @@ def _to_view(problem: Problem) -> ProblemView:
 def validate_document(document: MoGongDocument) -> ValidationResponse:
     """Pre-flight check on a drawing. Writes nothing.
 
-    The editor calls this live so an ambiguous drawing is surfaced while the user can still fix
-    it, rather than after the agent has already built the wrong page.
+    Nothing in the shipped editor calls this: the drawing lives in localStorage and is compiled on
+    export, so the problems a drawing carries reach the user inside the artifact's warnings rather
+    than as a live readout. The route is kept because the smoke test and any scripted check need a
+    way to ask the question without taking the write, and because a live readout is a frontend
+    feature waiting for a decision, not a decision already made. Saying "the editor calls this
+    live" here would have been a docstring describing an unbuilt feature, which is how a missing
+    screen survives every review that reads it.
     """
     problems = check_document(document)
     # Only findings at WARNING or above make a drawing unsafe to hand to an agent; INFO is
@@ -96,4 +102,8 @@ def compile_layout(
         ) from exc
 
     path = repository.save_compiled(document.meta.id, layout.model_dump(mode="json"), compiled_dir)
-    return CompileResponse(layout=layout, written_to=str(path))
+    # The name, never `str(path)`. A full path leaks where the application lives on its host, and
+    # the toolbar echoes this value straight back to whoever is watching. On a shared deployment
+    # that is a disclosure with no reader benefit, because the contract already fixes the location:
+    # `{id}.layout.json` inside the compiled directory the docs name.
+    return CompileResponse(layout=layout, written_to=path.name)

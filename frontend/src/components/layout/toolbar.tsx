@@ -1,27 +1,114 @@
 /**
- * 顶部工具栏：标识、画布尺寸、缩放、导出、连接状态。
+ * Top toolbar: identity, canvas readout, status, and the file/zoom/theme controls.
  *
- * 缩放控制以按钮形式提供，而非仅依赖滚轮手势，便于无鼠标操作。
+ * The bar is furniture, not content. It is flat (a hairline and nothing else), its two readouts are
+ * monospaced and tabular so they never twitch while the drawing changes, and it holds exactly one
+ * filled surface: the compile action. Everything else that asks to be clicked — here, the skill
+ * package download — wears the accent as an outline and a word label, never as a fill.
  *
- * 缩放百分比按钮支持：
- * - 单击：重置为 100% 缩放
- * - 双击：打开自定义缩放输入框（50-150%）
+ * Zoom is offered as buttons rather than only as a wheel gesture, so the tool stays operable without
+ * a mouse. The percentage button does double duty:
+ * - click: reset to 100%
+ * - double click: open a custom zoom field (50-150%)
  *
- * 导出按钮：编译当前画布为 layout JSON 并下载。
+ * Icons are drawn as hairline paths, never as emoji. A pictograph stuck onto a measuring instrument
+ * reads as decoration, and the point of this product is that it measures.
  */
 
 import { useCallback, useRef, useState } from "react";
 
 import { HelpDialog } from "./help-dialog";
 import { exportLayout, copyLayoutToClipboard, clearAll, importFromJson, type ExportResult } from "@/lib/export";
-import { ZOOM } from "@/lib/constants";
+import { SKILL_PACKAGE_URL, ZOOM } from "@/lib/constants";
 import { useDocumentStore } from "@/stores/use-document-store";
 import { useThemeStore } from "@/stores/use-theme-store";
 import { useViewStore } from "@/stores/use-view-store";
 
-function clamp(zoom: number): number {
-  return Math.min(ZOOM.max, Math.max(ZOOM.min, zoom));
+/**
+ * A mark on the same 20-unit grid, stroked at the weight the rest of the chrome uses.
+ * `aria-hidden` because every icon sits inside a button that already carries a label.
+ */
+function Icon({ children }: { children: React.ReactNode }) {
+  return (
+    <svg
+      viewBox="0 0 20 20"
+      width="14"
+      height="14"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={1.4}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+      className="shrink-0"
+    >
+      {children}
+    </svg>
+  );
 }
+
+const IconMinus = () => (
+  <Icon>
+    <path d="M4.5 10h11" />
+  </Icon>
+);
+
+const IconPlus = () => (
+  <Icon>
+    <path d="M10 4.5v11M4.5 10h11" />
+  </Icon>
+);
+
+const IconSun = () => (
+  <Icon>
+    <circle cx="10" cy="10" r="3.2" />
+    <path d="M10 2.6v1.8M10 15.6v1.8M2.6 10h1.8M15.6 10h1.8M4.8 4.8l1.3 1.3M13.9 13.9l1.3 1.3M15.2 4.8l-1.3 1.3M6.1 13.9l-1.3 1.3" />
+  </Icon>
+);
+
+const IconMoon = () => (
+  <Icon>
+    <path d="M15.2 12.2A5.8 5.8 0 0 1 7.8 4.8 5.8 5.8 0 1 0 15.2 12.2Z" />
+  </Icon>
+);
+
+const IconExport = () => (
+  <Icon>
+    <path d="M10 3.5v8M6.8 8.7 10 11.9l3.2-3.2M4 14v2h12v-2" />
+  </Icon>
+);
+
+const IconPackage = () => (
+  <Icon>
+    <path d="M3.5 6.4 10 3.2l6.5 3.2v7.2L10 16.8l-6.5-3.2z" />
+    <path d="M3.5 6.4 10 9.6l6.5-3.2M10 9.6v7.2" />
+  </Icon>
+);
+
+const IconImport = () => (
+  <Icon>
+    <path d="M10 12.5v-8M6.8 7.3 10 4.1l3.2 3.2M4 14v2h12v-2" />
+  </Icon>
+);
+
+const IconClear = () => (
+  <Icon>
+    <path d="M4.5 6.5h11M8 6.5V4.8h4v1.7M6.3 6.5l.7 9h6l.7-9" />
+  </Icon>
+);
+
+const IconCopy = () => (
+  <Icon>
+    <rect x="7.5" y="7.5" width="8" height="8" rx="1.2" />
+    <path d="M4.5 12.5V5a.5.5 0 0 1 .5-.5h7.5" />
+  </Icon>
+);
+
+const IconCheck = () => (
+  <Icon>
+    <path d="M4.5 10.5 8 14l7.5-8" />
+  </Icon>
+);
 
 export function Toolbar() {
   const canvas = useDocumentStore((state) => state.canvas);
@@ -33,52 +120,53 @@ export function Toolbar() {
   const setZoom = useViewStore((state) => state.setZoom);
   const resetView = useViewStore((state) => state.resetView);
 
-  // 帮助弹窗状态
+  // Help dialog visibility.
   const [showHelp, setShowHelp] = useState(false);
 
-  // 自定义缩放输入框状态
+  // Custom zoom field.
   const [showZoomInput, setShowZoomInput] = useState(false);
   const [zoomInputValue, setZoomInputValue] = useState("");
 
-  // 导入/清除状态
+  // Import/clear.
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [confirmClear, setConfirmClear] = useState(false);
 
-  // 导出状态
+  // Export.
   const [exporting, setExporting] = useState(false);
   const [exportResult, setExportResult] = useState<ExportResult | null>(null);
   const [showCopyButton, setShowCopyButton] = useState(false);
 
+  // setZoom clamps to ZOOM.min/max itself, so the callers pass the raw factor.
   const step = (direction: 1 | -1) =>
-    setZoom(clamp(direction > 0 ? zoom * ZOOM.stepFactor : zoom / ZOOM.stepFactor));
+    setZoom(direction > 0 ? zoom * ZOOM.stepFactor : zoom / ZOOM.stepFactor);
 
-  // 单击重置为 100%
+  // Single click resets to 100%.
   const handleZoomClick = useCallback(() => {
     resetView();
   }, [resetView]);
 
-  // 双击打开自定义缩放输入框
-  const handleZoomDoubleClick = useCallback((event: React.MouseEvent) => {
-    event.preventDefault();
-    setShowZoomInput(true);
-    setZoomInputValue(Math.round(zoom * 100).toString());
-  }, [zoom]);
+  // Double click opens the custom zoom field.
+  const handleZoomDoubleClick = useCallback(
+    (event: React.MouseEvent) => {
+      event.preventDefault();
+      setShowZoomInput(true);
+      setZoomInputValue(Math.round(zoom * 100).toString());
+    },
+    [zoom],
+  );
 
-  // 提交自定义缩放值
   const handleZoomSubmit = useCallback(() => {
     const value = parseInt(zoomInputValue, 10);
     if (!isNaN(value) && value >= 50 && value <= 150) {
-      setZoom(clamp(value / 100));
+      setZoom(value / 100);
     }
     setShowZoomInput(false);
   }, [zoomInputValue, setZoom]);
 
-  // 取消自定义缩放输入
   const handleZoomCancel = useCallback(() => {
     setShowZoomInput(false);
   }, []);
 
-  // 导出处理
   const handleExport = useCallback(async () => {
     if (elementCount === 0) {
       setExportResult({ success: false, error: "画布为空，无法导出" });
@@ -94,12 +182,10 @@ export function Toolbar() {
 
     if (result.success) {
       setShowCopyButton(true);
-      // 3 秒后隐藏复制按钮
       setTimeout(() => setShowCopyButton(false), 5000);
     }
   }, [elementCount]);
 
-  // 复制到剪贴板
   const handleCopy = useCallback(async () => {
     if (exportResult?.layout) {
       const ok = await copyLayoutToClipboard(exportResult.layout);
@@ -109,7 +195,6 @@ export function Toolbar() {
     }
   }, [exportResult]);
 
-  // 清除全部
   const handleClear = useCallback(() => {
     if (!confirmClear) {
       setConfirmClear(true);
@@ -122,7 +207,6 @@ export function Toolbar() {
     setShowCopyButton(false);
   }, [confirmClear]);
 
-  // 导入 JSON
   const handleImport = useCallback(() => {
     fileInputRef.current?.click();
   }, []);
@@ -147,36 +231,57 @@ export function Toolbar() {
   }, []);
 
   return (
-    <header className="flex h-12 shrink-0 items-center gap-4 border-b border-slate-200 bg-white px-4 dark:border-slate-700 dark:bg-slate-900">
-      <div className="flex items-baseline gap-2">
-        <span className="text-sm font-semibold tracking-tight">墨工</span>
-        {/* 教程按钮 */}
-        <button
-          type="button"
-          onClick={() => setShowHelp(true)}
-          className="flex h-5 w-5 items-center justify-center rounded-full border border-slate-300 text-[10px] text-slate-500 hover:border-slate-400 hover:text-slate-700 dark:border-slate-600 dark:text-slate-400 dark:hover:border-slate-500 dark:hover:text-slate-200"
-          title="墨工使用教程"
-          aria-label="帮助"
+    <header className="flex h-12 shrink-0 items-center gap-3 border-b border-hairline bg-surface px-4">
+      <div className="flex items-center gap-1.5">
+        {/* The one serif on screen, in the one place a serif belongs: the maker's mark. */}
+        <span
+          className="text-sm font-semibold tracking-[0.12em] text-seal"
+          style={{ fontFamily: "var(--font-mark)" }}
         >
-          ?
-        </button>
+          墨工
+        </span>
+        <ToolbarButton label="墨工使用教程" onClick={() => setShowHelp(true)}>
+          <span className="font-mono text-[11px] leading-none">?</span>
+        </ToolbarButton>
       </div>
 
-      <div className="h-5 w-px bg-slate-200 dark:bg-slate-700" />
+      <Separator />
 
-      <span className="font-mono text-xs text-slate-600 dark:text-slate-400">
+      {/* Readouts. Tabular so the digits do not shift width as they change. */}
+      <span className="tabular font-mono text-xs text-ink-secondary">
         {Math.round(canvas.width)} × {Math.round(canvas.height)}
       </span>
-      <span className="text-xs text-slate-500 dark:text-slate-400">
+      <span className="tabular text-xs text-ink-muted">
         {elementCount} 个区域
       </span>
 
-      <div className="ml-auto flex items-center gap-1">
-        <ToolbarButton label="缩小" onClick={() => step(-1)}>
-          -
+      {/*
+        Status slot: always rendered, so a result message never nudges the controls sideways. The
+        controls moving under the cursor mid-click is the classic way a toolbar becomes annoying.
+      */}
+      <span aria-live="polite" className="flex min-w-0 flex-1 items-center justify-center gap-1">
+        {exportResult && (
+          <span
+            className={`tabular flex min-w-0 items-center gap-1 truncate text-xs ${
+              exportResult.success
+                ? "text-accent"
+                : "text-danger"
+            }`}
+          >
+            {exportResult.success && <IconCheck />}
+            {exportResult.success
+              ? exportResult.writtenTo || "已导出"
+              : exportResult.error}
+          </span>
+        )}
+      </span>
+
+      <div className="flex items-center gap-1">
+        <ToolbarButton label="缩小" onClick={() => step(-1)} disabled={zoom <= ZOOM.min}>
+          <IconMinus />
         </ToolbarButton>
 
-        {/* 缩放百分比：单击重置，双击打开自定义输入 */}
+        {/* Zoom percentage: single click resets, double click opens the custom field. */}
         {showZoomInput ? (
           <input
             type="number"
@@ -189,7 +294,7 @@ export function Toolbar() {
               if (e.key === "Escape") handleZoomCancel();
             }}
             onBlur={handleZoomSubmit}
-            className="w-14 rounded border border-blue-400 bg-white px-1 py-0.5 text-center font-mono text-xs text-slate-800 outline-none dark:bg-slate-800 dark:text-slate-200"
+            className="tabular w-14 rounded-control border border-accent bg-surface-raised px-1 py-0.5 text-center font-mono text-xs text-ink outline-none"
             autoFocus
           />
         ) : (
@@ -197,95 +302,80 @@ export function Toolbar() {
             type="button"
             onClick={handleZoomClick}
             onDoubleClick={handleZoomDoubleClick}
-            className="min-w-14 rounded px-2 py-1 font-mono text-xs text-slate-600 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800"
+            className="tabular min-w-14 rounded-control px-2 py-1 text-center font-mono text-xs text-ink-secondary hover:bg-surface-sunken"
             title="单击重置为 100%，双击输入自定义缩放"
           >
             {Math.round(zoom * 100)}%
           </button>
         )}
 
-        <ToolbarButton label="放大" onClick={() => step(1)}>
-          +
+        <ToolbarButton label="放大" onClick={() => step(1)} disabled={zoom >= ZOOM.max}>
+          <IconPlus />
         </ToolbarButton>
 
-        {/* 导出按钮 */}
-        <div className="mx-2 h-5 w-px bg-slate-200 dark:bg-slate-700" />
+        <Separator className="mx-1.5" />
 
+        {/* The single primary action: compile and download. */}
         <button
           type="button"
           onClick={handleExport}
           disabled={exporting || elementCount === 0}
-          className={`rounded px-3 py-1 text-xs transition-colors ${
+          className={`flex items-center gap-1.5 rounded-control px-2.5 py-1 text-xs transition-opacity ${
             exporting || elementCount === 0
-              ? "cursor-not-allowed text-slate-400 dark:text-slate-600"
-              : "text-emerald-600 hover:bg-emerald-50 dark:text-emerald-400 dark:hover:bg-emerald-900/30"
+              ? "cursor-not-allowed bg-surface-sunken text-ink-faint"
+              : "bg-accent text-accent-ink hover:opacity-90"
           }`}
           title={elementCount === 0 ? "请先绘制区域" : "编译并导出 layout.json"}
         >
-          {exporting ? "编译中..." : "导出"}
+          <IconExport />
+          {exporting ? "编译中…" : "导出"}
         </button>
 
-        {/* 导入按钮 */}
-        <button
-          type="button"
-          onClick={handleImport}
-          className="rounded px-2 py-1 text-xs text-blue-600 hover:bg-blue-50 dark:text-blue-400 dark:hover:bg-blue-900/30"
-          title="从 JSON 文件加载布局"
+        {/* The one secondary action worth pointing at: the full skill package, as a plain download
+            link. Accent outline and a word label keep it obvious without a second filled surface. */}
+        <a
+          href={SKILL_PACKAGE_URL}
+          download
+          className="flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-control border border-accent bg-accent-wash px-2.5 py-1 text-xs text-accent transition-opacity hover:opacity-80"
+          title="下载墨工排版 Skill 完整包（zip）"
         >
-          导入
-        </button>
+          <IconPackage />
+          下载 Skill 包
+        </a>
 
-        {/* 清除按钮 */}
-        <button
-          type="button"
-          onClick={handleClear}
-          className={`rounded px-2 py-1 text-xs transition-colors ${
-            confirmClear
-              ? "bg-red-50 text-red-600 font-medium dark:bg-red-900/30 dark:text-red-400"
-              : "text-slate-500 hover:bg-red-50 hover:text-red-500 dark:text-slate-400 dark:hover:bg-red-900/20 dark:hover:text-red-400"
-          }`}
-          title={confirmClear ? "再次点击确认清除" : "清除所有内容"}
-        >
-          {confirmClear ? "确认清除?" : "清除"}
-        </button>
-
-        {/* 导出成功后显示复制按钮 */}
         {showCopyButton && (
-          <button
-            type="button"
-            onClick={handleCopy}
-            className="rounded px-2 py-1 text-xs text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800"
-            title="复制 JSON 到剪贴板"
-          >
-            复制
-          </button>
+          <ToolbarButton label="复制 JSON 到剪贴板" onClick={handleCopy}>
+            <IconCopy />
+          </ToolbarButton>
         )}
+
+        <ToolbarButton label="从 JSON 文件加载布局" onClick={handleImport}>
+          <IconImport />
+        </ToolbarButton>
+
+        <ToolbarButton
+          label={confirmClear ? "再次点击确认清除" : "清除所有内容"}
+          onClick={handleClear}
+          danger={confirmClear}
+          wide={confirmClear}
+        >
+          <IconClear />
+          {/* The armed state still needs words: a red icon is a hint, "确认" is a question the user
+              has to answer. */}
+          {confirmClear && <span>确认</span>}
+        </ToolbarButton>
+
+        <Separator className="mx-1.5" />
+
+        <ToolbarButton
+          label={theme === "dark" ? "切换为浅色模式" : "切换为深色模式"}
+          onClick={toggleTheme}
+        >
+          {theme === "dark" ? <IconSun /> : <IconMoon />}
+        </ToolbarButton>
       </div>
 
-      {/* 导出状态提示 */}
-      {exportResult && (
-        <span
-          className={`text-xs ${
-            exportResult.success ? "text-emerald-600 dark:text-emerald-400" : "text-red-500 dark:text-red-400"
-          }`}
-        >
-          {exportResult.success
-            ? `✓ ${exportResult.writtenTo || "已导出"}`
-            : exportResult.error}
-        </span>
-      )}
-      {/* 主题切换按钮 */}
-      <button
-        type="button"
-        onClick={toggleTheme}
-        className="ml-1 flex h-7 w-7 items-center justify-center rounded text-sm hover:bg-slate-100 dark:hover:bg-slate-800"
-        title={theme === "dark" ? "切换为浅色模式" : "切换为深色模式"}
-        aria-label="切换主题"
-      >
-        {theme === "dark" ? "☀" : "🌙"}
-      </button>
-
-      {/* 隐藏的 file input，供导入使用 */}
+      {/* Hidden file input backing the import button. */}
       <input
         ref={fileInputRef}
         type="file"
@@ -295,28 +385,48 @@ export function Toolbar() {
         aria-hidden
       />
 
-      {/* 帮助弹窗 */}
       {showHelp && <HelpDialog onClose={() => setShowHelp(false)} />}
     </header>
   );
 }
 
+function Separator({ className = "" }: { className?: string }) {
+  return <span className={`h-5 w-px shrink-0 bg-hairline ${className}`} />;
+}
+
 function ToolbarButton({
   label,
   onClick,
+  disabled,
+  danger,
+  wide,
   children,
 }: {
   label: string;
   onClick: () => void;
+  disabled?: boolean;
+  /** The armed state of a destructive action, marked in the one red the interface is allowed. */
+  danger?: boolean;
+  /** Opens the button out to fit a label beside the mark. */
+  wide?: boolean;
   children: React.ReactNode;
 }) {
+  const state = disabled
+    ? "cursor-not-allowed text-ink-faint"
+    : danger
+      ? "bg-danger-wash text-danger"
+      : "text-ink-secondary hover:bg-surface-sunken";
+
   return (
     <button
       type="button"
       aria-label={label}
       title={label}
       onClick={onClick}
-      className="h-7 w-7 rounded text-sm text-slate-600 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800"
+      disabled={disabled}
+      className={`flex h-7 items-center justify-center gap-1.5 rounded-control px-1.5 text-xs transition-colors ${
+        wide ? "min-w-14" : "w-7"
+      } ${state}`}
     >
       {children}
     </button>

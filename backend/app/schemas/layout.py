@@ -1,6 +1,8 @@
 """Compiled format schema: the agent-facing artifact, ``*.layout.json``.
 
-Mirrors docs/json-schema.md section 2. This is what Cursor reads.
+Mirrors docs/json-schema.md section 2. This is what the consuming agent reads, paired with
+the mogong-layout Skill: the artifact carries the measurements, the Skill carries what to
+build from them.
 
 Two structural differences from the document format, both deliberate:
 

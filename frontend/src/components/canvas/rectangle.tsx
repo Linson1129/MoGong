@@ -18,22 +18,25 @@ import type { LayoutElement } from "@/types/document";
 interface RectangleProps {
   element: LayoutElement;
   selected: boolean;
-  hovered: boolean;
   /**
    * Current viewport scale.
    *
-   * Stroke widths for selection and hover are divided by this so they keep a constant *screen*
-   * thickness. A 1 px outline that scales with zoom becomes invisible at 20 percent and a loud box
-   * at 400 percent, and either way it stops being UI and starts being artwork.
+   * The selection outline is divided by this so it keeps a constant *screen* thickness. A 1 px
+   * outline that scales with zoom becomes invisible at 20 percent and a loud box at 400 percent,
+   * and either way it stops being UI and starts being artwork.
    */
   zoom: number;
-  /** Called when the element is double-clicked. Used to start note editing. */
-  onDoubleClick?: () => void;
 }
 
 /** Selection outline colour. Deliberately outside the user's palette so it always reads as chrome. */
-const SELECTION_COLOR = "#2563EB";
-const HOVER_COLOR = "#93C5FD";
+const SELECTION_COLOR = "var(--select)";
+
+/**
+ * The cursor over a region. It used to say `move`, which stopped being true the day moving became
+ * Alt+drag: a plain drag started on a region now draws a nested one, and a cursor promising motion
+ * sends the user somewhere the button no longer goes.
+ */
+const DRAG_CURSOR = "crosshair";
 
 function dashPattern(style: LayoutElement["border"]["style"], width: number): string | undefined {
   if (width <= 0) return undefined;
@@ -44,9 +47,7 @@ function dashPattern(style: LayoutElement["border"]["style"], width: number): st
 export const Rectangle = memo(function Rectangle({
   element,
   selected,
-  hovered,
   zoom,
-  onDoubleClick,
 }: RectangleProps) {
   if (!element.visible) return null;
 
@@ -67,9 +68,8 @@ export const Rectangle = memo(function Rectangle({
         data-element-id={element.id}
         style={{
           opacity: element.fill.opacity,
-          cursor: element.locked ? "not-allowed" : "move",
+          cursor: element.locked ? "not-allowed" : DRAG_CURSOR,
         }}
-        onDoubleClick={onDoubleClick}
       >
         {/* Tooltip: show name or note on hover. */}
         <title>{element.name || element.note || `Element ${element.id}`}</title>
@@ -108,18 +108,6 @@ export const Rectangle = memo(function Rectangle({
           </foreignObject>
         )}
 
-        {hovered && !selected && (
-          <circle
-            cx={cx}
-            cy={cy}
-            r={r + outlineWidth}
-            fill="none"
-            stroke={HOVER_COLOR}
-            strokeWidth={outlineWidth}
-            pointerEvents="none"
-          />
-        )}
-
         {selected && (
           <>
             <circle
@@ -140,7 +128,7 @@ export const Rectangle = memo(function Rectangle({
                 y={element.y + element.height * offset.fy - GESTURE.handleSizePx / zoom / 2}
                 width={GESTURE.handleSizePx / zoom}
                 height={GESTURE.handleSizePx / zoom}
-                fill="#FFFFFF"
+                fill="var(--handle-fill)"
                 stroke={SELECTION_COLOR}
                 strokeWidth={outlineWidth}
               />
@@ -157,9 +145,8 @@ export const Rectangle = memo(function Rectangle({
       data-element-id={element.id}
       style={{
         opacity: element.fill.opacity,
-        cursor: element.locked ? "not-allowed" : "move",
+        cursor: element.locked ? "not-allowed" : DRAG_CURSOR,
       }}
-      onDoubleClick={onDoubleClick}
     >
       {/* Tooltip: show name or note on hover. */}
       <title>{element.name || element.note || `Element ${element.id}`}</title>
@@ -201,32 +188,6 @@ export const Rectangle = memo(function Rectangle({
         </foreignObject>
       )}
 
-      {/* Hover dimensions: show width×height when hovering (but not selected). */}
-      {hovered && !selected && !element.note && (
-        <text
-          x={element.x + 6 / zoom}
-          y={element.y + 14 / zoom}
-          fill="var(--hover-dim-color)"
-          fontSize={10 / zoom}
-          pointerEvents="none"
-        >
-          {Math.round(element.width)}×{Math.round(element.height)}
-        </text>
-      )}
-
-      {hovered && !selected && (
-        <rect
-          x={element.x}
-          y={element.y}
-          width={element.width}
-          height={element.height}
-          fill="none"
-          stroke={HOVER_COLOR}
-          strokeWidth={outlineWidth}
-          pointerEvents="none"
-        />
-      )}
-
       {selected && (
         <>
           <rect
@@ -252,7 +213,7 @@ export const Rectangle = memo(function Rectangle({
               y={element.y + element.height * offset.fy - GESTURE.handleSizePx / zoom / 2}
               width={GESTURE.handleSizePx / zoom}
               height={GESTURE.handleSizePx / zoom}
-              fill="#FFFFFF"
+              fill="var(--handle-fill)"
               stroke={SELECTION_COLOR}
               strokeWidth={outlineWidth}
             />

@@ -189,32 +189,17 @@ def _merge_warnings(
     """Merge warnings from all pipeline stages into a single list."""
     merged: list[LayoutWarning] = []
 
-    for w in nesting:
-        merged.append(
-            LayoutWarning(
-                code=LayoutWarningCode(w["code"]),
-                elements=w["elements"],
-                message=w["message"],
+    # The three geometry stages emit the same dict shape, so they convert through one loop. Three
+    # copies of an identical conversion is how one of them ends up dropping a field.
+    for stage in (nesting, layout, spacing):
+        for w in stage:
+            merged.append(
+                LayoutWarning(
+                    code=LayoutWarningCode(w["code"]),
+                    elements=w["elements"],
+                    message=w["message"],
+                )
             )
-        )
-
-    for w in layout:
-        merged.append(
-            LayoutWarning(
-                code=LayoutWarningCode(w["code"]),
-                elements=w["elements"],
-                message=w["message"],
-            )
-        )
-
-    for w in spacing:
-        merged.append(
-            LayoutWarning(
-                code=LayoutWarningCode(w["code"]),
-                elements=w["elements"],
-                message=w["message"],
-            )
-        )
 
     # Completeness warnings are already LayoutWarning objects.
     merged.extend(completeness)

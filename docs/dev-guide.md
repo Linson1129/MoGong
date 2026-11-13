@@ -1,6 +1,6 @@
 # MoGong Development Guide
 
-Version: v0.1
+Version: v0.2
 Scope: how we work, what lands in a commit, how to run the project.
 
 ---
@@ -16,7 +16,13 @@ Scope: how we work, what lands in a commit, how to run the project.
 | Variable, function, class names | English |
 | Commit messages | English |
 | Branch names | English |
-| UI text shown to end users | English for MVP, with strings isolated for later translation |
+| UI text shown to end users | Chinese. The user is a Chinese-speaking backend developer who has to name a header and a sidebar without learning frontend vocabulary; an English canvas asks them to translate while they draw. |
+
+The UI row above used to read "English for MVP, with strings isolated for later translation". The
+product was built Chinese-first instead, by decisions made in the editor rather than in this file,
+and by M4 every visible string was Chinese. Restating the plan as if it were still open would leave
+a rule that every component in the repository violates, so the rule now describes the product. If
+Captain wants English UI, that is a spec change and a sweep, not a slip.
 
 The reason for English in code and filenames is tooling reliability, not preference. Mixed-language
 paths break on some filesystems and CI images, and non-English identifiers make search and
@@ -70,6 +76,14 @@ After each milestone, push and hand over for functional testing:
 
 | Checkpoint | Contents |
 |------------|----------|
+The numbering below is the original plan. What actually shipped, in the order it shipped, is the
+milestone table in `README.md`, where M3 is the property panel, M4 added export/import and theming,
+and M5 is the agent Skill rather than save-and-load. Save and load through `/api/layouts` is still
+unwired on the client - see `docs/architecture.md` section 4 - so do not treat any row here as a
+record of what exists.
+
+| Checkpoint | Contents |
+|------------|----------|
 | M1 | Architecture, scaffolding, docs - empty but running shell |
 | M2 | Canvas core: draw, select, move, resize, delete, undo |
 | M3 | Property panel: color, border, note, right-click edit |
@@ -87,10 +101,40 @@ genuinely catches real bugs, so it gets real coverage.
 
 ### What We Do Not Test Aggressively
 
-Canvas gesture handling. Automated interaction tests here mostly assert the browser's event model,
-and the thing that actually matters - whether a long-press feels right in the hand - cannot be
-asserted by any test. Captain's hands are the test. A `useState` mock that keeps a synthetic
-pointer event alive through a fake timer is expensive to write and expensive to keep honest.
+Canvas gesture handling, meaning the event stream. Automated interaction tests there mostly assert
+the browser's event model, and the thing that actually matters - whether a drag starts drawing when
+the hand expects it, and whether the sheet stops drawing where the paper stops - cannot be asserted by
+any test. Captain's hands are the test. A `useState` mock that keeps a synthetic pointer event alive
+through a fake timer is expensive to write and expensive to keep honest.
+
+The arbitration itself is a different case and does get tested:
+`frontend/src/lib/gestures.ts` decides from plain numbers (travel in screen pixels, whether the press
+landed on the sheet, what handle is under the cursor) and has no DOM to mock, so `gestures.test.ts`
+covers it directly. The rule of thumb is that a gesture is testable to exactly the depth that it is
+pure. Where a display feature reached the same numbers - the canvas readouts that used to live in
+`frontend/src/lib/annotations.ts` - it was tested that way too, against the compiler's own conversion.
+That layer is gone, and what is left of the
+shared geometry (`lib/geometry.ts`) keeps its unit tests plus the cross-language truth table.
+
+### Measuring What Only Feels Wrong
+
+Captain's hands decide *whether* a gesture is off; they cannot say what cost the frame, and both times
+this was reported the first answer was in the wrong place. Two measurements answer it without installing
+anything, from the browser console:
+
+- **Per-frame main-thread health.** Dispatch two `mousemove`s per `requestAnimationFrame` for sixty
+  frames along a real drag and record the rAF gaps plus any `longtask` entries. Gaps that stay at 17ms
+  mean the gesture code is not the bottleneck, and the search belongs in paint rather than in React.
+  This is what ruled out the state updates, and it also means a zero-lag DOM reading proves nothing: if
+  the preview attribute is always current but still arrives late on screen, the cost is rasterization.
+- **Raster cost of the static picture at the size it is really displayed.** Serialize the `<svg>`, load
+  it as an `Image`, then `drawImage` into a canvas sized by `devicePixelRatio` and read one pixel back to
+  force the flush. Rendering the same file with and without one effect isolates what that effect costs
+  per repaint. Run it at the real window size -- the sheet measured 4ms in a 692x506 automation window
+  and 19ms at 1512x982 retina, and only the second one is a blown frame budget.
+
+Both need a *visible* page. `requestAnimationFrame` does not run in a hidden tab, so a background
+automation window returns a healthy-looking nothing, which is the most misleading result there is.
 
 ### Test Layers
 
@@ -106,11 +150,17 @@ pointer event alive through a fake timer is expensive to write and expensive to 
 
 The shortest path proving the system still runs end to end, not a thorough check:
 
-1. Backend starts, `/api/health` returns 200.
-2. Frontend builds with no TypeScript error.
-3. A fixture document compiles to valid layout JSON.
-4. The output passes schema validation.
-5. Save and reload yields an identical document.
+What `make smoke` runs today, in order (`scripts/smoke_test.sh`):
+
+1. Backend starts on `$BACKEND_PORT`; `/api/health` must answer within 30 seconds.
+2. `pytest` - which covers compiling a fixture document to layout JSON, schema validation of the
+   output, and save/reload round-trips (`test_api.py`, `test_compiler_e2e.py`, `test_storage.py`).
+3. `vitest run`.
+4. `next build`, which is also the TypeScript check.
+
+The compile-path assertions are therefore inside step 2 rather than being separate HTTP calls: the
+smoke script proves the server boots and the whole suite passes, and the endpoint itself is exercised
+in-process by the API tests.
 
 Full regression sweeps between checkpoints are explicitly not wanted - they cost time without
 catching anything the smoke pass would miss.
@@ -125,18 +175,40 @@ catching anything the smoke pass would miss.
 - Named exports only; no default exports, so editors can find every import site.
 - Files use `kebab-case.ts` or `kebab-case.tsx`.
 - React components are named functions, not arrow-assigned constants.
-- Types shared across layers live in `src/types/`.
+- Types shared across layers live in `frontend/src/types/`.
 - Zustand store files are `use-x-store.ts`, and the hook they export is `useXStore`.
+
+### Styling
+
+Colour and shape have one owner, which is the rule this project learned twice:
+
+- Every colour is a semantic token declared in `frontend/src/app/globals.css`. Components name tokens
+  and nothing else: `bg-surface`, `text-ink-muted`, `border-hairline`, `bg-glass-tint`. No `slate-*`,
+  no `bg-white`, no hex, no `rgb()`.
+- No `dark:` variants anywhere in components. The `.dark` token block is what changes, so a component
+  carrying a `dark:` class is a component that knows about themes - which is how a theme stops being
+  editable.
+- Radius, blur and elevation are tokens too: `rounded-control` for one-line controls, `rounded-field`
+  for the multi-line note box, `rounded-overlay` for panes, `backdrop-blur-glass`,
+  `backdrop-saturate-(--glass-saturate)` and `shadow-overlay` for depth. Writing `rounded-[7px]` in a
+  component reinvents the scale one component at a time.
+- The one literal colour that is correct is the default `fill` and `border` of a new rectangle in
+  `svg-canvas.tsx`. That value is document data - it reaches the compiled artifact - not UI, so it
+  must not follow the theme.
+- The audit is a grep, not a test: `grep -rn 'slate-\|bg-white' frontend/src/components` and
+  `grep -rn 'dark:' frontend/src/components` should both print nothing. A test cannot catch this
+  failure mode, because a wrong colour still renders.
 
 ### Python
 
-- Python 3.13, all function signatures typed.
+- Python: the floor is 3.11 (`requires-python`), CI runs 3.11, dev boxes may run newer. All function
+  signatures typed.
 - Pydantic v2 models at every API boundary. Dataclasses inside the compiler, never in a signature.
 - Ruff for lint and format, line length 100.
 - `snake_case` files and functions, `PascalCase` classes.
-- The compiler is pure functions on immutable data: no I/O in `compiler.py`, `nesting.py`, or
-  `infer.py`. Every one of them is testable without a filesystem or a server, which is exactly why
-  the compiler is the part we can afford to test well.
+- The compiler is pure functions on immutable data: no I/O in `compiler.py`, `nesting.py`, `validate.py`,
+  or anything under `services/infer/`. Every one of them is testable without a filesystem or a server,
+  which is exactly why the compiler is the part we can afford to test well.
 - No global mutable state, including in tests.
 
 ### Geometry Rules
@@ -176,20 +248,32 @@ Bare TODOs accumulate and stop meaning anything.
 ## 6. Local Setup
 
 ```bash
-# One command, both services
-make dev
+make help            # every target, with its one-line purpose
+make dev             # both services: FastAPI :8100, Next.js :3000
 
-# Or individually
-make dev-backend     # FastAPI on 8100
-make dev-frontend    # Next.js on 3000
-make test            # pytest plus Vitest
-make smoke           # smoke test only
+make test            # test-backend then test-frontend
+make test-backend    # pytest
+make test-frontend   # vitest run
+make lint            # ruff (backend, plus scripts/) then typecheck and eslint (frontend)
+make smoke           # scripts/smoke_test.sh
+make fixture         # regenerate fixtures/cases/geometry-truth-table.json from the Python
 ```
+
+There are no `dev-backend` / `dev-frontend` targets; run the two processes by hand if that is what is
+wanted:
+
+```bash
+cd backend && source .venv/bin/activate && uvicorn app.main:app --port 8100 --reload
+cd frontend && npm run dev
+```
+
+Aim uvicorn at `app.main:app`. `app.main:run` imports cleanly and then ignores the `--port` you
+passed, because `run()` builds its own server from settings.
 
 First run needs:
 
 ```bash
-cd backend && python3.13 -m venv .venv && source .venv/bin/activate && pip install -e ".[dev]"
+cd backend && python3 -m venv .venv && source .venv/bin/activate && pip install -e ".[dev]"   # 3.11 or newer
 cd frontend && npm install
 ```
 
@@ -199,7 +283,9 @@ A feature is done when all of these hold:
 
 1. It satisfies the spec section it implements, or the spec has been updated first.
 2. No TypeScript errors, no Ruff errors.
-3. Compiler changes have a matching fixture in `fixtures/cases/`, on both sides of the mirror.
+3. Geometry changes are regenerated into `fixtures/cases/geometry-truth-table.json` (`make fixture`)
+   so both suites assert the same table; compiler semantic changes get a backend test naming the
+   rule they pin.
 4. Comments are English and explain why, not what.
 5. No emoji anywhere in the diff.
 6. A smoke test passes.

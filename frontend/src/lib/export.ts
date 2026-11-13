@@ -3,11 +3,12 @@
  *
  * 核心流程：
  * 1. 从 document store 获取当前文档状态
- * 2. 调用后端 /api/compile 编译
+ * 2. 编译（本地走后端 HTTP，静态站点走浏览器里的 CPython，见 lib/compile-engine.ts）
  * 3. 提供下载或复制到剪贴板
  */
 
-import { api, ApiError } from "@/lib/api";
+import { ApiError } from "@/lib/api";
+import { COMPILES_IN_BROWSER, CompileFailure, compileDocument as runCompiler } from "@/lib/compile-engine";
 import { DEFAULT_CANVAS } from "@/lib/constants";
 import { useDocumentStore } from "@/stores/use-document-store";
 import { useViewStore } from "@/stores/use-view-store";
@@ -24,7 +25,7 @@ export interface ExportResult {
 /**
  * 编译当前文档并返回结果。
  */
-export async function compileDocument(): Promise<ExportResult> {
+async function compileCurrentDocument(): Promise<ExportResult> {
   const docStore = useDocumentStore.getState();
   const viewStore = useViewStore.getState();
 
@@ -35,22 +36,32 @@ export async function compileDocument(): Promise<ExportResult> {
   });
 
   try {
-    const result = await api.compile(document);
+    const result = await runCompiler(document);
     return {
       success: true,
       layout: result.layout,
       writtenTo: result.writtenTo ?? undefined,
     };
   } catch (err) {
-    if (err instanceof ApiError) {
+    // Both transports put a readable sentence on the error: the server's flattened 422 detail, or the
+    // same wording produced in the browser by the same helper. Neither needs a translation here.
+    if (err instanceof ApiError || err instanceof CompileFailure) {
       return {
         success: false,
         error: err.message,
       };
     }
+    console.error("[mogong] unexpected compile failure", err);
     return {
       success: false,
-      error: "编译失败，请确保后端服务正在运行。",
+      // Which way to blame depends on which way the compiler is reached: a static build has no
+      // backend for the user to go and start, and telling them to look for one is a dead end.
+      // The error itself is logged because on a static build this branch means the shipped
+      // interpreter or its sources broke, and a visitor cannot tell us anything we do not have to
+      // reproduce ourselves. A PythonError reaches here unlabelled, and unlabelled is undebuggable.
+      error: COMPILES_IN_BROWSER
+        ? "编译失败：浏览器里的编译器没有响应，请刷新页面重试。"
+        : "编译失败，请确保后端服务正在运行。",
     };
   }
 }
@@ -58,7 +69,7 @@ export async function compileDocument(): Promise<ExportResult> {
 /**
  * 下载编译后的 layout JSON 文件。
  */
-export function downloadLayout(layout: LayoutDocument, fileName: string): void {
+function downloadLayout(layout: LayoutDocument, fileName: string): void {
   const json = JSON.stringify(layout, null, 2);
   const blob = new Blob([json], { type: "application/json" });
   const url = URL.createObjectURL(blob);
@@ -89,7 +100,7 @@ export async function copyLayoutToClipboard(layout: LayoutDocument): Promise<boo
  * 完整导出流程：编译 + 下载。
  */
 export async function exportLayout(): Promise<ExportResult> {
-  const result = await compileDocument();
+  const result = await compileCurrentDocument();
 
   if (result.success && result.layout) {
     const docStore = useDocumentStore.getState();
@@ -104,7 +115,7 @@ export async function exportLayout(): Promise<ExportResult> {
 // 导入 & 清除
 // ---------------------------------------------------------------------------
 
-export interface ImportResult {
+interface ImportResult {
   success: boolean;
   elementCount?: number;
   error?: string;
