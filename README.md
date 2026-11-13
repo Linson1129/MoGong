@@ -14,15 +14,12 @@ Try it online: <https://mogong-5cbrebyyovl.qoder.zone>
 
 ## What you get
 
-The same layout JSON, handed to an agent, can land as completely different design directions.
+The same layout JSON, handed to an agent, can land the same front layout.
 
-Dark direction:
 
-![Dark example](docs/images/example-dark.png)
+![folded example](docs/images/example-dark.png)
 
-Light direction:
-
-![Light example](docs/images/example-light.png)
+![unfolded example](docs/images/example-light.png)
 
 ## Usage
 
