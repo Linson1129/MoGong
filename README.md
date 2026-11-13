@@ -1,89 +1,113 @@
-# 墨工 (MoGong)
+# MoGong (墨工)
 
-**视觉意图编译器** — 在画布上画出布局，编译成 AI Agent 能精确执行的 JSON。
+**A visual intent compiler** — draw a layout on a canvas, compile it into JSON an AI agent can execute exactly.
 
-跟 AI 说「header 高一点、sidebar 占左边一小块」，它只能猜；在墨工里画出来，它就照着做。
-画矩形、写备注、调颜色和嵌套关系，点一下导出，得到一份描述布局关系的 `*.layout.json`。
+Tell an AI "make the header a bit taller, give the sidebar a small strip on the left" and it can only guess.
+Draw it in MoGong and it follows. Draw rectangles, annotate them, set colors and nesting, hit export, and you
+get a `*.layout.json` that describes the relationships in the layout.
 
-在线试用：<https://mogong-5cbrebyyovl.qoder.zone>
+Try it online: <https://mogong-5cbrebyyovl.qoder.zone>
 
-[![墨工编辑器](docs/images/editor.png)](https://mogong-5cbrebyyovl.qoder.zone)
+[English](README.md) | [简体中文](docs/README.zh-CN.md)
 
-## 效果
+[![The MoGong editor](docs/images/editor.png)](https://mogong-5cbrebyyovl.qoder.zone)
 
-同一份布局 JSON，交给 Agent 后可以落地成完全不同的设计方向：
+## What you get
 
-深色方向：
+The same layout JSON, handed to an agent, can land as completely different design directions.
 
-![深色示例](docs/images/example-dark.png)
+Dark direction:
 
-浅色方向：
+![Dark example](docs/images/example-dark.png)
 
-![浅色示例](docs/images/example-light.png)
+Light direction:
 
-## 怎么用
+![Light example](docs/images/example-light.png)
 
-1. 在画布上画矩形，给每块起个像人话的名字（「商品品类侧栏」而不是「矩形 3」），双击写备注
-2. 点工具栏「导出」，得到 `*.layout.json`
-3. 把 JSON 和 Skill 一起交给 Agent
+## Usage
 
-JSON 是**模具，不是成品**：它约束区域之间的关系——谁包含谁、先后顺序、各占多少比例、留了多少空隙；
-组件怎么拆分、用什么库、怎么配色，由你的 prompt 和 Agent 的设计判断决定。
+1. Draw rectangles on the canvas and give each one a name a human would use ("product category sidebar", not
+   "rectangle 3"); double-click to write a note
+2. Click **Export** in the toolbar to get `*.layout.json`
+3. Hand the JSON to an agent together with the Skill
 
-## 快速开始
+The JSON is a **mould, not a finished spec**: it constrains the relationships between regions — what contains
+what, what comes first, how much space each one takes, how much gap is left. How components are split, which
+library they use, and how they are colored is up to your prompt and the agent's design judgment.
+
+## Quick start
 
 ```bash
-make dev     # 后端 :8100 + 前端 :3000，打开 http://localhost:3000
-make sites   # 构建纯静态版（浏览器内 Pyodide 编译，无需后端）
-make test    # 前后端测试
-make help    # 全部目标
+make dev     # backend on :8100 + frontend on :3000, open http://localhost:3000
+make sites   # build the static version (compiles in the browser via Pyodide, no backend)
+make test    # frontend and backend tests
+make help    # every target
 ```
 
-环境要求：Python 3.11+、Node.js 20+。
+Requirements: Python 3.11+, Node.js 20+.
 
 ### Docker
 
 ```bash
 docker compose up --build
-# 打开 http://localhost:3000（后端 API 在 :8100）
+# open http://localhost:3000 (the backend API is on :8100)
 ```
 
-画布数据保存在名为 `mogong-data` 的卷里，`docker compose down` 不会删除；要连数据一起清掉用 `docker compose down -v`。
+Canvas data lives in a volume named `mogong-data`, which survives `docker compose down`; use
+`docker compose down -v` to drop the data as well.
 
-## Skill 包
+## Skill package
 
-- 下载：[GitHub Releases](https://github.com/Linson1129/MoGong/releases) 中的 `mogong-layout-skill-*.zip`，或编辑器工具栏的「下载 Skill 包」
-- 解压后把 `mogong-layout/` 放进客户端的 skills 目录；只吃 prompt 的客户端，把 `SKILL.md` 全文和 JSON 一起粘贴即可
-- 在 Qoder 中打开本项目，也可直接 `/mogong-layout` 调用
+- Download `mogong-layout-skill-*.zip` from [GitHub Releases](https://github.com/Linson1129/MoGong/releases),
+  or use **Download Skill package** in the editor toolbar
+- Unzip and drop `mogong-layout/` into your client's skills directory. Clients that only accept prompts can
+  take the full `SKILL.md` pasted alongside the JSON instead
+- Inside Qoder, opening this project also lets you invoke `/mogong-layout` directly
 
-## 项目结构
+## Contributing
+
+These are the things we haven't built yet, and they make good places to start:
+
+| Area | Where it stands |
+|------|-----------------|
+| Mobile layout | The editor is designed for a desktop mouse and keyboard; there is no usable path on narrow or touch screens |
+| Multiple windows | One document holds a single sheet — there is no way to compare canvases side by side or share a set of regions between them |
+| UI language switching | All copy is Chinese and written inline in components; there is no i18n layer yet |
+
+Anything else you spot is welcome too. The flow: fork, create a branch, run `make test` and `make lint`, then
+open a PR against `main`. Small, focused PRs are the easiest to review; if you want to align on a larger
+change first, open an issue.
+
+Note that the documents under [`docs/`](docs) are written in Chinese.
+
+## Project structure
 
 ```
 mo-gong/
-├── frontend/                  # Next.js 编辑器（画布、面板、导出）
+├── frontend/                  # Next.js editor (canvas, panels, export)
 │   └── src/
 │       ├── components/        # canvas / layout / panel
-│       ├── lib/               # 几何、手势、编译引擎、导出
-│       └── stores/            # Zustand：文档、视图、交互、主题、历史
-├── backend/                   # FastAPI + Pydantic，编译器本体（仅 Python 一份实现）
+│       ├── lib/               # geometry, gestures, compile engine, export
+│       └── stores/            # Zustand: document, view, interaction, theme, history
+├── backend/                   # FastAPI + Pydantic, the compiler itself (one Python implementation)
 │   └── app/
 │       ├── routers/           # compile / validate / layouts
-│       └── services/          # 嵌套、布局/角色/间距推断、校验
+│       └── services/          # nesting, layout/role/spacing inference, validation
 ├── .qoder/skills/
-│   └── mogong-layout/         # 把编译产物交给 Agent 的 Skill
+│   └── mogong-layout/         # the Skill that hands compiled output to an agent
 ├── docs/                      # spec / architecture / json-schema / dev-guide
-├── fixtures/cases/            # 前后端共享的几何真值表
-└── scripts/                   # dev / smoke / 打包脚本
+├── fixtures/cases/            # geometry truth tables shared by frontend and backend
+└── scripts/                   # dev / smoke / packaging scripts
 ```
 
-## 技术栈
+## Tech stack
 
-| 层 | 选型 |
-|----|------|
-| 前端 | Next.js 16 + React 19 + Zustand + Tailwind CSS 4 + SVG |
-| 后端 | Python 3.12 + FastAPI + Pydantic v2 |
-| 浏览器编译 | Pyodide（同一份 Python 编译器在 WASM 里运行） |
-| 测试 | Vitest（前端）+ pytest（后端） |
+| Layer | Choice |
+|-------|--------|
+| Frontend | Next.js 16 + React 19 + Zustand + Tailwind CSS 4 + SVG |
+| Backend | Python 3.12 + FastAPI + Pydantic v2 |
+| In-browser compile | Pyodide (the same Python compiler, running in WASM) |
+| Tests | Vitest (frontend) + pytest (backend) |
 
 ## License
 
